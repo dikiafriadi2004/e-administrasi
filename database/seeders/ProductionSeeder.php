@@ -56,6 +56,7 @@ class ProductionSeeder extends Seeder
         \Illuminate\Support\Facades\Artisan::call('surat:buat-template', ['jenis' => 'semua']);
         $this->command->info('✓ Template surat berhasil digenerate.');
         
+        
         $this->command->newLine();
         $this->command->warn('  → Segera ganti password lewat halaman Profil!');
         $this->command->warn('  → Isi Pengaturan (nama prodi, kaprodi, dll) lewat menu Pengaturan.');
