@@ -1,4 +1,4 @@
-# ─── Stage 1: Node — build frontend assets ────────────────────────────────────
+# ── Stage 1: Node — build frontend assets ─────────────────────────────────────
 FROM node:20-alpine AS node-builder
 
 WORKDIR /app
@@ -7,10 +7,10 @@ RUN npm ci --no-audit --prefer-offline
 COPY . .
 RUN npm run build
 
-# ─── Stage 2: PHP — production image ─────────────────────────────────────────
+# ── Stage 2: PHP production image ─────────────────────────────────────────────
 FROM php:8.2-fpm-bookworm AS php-base
 
-# System dependencies + LibreOffice headless (untuk convert docx→pdf)
+# System dependencies + LibreOffice headless
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libpq-dev \
     libreoffice-writer \
-    libreoffice-calc \
     default-mysql-client \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -41,10 +40,13 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         opcache \
         intl
 
+# Redis PHP extension
+RUN pecl install redis && docker-php-ext-enable redis
+
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# PHP config untuk production
+# PHP config
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
@@ -72,6 +74,9 @@ RUN mkdir -p \
         storage/app/private/surat \
         storage/app/private/berkas \
         storage/app/private/scan \
+        storage/framework/views \
+        storage/framework/cache/data \
+        storage/framework/sessions \
         storage/logs \
         bootstrap/cache \
     && chown -R www-data:www-data /var/www/html \
