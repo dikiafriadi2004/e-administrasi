@@ -28,6 +28,10 @@ Thumbs.db
 /_*.php
 /boost.json
 
+# Kiro & AI tooling — jangan di-commit
+/.kiro
+/.ai
+
 # Storage — generated files (bukan template)
 /storage/app/private/undangan
 /storage/app/private/surat
