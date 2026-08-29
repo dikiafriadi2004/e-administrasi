@@ -46,18 +46,33 @@ class RasioDosenService
 
     /**
      * Tahun akademik yang sedang aktif dari Pengaturan.
-     * Default ke tahun berjalan jika belum diset.
+     * Auto-detect berdasarkan bulan jika Pengaturan belum diset atau tidak match.
+     *
+     * Logika: Agustus–Desember = tahun sekarang/tahun+1
+     *         Januari–Juli     = tahun-1/tahun sekarang
      */
     public function getTahunAktif(): string
     {
         $ta = Pengaturan::nilai('tahun_akademik');
 
         if ($ta && str_contains($ta, '/')) {
-            return $ta;
+            // Validasi: cek apakah tahun dari Pengaturan sesuai kalender sekarang
+            $tahunMulai = self::tahunMulaiDari($ta);
+            $sekarang = now();
+
+            // Bulan >= 8 berarti tahun akademik baru dimulai
+            $tahunAktifSeharusnya = $sekarang->month >= 8
+                ? $sekarang->year
+                : $sekarang->year - 1;
+
+            // Gunakan dari Pengaturan hanya jika persis sama dengan kalkulasi sekarang
+            if ($tahunMulai === $tahunAktifSeharusnya) {
+                return $ta;
+            }
         }
 
-        // fallback: tahun sekarang/tahun+1
-        $y = (int) now()->format('Y');
+        // Fallback: hitung otomatis dari tanggal sekarang
+        $y = now()->month >= 8 ? now()->year : now()->year - 1;
 
         return "{$y}/".($y + 1);
     }
