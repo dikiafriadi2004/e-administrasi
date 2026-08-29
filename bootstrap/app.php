@@ -9,6 +9,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,12 +26,17 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // 419 CSRF token expired — redirect ke login dengan pesan yang jelas
+        $exceptions->render(function (TokenMismatchException $e, Request $request) {
+            return redirect()->route('login')
+                ->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+        });
         // Tangani error file permission (rename/write pada storage) — jangan tampilkan ke user
-        $exceptions->render(function (\ErrorException $e, Request $request) {
+        $exceptions->render(function (ErrorException $e, Request $request) {
             // Khusus error rename file cache view (Windows file locking)
             if (str_contains($e->getMessage(), 'rename(') && str_contains($e->getMessage(), 'Access is denied')) {
                 // Log error tapi jangan crash halaman
-                \Illuminate\Support\Facades\Log::warning('View cache write error (ignored): '.$e->getMessage());
+                Log::warning('View cache write error (ignored): '.$e->getMessage());
 
                 // Jika Livewire request, kembalikan response kosong agar tidak break UI
                 if ($request->is('livewire/*') || $request->header('X-Livewire')) {
