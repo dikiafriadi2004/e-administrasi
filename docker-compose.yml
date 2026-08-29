@@ -16,7 +16,6 @@ services:
     volumes:
       # Persistent storage — file upload & generated docs tetap ada saat redeploy
       - storage_private:/var/www/html/storage/app/private
-      - storage_logs:/var/www/html/storage/logs
     depends_on:
       db:
         condition: service_healthy
@@ -85,7 +84,6 @@ services:
       - .env
     volumes:
       - storage_private:/var/www/html/storage/app/private
-      - storage_logs:/var/www/html/storage/logs
     depends_on:
       db:
         condition: service_healthy
@@ -97,7 +95,6 @@ volumes:
   db_data:
   redis_data:
   storage_private:
-  storage_logs:
   nginx_ssl:
 
 # ── Networks ─────────────────────────────────────────────────────────────────
