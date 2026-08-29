@@ -37,6 +37,8 @@ Thumbs.db
 /storage/app/private/berkas
 /storage/app/private/scan
 /storage/app/public
+# Template DOCX di-commit ke repo agar tersedia di production
+!/storage/app/private/templates
 
 # Docker override lokal
 docker-compose.override.yml
