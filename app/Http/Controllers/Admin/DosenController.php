@@ -34,7 +34,7 @@ class DosenController extends Controller
 
     public function edit(Dosen $dosen): View
     {
-        return view('admin.dosen.edit', array_merge(compact('dosen'), ['perPage' => $perPage]));
+        return view('admin.dosen.edit', compact('dosen'));
     }
 
     public function update(UpdateDosenRequest $request, Dosen $dosen): RedirectResponse

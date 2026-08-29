@@ -57,7 +57,7 @@ class MahasiswaController extends Controller
     {
         $mahasiswa->load('user');
 
-        return view('admin.mahasiswa.edit', array_merge(compact('mahasiswa'), ['perPage' => $perPage]));
+        return view('admin.mahasiswa.edit', compact('mahasiswa'));
     }
 
     public function update(UpdateMahasiswaRequest $request, Mahasiswa $mahasiswa): RedirectResponse
