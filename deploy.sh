@@ -37,10 +37,12 @@ docker compose exec app php artisan route:cache
 docker compose exec app php artisan view:cache
 docker compose exec app php artisan event:cache
 
-# ── 6. Fix storage permissions ───────────────────────────────────
+# ── 6. Fix storage permissions & copy icons ──────────────────────
 echo ""
-echo "[6/6] Fix permissions..."
+echo "[6/6] Fix permissions & icons..."
 docker compose exec app chown -R www-data:www-data storage bootstrap/cache
+docker compose cp ./public/icons app:/var/www/html/public/
+docker compose cp ./public/vendor app:/var/www/html/public/ 2>/dev/null || true
 
 echo ""
 echo "✓ Deploy selesai!"
