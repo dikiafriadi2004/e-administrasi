@@ -6,7 +6,6 @@ use App\Models\Dosen;
 use App\Models\PengajuanJudul;
 use App\Models\PengajuanSurat;
 use App\Models\Pengaturan;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class RasioDosenService
@@ -79,7 +78,7 @@ class RasioDosenService
 
     /**
      * Daftar dosen dengan rasio bimbingan/pengujian, terurut dari beban terkecil.
-     * Filter berdasarkan tahun akademik (created_at dalam rentang tahun tsb).
+     * Hitungan berdasarkan mahasiswa UNIK — seminar + sidang mahasiswa yang sama = 1.
      *
      * @param  string  $konteks  'pembimbing' | 'penguji'
      * @param  int|null  $excludeDosenId  exclude dosen tertentu
@@ -93,27 +92,30 @@ class RasioDosenService
         $ta = $tahunAkademik ?? $this->getTahunAktif();
         [$mulai, $akhir] = $this->rentangTahunAkademik($ta);
 
-        $dosen = Dosen::query()
-            ->withCount([
-                // Bimbingan dalam tahun akademik ini
-                'pengajuanJudul as jumlah_bimbingan' => fn (Builder $q) => $q
-                    ->whereNotIn('status', ['ditolak'])
-                    ->whereBetween('created_at', [$mulai, $akhir]),
+        $dosen = Dosen::query()->get()->each(function ($d) use ($mulai, $akhir) {
+            // Bimbingan: hitung mahasiswa UNIK yang dibimbing
+            $d->jumlah_bimbingan = PengajuanJudul::where('dosen_pembimbing_id', $d->id)
+                ->whereNotIn('status', ['ditolak'])
+                ->whereBetween('created_at', [$mulai, $akhir])
+                ->distinct('mahasiswa_id')
+                ->count('mahasiswa_id');
 
-                // Penguji 1 dalam tahun akademik ini
-                'pengajuanSuratPenguji as jumlah_penguji_1' => fn (Builder $q) => $q
-                    ->whereNotIn('status', ['ditolak'])
-                    ->whereBetween('created_at', [$mulai, $akhir]),
+            // Penguji 1: mahasiswa UNIK yang diuji sebagai penguji 1
+            $d->jumlah_penguji_1 = PengajuanSurat::where('dosen_penguji_id', $d->id)
+                ->whereNotIn('status', ['ditolak'])
+                ->whereBetween('created_at', [$mulai, $akhir])
+                ->distinct('mahasiswa_id')
+                ->count('mahasiswa_id');
 
-                // Penguji 2 dalam tahun akademik ini
-                'pengajuanSuratPenguji2 as jumlah_penguji_2' => fn (Builder $q) => $q
-                    ->whereNotIn('status', ['ditolak'])
-                    ->whereBetween('created_at', [$mulai, $akhir]),
-            ])
-            ->get()
-            ->each(function ($d) {
-                $d->jumlah_pengujian = $d->jumlah_penguji_1 + $d->jumlah_penguji_2;
-            });
+            // Penguji 2: mahasiswa UNIK yang diuji sebagai penguji 2
+            $d->jumlah_penguji_2 = PengajuanSurat::where('dosen_penguji_2_id', $d->id)
+                ->whereNotIn('status', ['ditolak'])
+                ->whereBetween('created_at', [$mulai, $akhir])
+                ->distinct('mahasiswa_id')
+                ->count('mahasiswa_id');
+
+            $d->jumlah_pengujian = $d->jumlah_penguji_1 + $d->jumlah_penguji_2;
+        });
 
         if ($excludeDosenId) {
             $dosen = $dosen->filter(fn ($d) => $d->id !== $excludeDosenId);
@@ -126,6 +128,7 @@ class RasioDosenService
 
     /**
      * Ringkasan rasio semua dosen untuk dashboard.
+     * Hitungan berdasarkan mahasiswa UNIK per tahun akademik.
      *
      * @param  string|null  $tahunAkademik  null = tahun aktif dari Pengaturan
      * @return Collection<int, Dosen>
@@ -135,25 +138,27 @@ class RasioDosenService
         $ta = $tahunAkademik ?? $this->getTahunAktif();
         [$mulai, $akhir] = $this->rentangTahunAkademik($ta);
 
-        return Dosen::query()
-            ->withCount([
-                'pengajuanJudul as jumlah_bimbingan' => fn (Builder $q) => $q
-                    ->whereNotIn('status', ['ditolak'])
-                    ->whereBetween('created_at', [$mulai, $akhir]),
+        return Dosen::orderBy('nama')->get()->each(function ($d) use ($mulai, $akhir) {
+            $d->jumlah_bimbingan = PengajuanJudul::where('dosen_pembimbing_id', $d->id)
+                ->whereNotIn('status', ['ditolak'])
+                ->whereBetween('created_at', [$mulai, $akhir])
+                ->distinct('mahasiswa_id')
+                ->count('mahasiswa_id');
 
-                'pengajuanSuratPenguji as jumlah_penguji_1' => fn (Builder $q) => $q
-                    ->whereNotIn('status', ['ditolak'])
-                    ->whereBetween('created_at', [$mulai, $akhir]),
+            $d->jumlah_penguji_1 = PengajuanSurat::where('dosen_penguji_id', $d->id)
+                ->whereNotIn('status', ['ditolak'])
+                ->whereBetween('created_at', [$mulai, $akhir])
+                ->distinct('mahasiswa_id')
+                ->count('mahasiswa_id');
 
-                'pengajuanSuratPenguji2 as jumlah_penguji_2' => fn (Builder $q) => $q
-                    ->whereNotIn('status', ['ditolak'])
-                    ->whereBetween('created_at', [$mulai, $akhir]),
-            ])
-            ->orderBy('nama')
-            ->get()
-            ->each(function ($d) {
-                $d->jumlah_pengujian = $d->jumlah_penguji_1 + $d->jumlah_penguji_2;
-            });
+            $d->jumlah_penguji_2 = PengajuanSurat::where('dosen_penguji_2_id', $d->id)
+                ->whereNotIn('status', ['ditolak'])
+                ->whereBetween('created_at', [$mulai, $akhir])
+                ->distinct('mahasiswa_id')
+                ->count('mahasiswa_id');
+
+            $d->jumlah_pengujian = $d->jumlah_penguji_1 + $d->jumlah_penguji_2;
+        });
     }
 
     /**
