@@ -77,12 +77,6 @@ RUN mkdir -p \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 storage bootstrap/cache
 
-# Optimize untuk production
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache \
-    && php artisan event:cache
-
 EXPOSE 9000
 
 CMD ["php-fpm"]
