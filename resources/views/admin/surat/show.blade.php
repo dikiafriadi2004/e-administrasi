@@ -87,6 +87,28 @@
                             <dt class="w-24 shrink-0 font-medium text-slate-500">Instansi</dt>
                             <dd class="text-slate-700">{{ $dataForm['nama_instansi'] ?? '—' }}</dd>
                         </div>
+                        @if (! empty($dataForm['alamat_instansi']))
+                            <div class="flex gap-2">
+                                <dt class="w-24 shrink-0 font-medium text-slate-500">Alamat</dt>
+                                <dd class="text-slate-700">{{ $dataForm['alamat_instansi'] }}</dd>
+                            </div>
+                        @endif
+                        @if (! empty($dataForm['tanggal_mulai']))
+                            <div class="flex gap-2">
+                                <dt class="w-24 shrink-0 font-medium text-slate-500">Periode</dt>
+                                <dd class="text-slate-700">
+                                    {{ \Carbon\Carbon::parse($dataForm['tanggal_mulai'])->format('d M Y') }}
+                                    s.d.
+                                    {{ \Carbon\Carbon::parse($dataForm['tanggal_selesai'])->format('d M Y') }}
+                                </dd>
+                            </div>
+                        @endif
+                        @if ($pembimbing)
+                            <div class="flex gap-2">
+                                <dt class="w-24 shrink-0 font-medium text-slate-500">Pembimbing</dt>
+                                <dd class="text-slate-700">{{ $pembimbing->nama }}</dd>
+                            </div>
+                        @endif
                     @endif
                     <div class="flex gap-2">
                         <dt class="w-24 shrink-0 font-medium text-slate-500">Diajukan</dt>
@@ -121,6 +143,33 @@
                         @endforeach
                     </ul>
                 </div>
+            @endif
+
+            {{-- Panel khusus izin_penelitian: absensi seminar dari admin --}}
+            @if ($surat->jenis_surat === 'izin_penelitian')
+                @php
+                    $seminarId = $surat->data_form['seminar_id'] ?? null;
+                    $seminarTerkait = $seminarId
+                        ? \App\Models\PengajuanSurat::find($seminarId)
+                        : \App\Models\PengajuanSurat::where('mahasiswa_id', $surat->mahasiswa_id)
+                            ->where('jenis_surat', 'seminar_proposal')
+                            ->whereNotNull('file_absensi_seminar')
+                            ->latest()
+                            ->first();
+                @endphp
+                @if ($seminarTerkait?->file_absensi_seminar)
+                    <div class="rounded-2xl border border-sky-100 bg-sky-50 p-4 shadow-sm">
+                        <h3 class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-sky-600">
+                            <x-icon name="clipboard-list" class="h-3.5 w-3.5" />
+                            Absensi Seminar Proposal
+                        </h3>
+                        <a href="{{ route('admin.jadwal.download-absensi', $seminarTerkait) }}"
+                           class="flex items-center gap-2 rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-medium text-sky-700 hover:bg-sky-50 transition-colors">
+                            <x-icon name="download" class="h-3.5 w-3.5 shrink-0" />
+                            Download Absensi Seminar
+                        </a>
+                    </div>
+                @endif
             @endif
 
             {{-- Panel Aksi --}}

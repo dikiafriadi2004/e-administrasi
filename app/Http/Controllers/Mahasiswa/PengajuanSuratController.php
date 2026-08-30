@@ -200,6 +200,24 @@ class PengajuanSuratController extends Controller
         return Storage::disk('private')->download($berkas->path_file, $berkas->nama_asli);
     }
 
+    /** Download absensi seminar proposal milik mahasiswa (syarat izin penelitian). */
+    public function downloadAbsensi(PengajuanSurat $pengajuanSurat): StreamedResponse
+    {
+        // Pastikan hanya pemilik yang bisa download
+        abort_unless(
+            $pengajuanSurat->mahasiswa_id === auth()->user()->mahasiswa?->id,
+            403
+        );
+        abort_unless($pengajuanSurat->jenis_surat === 'seminar_proposal', 404);
+        abort_unless($pengajuanSurat->file_absensi_seminar, 404, 'Absensi belum tersedia.');
+        abort_unless(Storage::disk('private')->exists($pengajuanSurat->file_absensi_seminar), 404, 'File tidak ditemukan.');
+
+        $ext = pathinfo($pengajuanSurat->file_absensi_seminar, PATHINFO_EXTENSION);
+        $nama = 'absensi_seminar_'.$pengajuanSurat->mahasiswa->nim.'.'.$ext;
+
+        return Storage::disk('private')->download($pengajuanSurat->file_absensi_seminar, $nama);
+    }
+
     /** Ambil pengajuan judul yang disetujui milik mahasiswa yang login. */
     private function getJudulDisetujui(): ?PengajuanJudul
     {

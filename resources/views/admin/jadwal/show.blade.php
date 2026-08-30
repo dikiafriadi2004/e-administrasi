@@ -225,6 +225,51 @@
                 </form>
             </div>
 
+            {{-- Langkah 3: Upload Absensi Seminar (khusus seminar_proposal) --}}
+            @if ($pengajuan->jenis_surat === 'seminar_proposal')
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <h3 class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700">
+                        <x-icon name="clipboard-list" class="h-4 w-4 text-sky-500" />
+                        Langkah 3 — Upload Absensi Seminar
+                    </h3>
+                    <p class="mb-3 text-[11px] text-slate-400">
+                        Upload absensi kehadiran seminar proposal. Mahasiswa akan melihat file ini sebagai syarat pengajuan Izin Penelitian.
+                    </p>
+
+                    @if ($pengajuan->file_absensi_seminar)
+                        <div class="mb-3 flex items-center justify-between rounded-xl border border-sky-200 bg-sky-50 px-3 py-2">
+                            <div class="flex items-center gap-2">
+                                <x-icon name="circle-check" class="h-4 w-4 shrink-0 text-sky-600" />
+                                <span class="text-xs font-medium text-sky-800">Absensi sudah diupload</span>
+                            </div>
+                            <a href="{{ route('admin.jadwal.download-absensi', $pengajuan) }}"
+                               class="inline-flex items-center gap-1 rounded-lg border border-sky-300 bg-white px-2 py-1 text-xs font-medium text-sky-700 hover:bg-sky-50 transition-colors">
+                                <x-icon name="download" class="h-3 w-3" />
+                                Download
+                            </a>
+                        </div>
+                        <p class="mb-2 text-[11px] text-slate-400">Upload ulang jika ada revisi:</p>
+                    @endif
+
+                    <form method="POST" action="{{ route('admin.jadwal.upload-absensi', $pengajuan) }}"
+                          enctype="multipart/form-data" class="space-y-2">
+                        @csrf
+                        <input type="file" name="file_absensi" accept=".pdf,.jpg,.jpeg,.png"
+                               {{ $pengajuan->file_absensi_seminar ? '' : 'required' }}
+                               class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs
+                                      file:mr-2 file:rounded-lg file:border-0 file:bg-sky-50 file:px-2.5 file:py-1
+                                      file:text-xs file:font-medium file:text-sky-700 hover:file:bg-sky-100" />
+                        <p class="text-[10px] text-slate-400">Format PDF / JPG / PNG · Maks 10 MB</p>
+                        @error('file_absensi') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
+                            <x-icon name="upload" class="h-3.5 w-3.5" />
+                            {{ $pengajuan->file_absensi_seminar ? 'Upload Ulang Absensi' : 'Upload Absensi Seminar' }}
+                        </button>
+                    </form>
+                </div>
+            @endif
+
             {{-- Riwayat Status --}}
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">

@@ -183,4 +183,51 @@ class JadwalController extends Controller
 
         return Storage::disk('private')->download($berkas->path_file, $berkas->nama_asli);
     }
+
+    /**
+     * Upload absensi seminar proposal (oleh admin setelah seminar selesai).
+     * File ini menjadi syarat mahasiswa untuk mengajukan izin penelitian.
+     * Hanya berlaku untuk jenis_surat = seminar_proposal.
+     */
+    public function uploadAbsensi(Request $request, PengajuanSurat $pengajuan): RedirectResponse
+    {
+        abort_unless($pengajuan->jenis_surat === 'seminar_proposal', 404, 'Hanya untuk seminar proposal.');
+
+        $request->validate([
+            'file_absensi' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+        ], [
+            'file_absensi.required' => 'File absensi wajib diupload.',
+            'file_absensi.mimes' => 'File harus berformat PDF, JPG, atau PNG.',
+            'file_absensi.max' => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        // Hapus file absensi lama jika ada
+        if ($pengajuan->file_absensi_seminar) {
+            Storage::disk('private')->delete($pengajuan->file_absensi_seminar);
+        }
+
+        $ext = $request->file('file_absensi')->getClientOriginalExtension();
+        $path = $request->file('file_absensi')->storeAs(
+            "berkas/{$pengajuan->id}/absensi",
+            'absensi_'.now()->format('Ymd_His').'.'.$ext,
+            'private'
+        );
+
+        $pengajuan->update(['file_absensi_seminar' => $path]);
+
+        return back()->with('success', 'Absensi seminar berhasil diupload. Mahasiswa kini dapat melihatnya.');
+    }
+
+    /**
+     * Download absensi seminar proposal (oleh admin atau mahasiswa).
+     */
+    public function downloadAbsensi(PengajuanSurat $pengajuan): StreamedResponse
+    {
+        abort_unless($pengajuan->file_absensi_seminar, 404, 'Absensi belum tersedia.');
+        abort_unless(Storage::disk('private')->exists($pengajuan->file_absensi_seminar), 404, 'File tidak ditemukan.');
+
+        $nama = 'absensi_seminar_'.$pengajuan->mahasiswa->nim.'.'.pathinfo($pengajuan->file_absensi_seminar, PATHINFO_EXTENSION);
+
+        return Storage::disk('private')->download($pengajuan->file_absensi_seminar, $nama);
+    }
 }

@@ -51,6 +51,8 @@ Route::prefix('jadwal')->name('jadwal.')->group(function () {
     Route::get('/{pengajuan}', [JadwalController::class, 'show'])->name('show');
     Route::post('/{pengajuan}/generate-undangan', [JadwalController::class, 'generateUndangan'])->name('generate-undangan');
     Route::post('/{pengajuan}/upload-undangan', [JadwalController::class, 'uploadUndangan'])->name('upload-undangan');
+    Route::post('/{pengajuan}/upload-absensi', [JadwalController::class, 'uploadAbsensi'])->name('upload-absensi');
+    Route::get('/{pengajuan}/download-absensi', [JadwalController::class, 'downloadAbsensi'])->name('download-absensi');
     Route::get('/{pengajuan}/download-undangan', [JadwalController::class, 'downloadUndangan'])->name('download-undangan');
 });
 

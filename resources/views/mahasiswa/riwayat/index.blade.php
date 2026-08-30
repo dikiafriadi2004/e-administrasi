@@ -29,6 +29,11 @@
                     <x-icon name="landmark" class="h-3.5 w-3.5" />
                     Sidang Skripsi
                 </a>
+                <a href="{{ route('mahasiswa.pengajuan.izin-penelitian.create') }}"
+                   class="inline-flex items-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-100 transition-colors">
+                    <x-icon name="flask-conical" class="h-3.5 w-3.5" />
+                    Izin Penelitian
+                </a>
             </div>
         </div>
 
@@ -308,6 +313,16 @@
                                         <p>{{ \Illuminate\Support\Str::limit($surat->data_form['judul_penelitian'] ?? '-', 50) }}</p>
                                         @if (! empty($surat->data_form['nama_instansi']))
                                             <p class="text-slate-400">{{ $surat->data_form['nama_instansi'] }}</p>
+                                        @endif
+                                        @if (! empty($surat->data_form['tanggal_mulai']))
+                                            <p class="text-slate-400">
+                                                {{ \Carbon\Carbon::parse($surat->data_form['tanggal_mulai'])->format('d M Y') }}
+                                                s.d.
+                                                {{ \Carbon\Carbon::parse($surat->data_form['tanggal_selesai'])->format('d M Y') }}
+                                            </p>
+                                        @endif
+                                        @if ($surat->berkas->count())
+                                            <p class="mt-0.5 text-slate-400 italic">{{ $surat->berkas->count() }} berkas dilampirkan</p>
                                         @endif
                                     @else
                                         {{ $surat->data_form['tanggal_rencana'] ?? '-' }}

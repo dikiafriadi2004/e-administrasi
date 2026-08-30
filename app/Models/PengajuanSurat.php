@@ -31,6 +31,7 @@ class PengajuanSurat extends Model
         'file_docx',
         'file_pdf',
         'file_scan',
+        'file_absensi_seminar',
         'file_pendukung',
         'nama_file_pendukung',
         'generated_at',
