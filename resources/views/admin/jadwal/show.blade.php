@@ -239,25 +239,37 @@
                                 {{ $pengajuan->tempat_jadwal }}
                             </p>
                         </div>
-                        <details class="text-xs">
-                            <summary class="cursor-pointer text-slate-400 hover:text-slate-600">Ubah jadwal</summary>
-                            <form method="POST" action="{{ route('admin.jadwal.tetapkan-jadwal', $pengajuan) }}" class="mt-2 space-y-2">
+                        <details class="text-xs" open>
+                            <summary class="cursor-pointer text-sky-600 font-medium hover:text-sky-800 mb-2">
+                                <x-icon name="pencil" class="h-3 w-3 inline mr-1" />
+                                Ubah jadwal
+                            </summary>
+                            <form method="POST" action="{{ route('admin.jadwal.tetapkan-jadwal', $pengajuan) }}" class="mt-2 space-y-2 bg-slate-50 rounded-xl p-3">
                                 @csrf
-                                <input type="date" name="tanggal_jadwal"
-                                       value="{{ $pengajuan->tanggal_jadwal?->format('Y-m-d') }}"
-                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
-                                <input type="text" name="waktu_jadwal"
-                                       value="{{ $pengajuan->waktu_jadwal }}"
-                                       placeholder="09.00 s/d selesai"
-                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
-                                <input type="text" name="tempat_jadwal"
-                                       value="{{ $pengajuan->tempat_jadwal }}"
-                                       placeholder="Ruang 01.03"
-                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                <div>
+                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Tanggal</label>
+                                    <input type="date" name="tanggal_jadwal"
+                                           value="{{ $pengajuan->tanggal_jadwal?->format('Y-m-d') }}"
+                                           class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Waktu</label>
+                                    <input type="text" name="waktu_jadwal"
+                                           value="{{ $pengajuan->waktu_jadwal }}"
+                                           placeholder="09.00 s/d selesai"
+                                           class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-medium text-slate-600 mb-1">Tempat / Ruangan</label>
+                                    <input type="text" name="tempat_jadwal"
+                                           value="{{ $pengajuan->tempat_jadwal }}"
+                                           placeholder="Ruang 01.03"
+                                           class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                </div>
                                 <button type="submit"
-                                        class="inline-flex items-center gap-1.5 rounded-xl bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
+                                        class="flex w-full items-center justify-center gap-1.5 rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
                                     <x-icon name="save" class="h-3.5 w-3.5" />
-                                    Simpan Perubahan
+                                    Simpan Perubahan Jadwal
                                 </button>
                             </form>
                         </details>

@@ -164,17 +164,36 @@
                                 </td>
                                 <td class="px-4 py-3"><x-status-badge :status="$s->status" /></td>
                                 <td class="px-4 py-3">
-                                    @if ($s->file_scan)
-                                        <a href="{{ route('mahasiswa.surat.download', [$s, 'scan']) }}"
-                                           class="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 transition-colors">
-                                            <x-icon name="download" class="h-3.5 w-3.5" />
-                                            Undangan
-                                        </a>
-                                    @elseif ($s->status === 'ditolak')
-                                        <span class="text-xs text-red-500 italic">Ditolak</span>
-                                    @else
-                                        <span class="text-xs text-slate-400 italic">Belum tersedia</span>
-                                    @endif
+                                    <div class="flex flex-col gap-1.5">
+                                        @if ($s->file_scan)
+                                            <a href="{{ route('mahasiswa.surat.download', [$s, 'scan']) }}"
+                                               class="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 transition-colors">
+                                                <x-icon name="download" class="h-3.5 w-3.5" />
+                                                Surat Undangan
+                                            </a>
+                                        @endif
+                                        @if ($s->file_absensi_seminar)
+                                            <a href="{{ route('mahasiswa.seminar.download-absensi', $s) }}"
+                                               class="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700 hover:bg-sky-100 transition-colors">
+                                                <x-icon name="download" class="h-3.5 w-3.5" />
+                                                Absensi Seminar
+                                            </a>
+                                        @endif
+                                        @foreach ($s->berkas as $b)
+                                            <a href="{{ route('mahasiswa.berkas.download', $b) }}"
+                                               class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+                                                <x-icon name="file" class="h-3.5 w-3.5" />
+                                                {{ \Illuminate\Support\Str::limit($b->nama_asli, 20) }}
+                                            </a>
+                                        @endforeach
+                                        @if (! $s->file_scan && ! $s->file_absensi_seminar && $s->berkas->isEmpty())
+                                            @if ($s->status === 'ditolak')
+                                                <span class="text-xs text-red-500 italic">Ditolak</span>
+                                            @else
+                                                <span class="text-xs text-slate-400 italic">Belum tersedia</span>
+                                            @endif
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             </tr>
