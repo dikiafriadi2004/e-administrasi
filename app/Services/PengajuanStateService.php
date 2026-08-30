@@ -85,6 +85,38 @@ class PengajuanStateService
     // ─── Surat (Aktif Kuliah, Undangan, dll) ─────────────────────────────────
 
     /**
+     * Admin verifikasi berkas sidang skripsi: diajukan → diajukan (status tetap)
+     * tapi catatan_admin diisi dan berkas_diverifikasi = true.
+     * Jika berkas OK, admin teruskan ke Kaprodi.
+     */
+    public function verifikasiBerkas(PengajuanSurat $surat, User $actor, string $catatan, bool $lulus): void
+    {
+        abort_unless($surat->jenis_surat === 'sidang_skripsi', 422, 'Hanya untuk sidang skripsi.');
+
+        if (! $lulus) {
+            // Berkas kurang — kembalikan ke mahasiswa dengan catatan
+            $surat->update([
+                'catatan_admin' => $catatan,
+                'berkas_diverifikasi' => false,
+            ]);
+
+            $this->recordHistory($surat, $surat->status, $surat->status, $actor,
+                "Berkas dikembalikan: {$catatan}");
+
+            return;
+        }
+
+        // Berkas OK — tandai terverifikasi, status tetap diajukan (menunggu Kaprodi)
+        $surat->update([
+            'catatan_admin' => null,
+            'berkas_diverifikasi' => true,
+        ]);
+
+        $this->recordHistory($surat, $surat->status, $surat->status, $actor,
+            'Berkas sidang diverifikasi admin dan dinyatakan lengkap. Menunggu persetujuan Kaprodi.');
+    }
+
+    /**
      * Admin generate surat: diajukan → menunggu_ttd
      * Dipanggil setelah generate DOCX+PDF berhasil.
      */

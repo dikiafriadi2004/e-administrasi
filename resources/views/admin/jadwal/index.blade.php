@@ -9,6 +9,66 @@
 
         <x-per-page-selector :current="$perPage ?? 10" />
 
+        {{-- Tabel: Sidang Perlu Verifikasi Berkas --}}
+        @if ($sidangPerluVerifikasi->count())
+            <div class="rounded-2xl border border-violet-200 bg-violet-50 overflow-hidden shadow-sm">
+                <div class="flex items-center gap-2 border-b border-violet-200 bg-violet-100 px-4 py-2.5">
+                    <x-icon name="clipboard-check" class="h-4 w-4 text-violet-600" />
+                    <span class="text-xs font-semibold uppercase tracking-wider text-violet-700">
+                        Sidang Skripsi — Perlu Verifikasi Berkas ({{ $sidangPerluVerifikasi->total() }})
+                    </span>
+                </div>
+                <table class="min-w-full divide-y divide-violet-100 text-sm">
+                    <thead class="bg-violet-50 text-xs font-semibold uppercase tracking-wider text-violet-600">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Mahasiswa</th>
+                            <th class="px-4 py-3 text-left">Judul Skripsi</th>
+                            <th class="px-4 py-3 text-left">Berkas</th>
+                            <th class="px-4 py-3 text-left">Diajukan</th>
+                            <th class="px-4 py-3 text-left">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-violet-100 bg-white">
+                        @foreach ($sidangPerluVerifikasi as $p)
+                            <tr class="hover:bg-violet-50 transition-colors">
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-slate-800">{{ $p->mahasiswa->user->name }}</p>
+                                    <p class="text-xs text-slate-400">{{ $p->mahasiswa->nim }}</p>
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-600">
+                                    {{ \Illuminate\Support\Str::limit($p->pengajuanJudul?->judul ?? '—', 50) }}
+                                </td>
+                                <td class="px-4 py-3 text-xs">
+                                    @if ($p->berkas_diverifikasi)
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                                            <x-icon name="check" class="h-3 w-3" /> Terverifikasi
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                                            <x-icon name="clock" class="h-3 w-3" /> Belum
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-400">
+                                    {{ $p->created_at->format('d M Y') }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('admin.jadwal.show', $p) }}"
+                                       class="inline-flex items-center gap-1.5 rounded-xl bg-violet-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-violet-600 transition-colors">
+                                        <x-icon name="clipboard-check" class="h-3.5 w-3.5" />
+                                        Verifikasi
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @if ($sidangPerluVerifikasi->hasPages())
+                    <div class="px-4 py-2 border-t border-violet-100">{{ $sidangPerluVerifikasi->links() }}</div>
+                @endif
+            </div>
+        @endif
+
         {{-- Tabel: Menunggu Jadwal --}}
         @if ($menungguJadwal->count())
             <div class="rounded-2xl border border-amber-200 bg-amber-50 overflow-hidden shadow-sm">

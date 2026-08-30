@@ -22,22 +22,25 @@
                 </div>
 
                 {{-- Info jadwal --}}
-                <div class="mb-4 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs">
+                <div class="mb-4 rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-xs">
                     <div class="flex items-start gap-2">
-                        <x-icon name="info" class="h-3.5 w-3.5 shrink-0 text-amber-500 mt-0.5" />
-                        <p class="text-amber-800">
-                            <strong>Jadwal resmi</strong> (tanggal, waktu, tempat, penguji) ditetapkan oleh Kaprodi.
-                            Anda boleh mengusulkan tanggal, namun Kaprodi berhak menggantinya.
-                        </p>
+                        <x-icon name="info" class="h-3.5 w-3.5 shrink-0 text-sky-500 mt-0.5" />
+                        <div class="text-sky-800 space-y-1">
+                            <p>Anda dapat <strong>mengusulkan tanggal</strong> sidang yang diinginkan.</p>
+                            <p>Jadwal resmi (tanggal, waktu, tempat, penguji) ditetapkan oleh <strong>Admin</strong> dan dapat disesuaikan jika ada dosen yang berhalangan.</p>
+                            <p>Admin akan memverifikasi kelengkapan berkas terlebih dahulu sebelum diteruskan ke Kaprodi.</p>
+                        </div>
                     </div>
                 </div>
 
                 <form wire:submit="submit" class="space-y-4">
 
-                    {{-- Usulan Tanggal (opsional) --}}
+                    {{-- Usulan Tanggal --}}
                     <div>
-                        <x-input-label for="tanggalRencana" value="Usulan Tanggal Sidang" />
-                        <p class="mb-1 text-[10px] text-slate-400">Opsional — Kaprodi dapat menyetujui atau mengganti.</p>
+                        <x-input-label for="tanggalRencana" value="Usulan Tanggal Sidang (opsional)" />
+                        <p class="mb-1 text-[10px] text-slate-400">
+                            Admin akan mempertimbangkan usulan ini, namun jadwal resmi dapat disesuaikan.
+                        </p>
                         <x-text-input id="tanggalRencana"
                                       wire:model.blur="tanggalRencana"
                                       type="date" class="mt-1 block w-full"

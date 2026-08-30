@@ -194,24 +194,17 @@ class AntrianAkademikController extends Controller
         ));
     }
 
-    /** Setujui sidang + tetapkan 2 penguji + jadwal */
+    /** Setujui sidang + tetapkan 2 penguji (jadwal ditetapkan Admin) */
     public function setujuiSidang(Request $request, PengajuanSurat $pengajuan): RedirectResponse
     {
         $request->validate([
             'dosen_penguji_id' => ['required', 'exists:dosens,id'],
             'dosen_penguji_2_id' => ['required', 'exists:dosens,id', 'different:dosen_penguji_id'],
-            'tanggal_jadwal' => ['required', 'date', 'after:'.now()->addWeekdays(7)->format('Y-m-d')],
-            'waktu_jadwal' => ['required', 'string', 'max:50'],
-            'tempat_jadwal' => ['required', 'string', 'max:255'],
             'catatan_kaprodi' => ['nullable', 'string', 'max:1000'],
         ], [
             'dosen_penguji_id.required' => 'Pilih dosen penguji 1 sebelum menyetujui.',
             'dosen_penguji_2_id.required' => 'Pilih dosen penguji 2 sebelum menyetujui.',
             'dosen_penguji_2_id.different' => 'Penguji 2 tidak boleh sama dengan Penguji 1.',
-            'tanggal_jadwal.required' => 'Tanggal jadwal wajib diisi.',
-            'tanggal_jadwal.after' => 'Jadwal minimal 7 hari kerja dari sekarang.',
-            'waktu_jadwal.required' => 'Waktu jadwal wajib diisi.',
-            'tempat_jadwal.required' => 'Tempat jadwal wajib diisi.',
         ]);
 
         $pembimbingId = $pengajuan->pengajuanJudul?->dosen_pembimbing_id;
@@ -227,15 +220,12 @@ class AntrianAkademikController extends Controller
         $pengajuan->update([
             'dosen_penguji_id' => $request->dosen_penguji_id,
             'dosen_penguji_2_id' => $request->dosen_penguji_2_id,
-            'tanggal_jadwal' => $request->tanggal_jadwal,
-            'waktu_jadwal' => $request->waktu_jadwal,
-            'tempat_jadwal' => $request->tempat_jadwal,
             'catatan_kaprodi' => $request->catatan_kaprodi,
         ]);
         $this->stateService->setujuiPengajuanAkademik($pengajuan, auth()->user());
 
         return redirect()->route('kaprodi.akademik.index')
-            ->with('success', 'Pengajuan sidang disetujui dan dosen penguji ditetapkan.');
+            ->with('success', 'Pengajuan sidang disetujui dan dosen penguji ditetapkan. Admin akan menentukan jadwal.');
     }
 
     // ─── Tolak (semua jenis akademik) ────────────────────────────────────────

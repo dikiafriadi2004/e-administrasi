@@ -26,6 +26,8 @@ class PengajuanSurat extends Model
         'waktu_jadwal',
         'tempat_jadwal',
         'catatan_kaprodi',
+        'catatan_admin',
+        'berkas_diverifikasi',
         'status',
         'catatan_penolakan',
         'file_docx',
@@ -43,6 +45,7 @@ class PengajuanSurat extends Model
             'data_form' => 'array',
             'generated_at' => 'datetime',
             'tanggal_jadwal' => 'date',
+            'berkas_diverifikasi' => 'boolean',
         ];
     }
 

@@ -20,31 +20,17 @@
                 </div>
 
                 {{-- Info jadwal --}}
-                <div class="mb-4 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs">
+                <div class="mb-4 rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-xs">
                     <div class="flex items-start gap-2">
-                        <x-icon name="info" class="h-3.5 w-3.5 shrink-0 text-amber-500 mt-0.5" />
-                        <p class="text-amber-800">
-                            <strong>Jadwal resmi</strong> (tanggal, waktu, tempat, penguji) ditetapkan oleh Kaprodi.
-                            Anda boleh mengusulkan tanggal yang diinginkan, namun Kaprodi berhak menggantinya.
+                        <x-icon name="info" class="h-3.5 w-3.5 shrink-0 text-sky-500 mt-0.5" />
+                        <p class="text-sky-800">
+                            Jadwal seminar (tanggal, waktu, tempat, penguji) sepenuhnya ditetapkan oleh
+                            <strong>Kaprodi dan Admin</strong>. Mahasiswa cukup upload berkas syarat dan klik kirim.
                         </p>
                     </div>
                 </div>
 
                 <form wire:submit="submit" class="space-y-4">
-
-                    {{-- Usulan Tanggal (opsional) --}}
-                    <div>
-                        <label for="tanggalRencana" class="block text-xs font-medium text-slate-700 mb-1">
-                            Usulan Tanggal Seminar
-                            <span class="font-normal text-slate-400">(opsional)</span>
-                        </label>
-                        <input id="tanggalRencana" type="date"
-                               wire:model.blur="tanggalRencana"
-                               min="{{ now()->addDay()->format('Y-m-d') }}"
-                               class="block w-full rounded-xl border-slate-200 text-sm shadow-sm focus:border-brand-400 focus:ring-brand-400" />
-                        <p class="mt-1 text-[10px] text-slate-400">Kaprodi dapat menyetujui atau mengganti tanggal ini.</p>
-                        @error('tanggalRencana') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                    </div>
 
                     {{-- Berkas Syarat --}}
                     <div>

@@ -133,6 +133,88 @@
                 </div>
             @endif
 
+            {{-- Panel Verifikasi Berkas (khusus sidang_skripsi, status diajukan) --}}
+            @if ($pengajuan->jenis_surat === 'sidang_skripsi' && $pengajuan->status === 'diajukan')
+                <div class="rounded-2xl border {{ $pengajuan->berkas_diverifikasi ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' }} p-4 shadow-sm">
+                    <h3 class="mb-1 flex items-center gap-2 text-xs font-semibold {{ $pengajuan->berkas_diverifikasi ? 'text-emerald-800' : 'text-amber-800' }}">
+                        <x-icon name="clipboard-check" class="h-4 w-4 {{ $pengajuan->berkas_diverifikasi ? 'text-emerald-500' : 'text-amber-500' }}" />
+                        Verifikasi Berkas Sidang
+                    </h3>
+
+                    @if ($pengajuan->berkas_diverifikasi)
+                        <div class="flex items-center gap-2 mb-2">
+                            <x-icon name="circle-check" class="h-4 w-4 text-emerald-600 shrink-0" />
+                            <p class="text-xs font-medium text-emerald-700">Berkas sudah diverifikasi — menunggu ACC Kaprodi</p>
+                        </div>
+                        <details class="text-xs">
+                            <summary class="cursor-pointer text-emerald-600 hover:text-emerald-800">Verifikasi ulang</summary>
+                            <form method="POST" action="{{ route('admin.jadwal.verifikasi-berkas', $pengajuan) }}" class="mt-2 space-y-2">
+                                @csrf
+                                <div class="flex gap-3">
+                                    <label class="flex items-center gap-1.5 text-xs cursor-pointer">
+                                        <input type="radio" name="keputusan" value="lulus" checked class="text-emerald-500" />
+                                        <span class="text-emerald-700 font-medium">Berkas Lengkap</span>
+                                    </label>
+                                    <label class="flex items-center gap-1.5 text-xs cursor-pointer">
+                                        <input type="radio" name="keputusan" value="kembalikan" class="text-red-500" />
+                                        <span class="text-red-600 font-medium">Kembalikan</span>
+                                    </label>
+                                </div>
+                                <textarea name="catatan" rows="2" placeholder="Catatan untuk mahasiswa (wajib jika dikembalikan)..."
+                                          class="block w-full rounded-xl border-slate-200 text-xs focus:border-brand-400 focus:ring-brand-400"></textarea>
+                                <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-slate-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-600 transition-colors">
+                                    Simpan
+                                </button>
+                            </form>
+                        </details>
+
+                    @else
+                        <p class="mb-3 text-[11px] text-amber-700">
+                            Periksa kelengkapan berkas sidang mahasiswa. Jika sudah sesuai, klik <strong>Berkas Lengkap</strong> agar bisa diteruskan ke Kaprodi.
+                            Jika belum, klik <strong>Kembalikan</strong> dengan catatan apa yang kurang.
+                        </p>
+
+                        @if ($pengajuan->catatan_admin)
+                            <div class="mb-3 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">
+                                <p class="font-medium mb-0.5">Catatan sebelumnya:</p>
+                                <p>{{ $pengajuan->catatan_admin }}</p>
+                            </div>
+                        @endif
+
+                        <form method="POST" action="{{ route('admin.jadwal.verifikasi-berkas', $pengajuan) }}" class="space-y-3">
+                            @csrf
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 text-xs cursor-pointer">
+                                    <input type="radio" name="keputusan" value="lulus" class="text-emerald-500" required />
+                                    <span class="font-medium text-emerald-700">Berkas Lengkap — Teruskan ke Kaprodi</span>
+                                </label>
+                            </div>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 text-xs cursor-pointer">
+                                    <input type="radio" name="keputusan" value="kembalikan" class="text-red-500" />
+                                    <span class="font-medium text-red-600">Kembalikan ke Mahasiswa</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-600 mb-1">
+                                    Catatan untuk Mahasiswa
+                                    <span class="text-slate-400">(wajib jika dikembalikan)</span>
+                                </label>
+                                <textarea name="catatan" rows="2"
+                                          placeholder="Contoh: KRS semester ini belum dilampirkan..."
+                                          class="block w-full rounded-xl border-slate-200 text-xs focus:border-brand-400 focus:ring-brand-400"></textarea>
+                                @error('catatan') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-600 transition-colors">
+                                <x-icon name="clipboard-check" class="h-3.5 w-3.5" />
+                                Simpan Hasil Verifikasi
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            @endif
+
             {{-- Langkah 0: Tetapkan Jadwal (jika belum ada) --}}
             @if (in_array($pengajuan->status, ['disetujui', 'menunggu_ttd', 'sudah_ditandatangani', 'selesai']))
                 <div class="rounded-2xl border {{ $pengajuan->tanggal_jadwal ? 'border-slate-200 bg-white' : 'border-amber-200 bg-amber-50' }} p-4 shadow-sm">

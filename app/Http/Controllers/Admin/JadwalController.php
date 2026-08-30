@@ -56,7 +56,15 @@ class JadwalController extends Controller
             ->paginate($perPage, ['*'], 'menunggu')
             ->withQueryString();
 
-        return view('admin.jadwal.index', compact('jadwal', 'menungguJadwal', 'perPage'));
+        // Sidang baru diajukan — perlu verifikasi berkas oleh Admin
+        $sidangPerluVerifikasi = PengajuanSurat::where('jenis_surat', 'sidang_skripsi')
+            ->where('status', 'diajukan')
+            ->with(['mahasiswa.user', 'pengajuanJudul'])
+            ->orderBy('created_at')
+            ->paginate($perPage, ['*'], 'verifikasi')
+            ->withQueryString();
+
+        return view('admin.jadwal.index', compact('jadwal', 'menungguJadwal', 'sidangPerluVerifikasi', 'perPage'));
     }
 
     /** Detail satu jadwal */
@@ -76,6 +84,36 @@ class JadwalController extends Controller
             'pengajuan' => $pengajuan,
             'nomorSuffix' => $this->nomorService->getSuffix(),
         ]);
+    }
+
+    /**
+     * Admin verifikasi berkas sidang skripsi.
+     * Jika berkas kurang → kembalikan dengan catatan ke mahasiswa.
+     * Jika berkas OK → tandai terverifikasi, Kaprodi bisa ACC.
+     */
+    public function verifikasiBerkas(Request $request, PengajuanSurat $pengajuan): RedirectResponse
+    {
+        abort_unless($pengajuan->jenis_surat === 'sidang_skripsi', 404);
+        abort_unless($pengajuan->status === 'diajukan', 403, 'Hanya bisa verifikasi pengajuan berstatus diajukan.');
+
+        $request->validate([
+            'keputusan' => ['required', 'in:lulus,kembalikan'],
+            'catatan' => ['required_if:keputusan,kembalikan', 'nullable', 'string', 'max:1000'],
+        ], [
+            'keputusan.required' => 'Pilih keputusan verifikasi.',
+            'catatan.required_if' => 'Catatan wajib diisi jika berkas dikembalikan.',
+        ]);
+
+        $lulus = $request->keputusan === 'lulus';
+        $catatan = $request->catatan ?? '';
+
+        $this->stateService->verifikasiBerkas($pengajuan, auth()->user(), $catatan, $lulus);
+
+        if ($lulus) {
+            return back()->with('success', 'Berkas dinyatakan lengkap. Pengajuan sudah bisa di-ACC oleh Kaprodi.');
+        }
+
+        return back()->with('warning', 'Berkas dikembalikan ke mahasiswa dengan catatan: '.$catatan);
     }
 
     /**

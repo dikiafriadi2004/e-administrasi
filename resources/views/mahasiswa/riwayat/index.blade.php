@@ -212,8 +212,16 @@
                                         @if ($s->waktu_jadwal)
                                             <p class="text-xs text-slate-400">{{ $s->waktu_jadwal }} &mdash; {{ $s->tempat_jadwal }}</p>
                                         @endif
+                                    @elseif (! empty($s->data_form['tanggal_rencana']))
+                                        <p class="text-xs text-slate-400">Usul: {{ $s->data_form['tanggal_rencana'] }}</p>
                                     @else
-                                        <p class="text-slate-400 italic">{{ $s->data_form['tanggal_rencana'] ?? '-' }}</p>
+                                        <p class="text-slate-400 italic text-xs">Menunggu jadwal</p>
+                                    @endif
+                                    {{-- Tampilkan catatan admin jika berkas dikembalikan --}}
+                                    @if ($s->catatan_admin && ! $s->berkas_diverifikasi)
+                                        <div class="mt-1 rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-[10px] text-red-700">
+                                            <span class="font-semibold">Berkas dikembalikan:</span> {{ $s->catatan_admin }}
+                                        </div>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-xs text-gray-700">

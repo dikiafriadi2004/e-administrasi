@@ -50,6 +50,7 @@ Route::prefix('jadwal')->name('jadwal.')->group(function () {
     Route::get('/', [JadwalController::class, 'index'])->name('index');
     Route::get('/{pengajuan}', [JadwalController::class, 'show'])->name('show');
     Route::post('/{pengajuan}/tetapkan-jadwal', [JadwalController::class, 'tetapkanJadwal'])->name('tetapkan-jadwal');
+    Route::post('/{pengajuan}/verifikasi-berkas', [JadwalController::class, 'verifikasiBerkas'])->name('verifikasi-berkas');
     Route::post('/{pengajuan}/generate-undangan', [JadwalController::class, 'generateUndangan'])->name('generate-undangan');
     Route::post('/{pengajuan}/upload-undangan', [JadwalController::class, 'uploadUndangan'])->name('upload-undangan');
     Route::post('/{pengajuan}/upload-absensi', [JadwalController::class, 'uploadAbsensi'])->name('upload-absensi');

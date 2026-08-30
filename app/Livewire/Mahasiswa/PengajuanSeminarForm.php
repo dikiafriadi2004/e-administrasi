@@ -19,10 +19,6 @@ class PengajuanSeminarForm extends Component
 
     public PengajuanJudul $pengajuanJudul;
 
-    /** Usulan tanggal dari mahasiswa — opsional, Kaprodi yang menetapkan jadwal resmi */
-    #[Validate('nullable|date|after:today')]
-    public string $tanggalRencana = '';
-
     /** Multiple berkas syarat */
     #[Validate('nullable|array|max:10')]
     public array $fileBerkas = [];
@@ -60,7 +56,7 @@ class PengajuanSeminarForm extends Component
             ->exists();
 
         if ($aktif) {
-            $this->addError('tanggalRencana', 'Anda sudah memiliki pengajuan seminar proposal yang masih aktif.');
+            $this->addError('fileBerkas', 'Anda sudah memiliki pengajuan seminar proposal yang masih aktif.');
 
             return;
         }
@@ -69,10 +65,7 @@ class PengajuanSeminarForm extends Component
             'mahasiswa_id' => $mahasiswa->id,
             'jenis_surat' => 'seminar_proposal',
             'pengajuan_judul_id' => $this->pengajuanJudul->id,
-            'data_form' => [
-                // Hanya simpan usulan tanggal — waktu & tempat ditetapkan Kaprodi
-                'tanggal_rencana' => $this->tanggalRencana ?: null,
-            ],
+            'data_form' => [],
             'status' => 'diajukan',
         ]);
 
