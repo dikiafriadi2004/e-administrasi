@@ -50,42 +50,41 @@ class ResetPengajuan extends Command
 
         $this->info('Memulai reset...');
 
-        DB::transaction(function () {
-            // 1. Hapus semua berkas (path di storage) sebelum hapus record
+        // Disable FK checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            // 1. Hapus file dari storage
             $this->hapusFileStorage();
 
-            // 2. Hapus berkas pengajuan (polymorphic)
+            // 2. Truncate semua tabel terkait pengajuan
             $this->line('  Menghapus berkas_pengajuan...');
             BerkasPengajuan::truncate();
 
-            // 3. Hapus status histories pengajuan
             $this->line('  Menghapus status_histories...');
             StatusHistory::truncate();
 
-            // 4. Hapus pengajuan surat
             $this->line('  Menghapus pengajuan_surat...');
             PengajuanSurat::truncate();
 
-            // 5. Hapus pengajuan judul
             $this->line('  Menghapus pengajuan_judul...');
             PengajuanJudul::truncate();
 
-            // 6. Hapus data mahasiswa
             $this->line('  Menghapus mahasiswas...');
             DB::table('mahasiswas')->truncate();
 
-            // 7. Hapus akun mahasiswa (role = mahasiswa)
             $this->line('  Menghapus users mahasiswa...');
             DB::table('users')->where('role', 'mahasiswa')->delete();
 
-            // 8. Reset counter nomor surat
             $this->line('  Reset nomor_surat_counters...');
             DB::table('nomor_surat_counters')->truncate();
 
-            // 9. Reset sessions dan cache terkait
+            $this->line('  Reset sessions & cache...');
             DB::table('sessions')->truncate();
             DB::table('cache')->truncate();
-        });
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
 
         // 10. Bersihkan file storage di luar transaksi
         $this->bersihkanFolderStorage();
