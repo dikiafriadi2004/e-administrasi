@@ -1,8 +1,8 @@
 ﻿<div>
-    <div class="flex gap-6 items-start">
+    <div class="max-w-2xl mx-auto">
 
         {{-- ===== KIRI: Form ===== --}}
-        <div class="w-72 shrink-0">
+        <div>
             <div class="rounded-xl border bg-white p-6 shadow-sm">
                 <h2 class="mb-5 text-base font-semibold text-slate-800">Pengajuan Judul Skripsi</h2>
 
@@ -80,43 +80,5 @@
                 </form>
             </div>
         </div>
-
-        {{-- ===== KANAN: Pratinjau Data ===== --}}
-        <div class="flex-1 min-w-0">
-            <div class="sticky top-6 rounded-2xl border border-brand-100 bg-brand-50 p-5">
-                <p class="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-600">
-                    <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                    Pratinjau Data
-                </p>
-                <dl class="space-y-3 text-sm">
-                    <div>
-                        <dt class="text-xs font-medium text-slate-500">Nama Mahasiswa</dt>
-                        <dd class="mt-0.5 text-slate-800">{{ auth()->user()?->name ?? '—' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium text-slate-500">NIM</dt>
-                        <dd class="mt-0.5 font-mono text-slate-800">{{ auth()->user()?->mahasiswa?->nim ?? '—' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium text-slate-500">Judul</dt>
-                        <dd class="mt-0.5 break-words text-slate-800 leading-snug">{{ $judul ?: '—' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium text-slate-500">Bidang Kajian</dt>
-                        <dd class="mt-0.5 text-slate-800">{{ $bidangKajian ?: '—' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium text-slate-500">Ringkasan</dt>
-                        <dd class="mt-0.5 text-xs leading-relaxed text-slate-600">
-                            {{ $ringkasan ? \Illuminate\Support\Str::limit($ringkasan, 150) : '—' }}
-                        </dd>
-                    </div>
-                </dl>
-                <div class="mt-4 rounded-xl bg-white px-3 py-2 text-xs text-slate-500">
-                    Pratinjau ini bukan tampilan surat resmi — hanya ringkasan data yang akan diajukan.
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>

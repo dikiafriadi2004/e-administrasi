@@ -1,8 +1,8 @@
 ﻿<div>
-    <div class="flex gap-6 items-start">
+    <div class="max-w-2xl mx-auto">
 
         {{-- ===== KIRI: Form Input ===== --}}
-        <div class="w-80 shrink-0 space-y-4">
+        <div>
 
             {{-- Guard: seminar belum selesai --}}
             @if (! $this->seminarSelesai)
@@ -231,34 +231,5 @@
             @endif
 
         </div>
-
-        {{-- ===== KANAN: Preview Surat dari Template ===== --}}
-        <div class="flex-1 min-w-0">
-            @php
-                $previewParams = http_build_query(array_filter([
-                    'jenis'             => 'izin_penelitian',
-                    'nama_mahasiswa'    => auth()->user()?->name ?? '',
-                    'nim'               => auth()->user()?->mahasiswa?->nim ?? '',
-                    'judul_penelitian'  => $judulPenelitian,
-                    'bidang_penelitian' => $bidangPenelitian,
-                ], fn ($v) => $v !== null && $v !== ''));
-            @endphp
-
-            <div class="mb-2 flex items-center justify-between">
-                <p class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
-                    <x-icon name="eye" class="h-3.5 w-3.5" />
-                    Pratinjau Surat
-                </p>
-                <p class="text-xs text-slate-400">Preview dari template aktif</p>
-            </div>
-
-            <div class="rounded-xl border bg-white shadow-sm overflow-hidden" style="min-height: 297mm;">
-                <iframe src="{{ route('preview-surat') }}?{{ $previewParams }}"
-                        style="width: 100%; min-height: 297mm; border: none;"
-                        title="Pratinjau Surat">
-                </iframe>
-            </div>
-        </div>
-
     </div>
 </div>

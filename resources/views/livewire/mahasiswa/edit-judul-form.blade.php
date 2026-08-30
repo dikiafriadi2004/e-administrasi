@@ -1,8 +1,8 @@
 ﻿<div>
-    <div class="flex gap-6 items-start">
+    <div class="max-w-2xl mx-auto">
 
         {{-- ===== KIRI: Form Edit ===== --}}
-        <div class="w-80 shrink-0">
+        <div>
             <div class="rounded-xl border bg-white p-6 shadow-sm">
                 <h2 class="mb-1 text-base font-bold text-slate-800">Revisi Judul Skripsi</h2>
                 <p class="mb-5 text-xs text-slate-400">Perbaiki data pengajuan sesuai catatan dari Kaprodi.</p>
@@ -112,35 +112,5 @@
                 </form>
             </div>
         </div>
-
-        {{-- ===== KANAN: Pratinjau perubahan ===== --}}
-        <div class="flex-1 min-w-0">
-            <div class="sticky top-6 rounded-2xl border border-brand-100 bg-brand-50 p-5">
-                <p class="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-600">
-                    <x-icon name="eye" class="h-3.5 w-3.5" />
-                    Pratinjau Data
-                </p>
-                <dl class="space-y-3 text-sm">
-                    <div>
-                        <dt class="text-xs font-medium text-slate-500">Judul</dt>
-                        <dd class="mt-0.5 break-words text-slate-800 leading-snug">{{ $judul ?: '—' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium text-slate-500">Bidang Kajian</dt>
-                        <dd class="mt-0.5 text-slate-800">{{ $bidangKajian ?: '—' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium text-slate-500">Ringkasan</dt>
-                        <dd class="mt-0.5 text-xs leading-relaxed text-slate-600">
-                            {{ $ringkasan ? \Illuminate\Support\Str::limit($ringkasan, 200) : '—' }}
-                        </dd>
-                    </div>
-                </dl>
-                <div class="mt-4 rounded-xl bg-white px-3 py-2 text-xs text-slate-500">
-                    Revisi ini akan mengubah status pengajuan kembali ke <strong>Diajukan</strong> untuk ditinjau ulang oleh Kaprodi.
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>

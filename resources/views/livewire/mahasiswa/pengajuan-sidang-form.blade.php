@@ -1,8 +1,8 @@
 ﻿<div>
-    <div class="flex gap-6 items-start">
+    <div class="max-w-2xl mx-auto">
 
         {{-- ===== KIRI: Form ===== --}}
-        <div class="w-72 shrink-0">
+        <div>
             <div class="rounded-xl border bg-white p-6 shadow-sm">
                 <h2 class="mb-5 text-base font-semibold text-slate-800">Pengajuan Sidang Skripsi</h2>
 
@@ -79,39 +79,5 @@
                 </form>
             </div>
         </div>
-
-        {{-- ===== KANAN: Preview dari Template Word ===== --}}
-        <div class="flex-1 min-w-0">
-            @php
-                $previewParams = http_build_query(array_filter([
-                    'jenis'             => 'sidang_skripsi',
-                    'nama_mahasiswa'    => auth()->user()?->name ?? '',
-                    'nim'               => auth()->user()?->mahasiswa?->nim ?? '',
-                    'judul_skripsi'     => $pengajuanJudul->judul,
-                    'bidang_kajian'     => $pengajuanJudul->bidang_kajian ?? '',
-                    'nama_pembimbing'   => $pengajuanJudul->dosenPembimbing?->nama ?? '',
-                    'nip_pembimbing'    => $pengajuanJudul->dosenPembimbing?->nip ?? '',
-                    'nama_pembimbing_1' => $pengajuanJudul->dosenPembimbing?->nama ?? '',
-                    'nip_pembimbing_1'  => $pengajuanJudul->dosenPembimbing?->nip ?? '',
-                ], fn($v) => $v !== null && $v !== ''));
-            @endphp
-
-            <div class="mb-2 flex items-center justify-between">
-                <p class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-500">
-                    <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                    Pratinjau Surat
-                </p>
-                <p class="text-xs text-slate-400">Preview dari template aktif</p>
-            </div>
-
-            <div class="rounded-xl border bg-white shadow-sm overflow-hidden" style="min-height: 297mm;">
-                <iframe src="{{ route('preview-surat') }}?{{ $previewParams }}"
-                        style="width: 100%; min-height: 297mm; border: none;"
-                        title="Pratinjau Surat Sidang Skripsi">
-                </iframe>
-            </div>
-            <p class="mt-2 text-center text-xs text-slate-400">Penguji & jadwal resmi ditentukan oleh Kaprodi</p>
-        </div>
-
     </div>
 </div>
