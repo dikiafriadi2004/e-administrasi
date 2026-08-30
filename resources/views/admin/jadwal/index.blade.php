@@ -4,15 +4,77 @@
     <div class="space-y-4">
         <div>
             <h2 class="text-lg font-bold text-slate-800">Jadwal Seminar & Sidang</h2>
-            <p class="mt-1 text-sm text-slate-500">Semua jadwal yang sudah ditetapkan Kaprodi. Upload surat undangan hasil TTD ke masing-masing mahasiswa.</p>
+            <p class="mt-1 text-sm text-slate-500">Kelola jadwal seminar dan sidang skripsi. Tetapkan tanggal/waktu/tempat lalu buat surat undangan.</p>
         </div>
 
+        <x-per-page-selector :current="$perPage ?? 10" />
 
-        <div class="mb-2 flex items-center justify-between gap-3">
-            <x-per-page-selector :current="$perPage ?? 10" />
-            <p class="text-xs text-slate-400">Total: {{ $jadwal->total() }} data</p>
-        </div>
+        {{-- Tabel: Menunggu Jadwal --}}
+        @if ($menungguJadwal->count())
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 overflow-hidden shadow-sm">
+                <div class="flex items-center gap-2 border-b border-amber-200 bg-amber-100 px-4 py-2.5">
+                    <x-icon name="clock" class="h-4 w-4 text-amber-600" />
+                    <span class="text-xs font-semibold uppercase tracking-wider text-amber-700">
+                        Menunggu Penetapan Jadwal ({{ $menungguJadwal->total() }})
+                    </span>
+                </div>
+                <table class="min-w-full divide-y divide-amber-100 text-sm">
+                    <thead class="bg-amber-50 text-xs font-semibold uppercase tracking-wider text-amber-600">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Mahasiswa</th>
+                            <th class="px-4 py-3 text-left">Jenis</th>
+                            <th class="px-4 py-3 text-left">Penguji</th>
+                            <th class="px-4 py-3 text-left">Disetujui</th>
+                            <th class="px-4 py-3 text-left">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-amber-100 bg-white">
+                        @foreach ($menungguJadwal as $p)
+                            <tr class="hover:bg-amber-50 transition-colors">
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-slate-800">{{ $p->mahasiswa->user->name }}</p>
+                                    <p class="text-xs text-slate-400">{{ $p->mahasiswa->nim }}</p>
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-600">
+                                    {{ $p->jenis_surat === 'seminar_proposal' ? 'Seminar Proposal' : 'Sidang Skripsi' }}
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-600">
+                                    <p>P1: {{ $p->dosenPenguji?->nama ?? '—' }}</p>
+                                    @if ($p->dosenPenguji2)
+                                        <p class="text-slate-400">P2: {{ $p->dosenPenguji2->nama }}</p>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-400">
+                                    {{ $p->updated_at->format('d M Y') }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('admin.jadwal.show', $p) }}"
+                                       class="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition-colors">
+                                        <x-icon name="calendar-plus" class="h-3.5 w-3.5" />
+                                        Tetapkan Jadwal
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @if ($menungguJadwal->hasPages())
+                    <div class="px-4 py-2 border-t border-amber-100">{{ $menungguJadwal->links() }}</div>
+                @endif
+            </div>
+        @endif
+
+        {{-- Tabel: Sudah Terjadwal --}}
+        {{-- Tabel: Sudah Terjadwal --}}
         <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between border-b bg-slate-50 px-4 py-2.5">
+                <div class="flex items-center gap-2">
+                    <x-icon name="calendar-days" class="h-4 w-4 text-slate-500" />
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Sudah Terjadwal ({{ $jadwal->total() }})
+                    </span>
+                </div>
+            </div>
             <table class="min-w-full divide-y divide-slate-100 text-sm">
                 <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
                     <tr>

@@ -29,24 +29,34 @@ class JadwalController extends Controller
         private readonly NomorSuratService $nomorService,
     ) {}
 
-    /** Daftar semua pengajuan seminar & sidang yang sudah dijadwalkan */
+    /** Daftar semua pengajuan seminar & sidang yang sudah disetujui Kaprodi */
     public function index(): View
     {
         $perPage = (int) min(max((int) request('perPage', 10), 5), 100);
+
+        // Sudah ada jadwal — tampil di tabel utama
         $jadwal = PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
             ->whereNotNull('tanggal_jadwal')
             ->with([
                 'mahasiswa.user',
                 'pengajuanJudul.dosenPembimbing',
-                'pengajuanJudul.dosenPembimbing2',
                 'dosenPenguji',
                 'dosenPenguji2',
             ])
             ->orderBy('tanggal_jadwal')
-            ->paginate($perPage)
+            ->paginate($perPage, ['*'], 'jadwal')
             ->withQueryString();
 
-        return view('admin.jadwal.index', array_merge(compact('jadwal'), ['perPage' => $perPage]));
+        // Disetujui Kaprodi tapi jadwal BELUM ditetapkan Admin — perlu tindakan
+        $menungguJadwal = PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
+            ->where('status', 'disetujui')
+            ->whereNull('tanggal_jadwal')
+            ->with(['mahasiswa.user', 'dosenPenguji', 'dosenPenguji2'])
+            ->orderBy('updated_at')
+            ->paginate($perPage, ['*'], 'menunggu')
+            ->withQueryString();
+
+        return view('admin.jadwal.index', compact('jadwal', 'menungguJadwal', 'perPage'));
     }
 
     /** Detail satu jadwal */
@@ -66,6 +76,50 @@ class JadwalController extends Controller
             'pengajuan' => $pengajuan,
             'nomorSuffix' => $this->nomorService->getSuffix(),
         ]);
+    }
+
+    /**
+     * Admin tetapkan jadwal (tanggal/waktu/tempat) untuk seminar atau sidang
+     * yang sudah disetujui Kaprodi (penguji sudah ditetapkan, jadwal belum).
+     */
+    public function tetapkanJadwal(Request $request, PengajuanSurat $pengajuan): RedirectResponse
+    {
+        abort_unless(
+            in_array($pengajuan->jenis_surat, ['seminar_proposal', 'sidang_skripsi']),
+            404
+        );
+        abort_unless($pengajuan->status === 'disetujui', 403, 'Jadwal hanya bisa ditetapkan pada pengajuan berstatus disetujui.');
+
+        $jenisLabel = $pengajuan->jenis_surat === 'seminar_proposal' ? 'Seminar Proposal' : 'Sidang Skripsi';
+
+        $request->validate([
+            'tanggal_jadwal' => ['required', 'date'],
+            'waktu_jadwal' => ['required', 'string', 'max:50'],
+            'tempat_jadwal' => ['required', 'string', 'max:255'],
+        ], [
+            'tanggal_jadwal.required' => 'Tanggal jadwal wajib diisi.',
+            'waktu_jadwal.required' => 'Waktu jadwal wajib diisi.',
+            'tempat_jadwal.required' => 'Tempat / ruangan wajib diisi.',
+        ]);
+
+        $pengajuan->update([
+            'tanggal_jadwal' => $request->tanggal_jadwal,
+            'waktu_jadwal' => $request->waktu_jadwal,
+            'tempat_jadwal' => $request->tempat_jadwal,
+        ]);
+
+        StatusHistory::create([
+            'model_type' => PengajuanSurat::class,
+            'model_id' => $pengajuan->id,
+            'status_lama' => 'disetujui',
+            'status_baru' => 'disetujui',
+            'catatan' => "Jadwal {$jenisLabel} ditetapkan oleh admin: "
+                ."{$request->tanggal_jadwal}, {$request->waktu_jadwal}, {$request->tempat_jadwal}.",
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
+        return back()->with('success', "Jadwal {$jenisLabel} berhasil ditetapkan. Silakan generate surat undangan.");
     }
 
     /**

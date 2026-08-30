@@ -133,14 +133,103 @@
                 </div>
             @endif
 
-            {{-- Langkah 1: Generate DOCX --}}
+            {{-- Langkah 0: Tetapkan Jadwal (jika belum ada) --}}
+            @if (in_array($pengajuan->status, ['disetujui', 'menunggu_ttd', 'sudah_ditandatangani', 'selesai']))
+                <div class="rounded-2xl border {{ $pengajuan->tanggal_jadwal ? 'border-slate-200 bg-white' : 'border-amber-200 bg-amber-50' }} p-4 shadow-sm">
+                    <h3 class="mb-1 flex items-center gap-2 text-xs font-semibold {{ $pengajuan->tanggal_jadwal ? 'text-slate-700' : 'text-amber-800' }}">
+                        <x-icon name="calendar" class="h-4 w-4 {{ $pengajuan->tanggal_jadwal ? 'text-sky-500' : 'text-amber-500' }}" />
+                        {{ $pengajuan->tanggal_jadwal ? 'Jadwal Ditetapkan' : 'Langkah 1 — Tetapkan Jadwal' }}
+                    </h3>
+
+                    @if ($pengajuan->tanggal_jadwal)
+                        {{-- Jadwal sudah ada: tampilkan + form edit --}}
+                        <div class="mb-3 space-y-1 text-xs">
+                            <p class="text-slate-700">
+                                <span class="font-medium text-slate-500 w-16 inline-block">Tanggal:</span>
+                                {{ \Carbon\Carbon::parse($pengajuan->tanggal_jadwal)->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                            </p>
+                            <p class="text-slate-700">
+                                <span class="font-medium text-slate-500 w-16 inline-block">Waktu:</span>
+                                {{ $pengajuan->waktu_jadwal }}
+                            </p>
+                            <p class="text-slate-700">
+                                <span class="font-medium text-slate-500 w-16 inline-block">Tempat:</span>
+                                {{ $pengajuan->tempat_jadwal }}
+                            </p>
+                        </div>
+                        <details class="text-xs">
+                            <summary class="cursor-pointer text-slate-400 hover:text-slate-600">Ubah jadwal</summary>
+                            <form method="POST" action="{{ route('admin.jadwal.tetapkan-jadwal', $pengajuan) }}" class="mt-2 space-y-2">
+                                @csrf
+                                <input type="date" name="tanggal_jadwal"
+                                       value="{{ $pengajuan->tanggal_jadwal?->format('Y-m-d') }}"
+                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                <input type="text" name="waktu_jadwal"
+                                       value="{{ $pengajuan->waktu_jadwal }}"
+                                       placeholder="09.00 s/d selesai"
+                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                <input type="text" name="tempat_jadwal"
+                                       value="{{ $pengajuan->tempat_jadwal }}"
+                                       placeholder="Ruang 01.03"
+                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1.5 rounded-xl bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
+                                    <x-icon name="save" class="h-3.5 w-3.5" />
+                                    Simpan Perubahan
+                                </button>
+                            </form>
+                        </details>
+
+                    @else
+                        {{-- Jadwal belum ada: form wajib diisi dulu sebelum generate --}}
+                        <p class="mb-3 text-[11px] text-amber-700">Tentukan tanggal, waktu, dan tempat sebelum membuat surat undangan.</p>
+                        <form method="POST" action="{{ route('admin.jadwal.tetapkan-jadwal', $pengajuan) }}" class="space-y-2">
+                            @csrf
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Tanggal <span class="text-red-500">*</span></label>
+                                <input type="date" name="tanggal_jadwal"
+                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                @error('tanggal_jadwal') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Waktu <span class="text-red-500">*</span></label>
+                                <input type="text" name="waktu_jadwal"
+                                       placeholder="09.00 s/d selesai"
+                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                @error('waktu_jadwal') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium text-slate-600 mb-1">Tempat / Ruangan <span class="text-red-500">*</span></label>
+                                <input type="text" name="tempat_jadwal"
+                                       placeholder="Ruang 01.03"
+                                       class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
+                                @error('tempat_jadwal') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <button type="submit"
+                                    class="flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
+                                <x-icon name="calendar-check" class="h-3.5 w-3.5" />
+                                Tetapkan Jadwal
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            @endif
+
+            {{-- Langkah 1 (sekarang Langkah 2): Generate DOCX — hanya aktif jika jadwal sudah ada --}}
             @if (in_array($pengajuan->status, ['disetujui', 'menunggu_ttd', 'sudah_ditandatangani', 'selesai']))
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <h3 class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700">
                         <x-icon name="file-cog" class="h-4 w-4 text-brand-500" />
-                        Langkah 1 — Generate Surat (DOCX)
+                        Langkah 2 — Generate Surat Undangan (DOCX)
                     </h3>
                     <p class="mb-3 text-[11px] text-slate-400">Isi nomor urut, generate, cetak, minta TTD Kaprodi.</p>
+
+                    @if (! $pengajuan->tanggal_jadwal)
+                        <div class="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                            <x-icon name="alert-triangle" class="h-3.5 w-3.5 inline mr-1" />
+                            Tetapkan jadwal terlebih dahulu sebelum generate surat undangan.
+                        </div>
+                    @else
 
                     @if ($pengajuan->file_docx)
                         <div class="mb-3 flex items-center gap-2 rounded-xl border border-brand-100 bg-brand-50 px-3 py-2">
@@ -179,14 +268,15 @@
                         </p>
                         @error('nomor_urutan') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
                     </form>
+                    @endif {{-- end guard tanggal_jadwal --}}
                 </div>
             @endif
 
-            {{-- Langkah 2: Upload Scan TTD --}}
+            {{-- Langkah 3: Upload Scan TTD --}}
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <h3 class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700">
                     <x-icon name="upload" class="h-4 w-4 text-brand-500" />
-                    Langkah 2 — Upload Scan TTD
+                    Langkah 3 — Upload Scan TTD
                 </h3>
                 <p class="mb-3 text-[11px] text-slate-400">
                     Upload scan surat yang sudah ditandatangani Kaprodi. Mahasiswa dapat mendownloadnya.

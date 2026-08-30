@@ -140,7 +140,7 @@
                     <button @click="if (!penguji1) { $dispatch('notify', {type:'warning', message:'Pilih dosen penguji 1 terlebih dahulu.'}); return; } modalSetujui = true"
                             class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors">
                         <x-icon name="check-circle" class="h-4 w-4" />
-                        Setujui & Tetapkan Penguji + Jadwal
+                        Setujui & Tetapkan Penguji
                     </button>
                     <button @click="modalTolak = true"
                             class="inline-flex items-center gap-2 rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
@@ -160,7 +160,7 @@
                     <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100">
                         <x-icon name="check-circle" class="h-6 w-6 text-emerald-600" />
                     </div>
-                    <h3 class="mb-3 text-base font-bold text-slate-900">Setujui & Tetapkan Jadwal Seminar</h3>
+                    <h3 class="mb-3 text-base font-bold text-slate-900">Setujui & Tetapkan Penguji Seminar</h3>
                     <p class="mb-2 text-sm text-slate-600">Dosen penguji yang ditetapkan:</p>
                     <div class="mb-4 rounded-xl bg-brand-50 px-3 py-2 text-sm space-y-1">
                         <div class="flex gap-2"><span class="w-20 text-slate-500">Penguji 1:</span><span class="font-semibold text-brand-700" x-text="penguji1Nama"></span></div>
@@ -171,28 +171,15 @@
                         <input type="hidden" name="dosen_penguji_id"   :value="penguji1" />
                         <input type="hidden" name="dosen_penguji_2_id" :value="penguji2" />
                         <div>
-                            <x-input-label for="sem_tgl" value="Tanggal Jadwal *" />
-                            <x-text-input id="sem_tgl" name="tanggal_jadwal" type="date" class="mt-1 block w-full"
-                                          min="{{ now()->addWeekdays(7)->format('Y-m-d') }}" />
-                            <p class="mt-0.5 text-xs text-slate-400">Minimal 7 hari kerja dari sekarang</p>
-                            @error('tanggal_jadwal') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <x-input-label for="sem_wkt" value="Waktu *" />
-                            <x-text-input id="sem_wkt" name="waktu_jadwal" type="text" class="mt-1 block w-full" placeholder="10.00 s/d selesai" />
-                            @error('waktu_jadwal') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <x-input-label for="sem_tmp" value="Tempat / Ruangan *" />
-                            <x-text-input id="sem_tmp" name="tempat_jadwal" type="text" class="mt-1 block w-full" placeholder="Ruang 01.03" />
-                            @error('tempat_jadwal') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
                             <x-input-label for="sem_cat" value="Catatan untuk Mahasiswa (opsional)" />
                             <textarea id="sem_cat" name="catatan_kaprodi" rows="2"
                                       class="mt-1 block w-full rounded-xl border-slate-200 text-sm focus:border-brand-400 focus:ring-brand-400"
                                       placeholder="Informasi tambahan untuk mahasiswa..."></textarea>
                         </div>
+                        <p class="text-xs text-slate-400">
+                            <x-icon name="info" class="h-3.5 w-3.5 inline mr-1 text-sky-400" />
+                            Jadwal (tanggal, waktu, tempat) akan ditetapkan oleh Admin setelah persetujuan ini.
+                        </p>
                         <div class="flex justify-end gap-3 pt-1">
                             <button type="button" @click="modalSetujui = false"
                                     class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
@@ -201,7 +188,7 @@
                             <button type="submit"
                                     class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors">
                                 <x-icon name="check" class="h-4 w-4" />
-                                Setujui & Tetapkan
+                                Setujui & Tetapkan Penguji
                             </button>
                         </div>
                     </form>
