@@ -53,7 +53,7 @@
                     Surat Rekomendasi Magang
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('mahasiswa.pengajuan.izin-penelitian.create')" :active="request()->routeIs('mahasiswa.pengajuan.izin-penelitian.*')" icon="microscope">
-                    Surat Izin Penelitian
+                    Izin Penelitian
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('mahasiswa.pengajuan.seminar.create')" :active="request()->routeIs('mahasiswa.pengajuan.seminar.*')" icon="presentation">
                     Seminar Proposal

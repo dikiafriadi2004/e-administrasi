@@ -60,17 +60,20 @@ class PengajuanSuratController extends Controller
         if ($seminarAktif) {
             $pesanStatus = match ($seminarAktif->status) {
                 'diajukan' => 'Pengajuan seminar proposal Anda sedang menunggu keputusan Kaprodi.',
-                'disetujui' => 'Seminar proposal Anda sudah disetujui Kaprodi. Jadwal sedang disiapkan.',
+                'disetujui' => 'Seminar proposal Anda sudah disetujui Kaprodi. Admin sedang menyiapkan jadwal.',
                 'menunggu_ttd' => 'Surat undangan seminar sedang diproses (menunggu tanda tangan).',
                 'sudah_ditandatangani' => 'Surat undangan seminar sudah tersedia. Silakan download dari riwayat.',
                 'selesai' => 'Seminar proposal Anda sudah selesai. Silakan lanjutkan ke sidang skripsi.',
                 default => 'Seminar proposal Anda sudah diproses.',
             };
 
+            $sudahSelesai = in_array($seminarAktif->status, ['disetujui', 'menunggu_ttd', 'sudah_ditandatangani', 'selesai']);
+
             return view('mahasiswa.pengajuan.terkunci', [
                 'pesan' => $pesanStatus,
                 'linkLabel' => 'Lihat Riwayat Pengajuan',
                 'linkUrl' => route('mahasiswa.riwayat.index'),
+                'sudahSelesai' => $sudahSelesai,
             ]);
         }
 
@@ -109,18 +112,21 @@ class PengajuanSuratController extends Controller
 
         if ($sidangAktif) {
             $pesanStatus = match ($sidangAktif->status) {
-                'diajukan' => 'Pengajuan sidang skripsi Anda sedang menunggu keputusan Kaprodi.',
-                'disetujui' => 'Sidang skripsi Anda sudah disetujui Kaprodi. Jadwal sedang disiapkan.',
+                'diajukan' => 'Pengajuan sidang skripsi Anda sedang menunggu verifikasi Admin.',
+                'disetujui' => 'Sidang skripsi Anda sudah disetujui Kaprodi. Admin sedang menyiapkan jadwal.',
                 'menunggu_ttd' => 'Surat undangan sidang sedang diproses (menunggu tanda tangan).',
                 'sudah_ditandatangani' => 'Surat undangan sidang sudah tersedia. Silakan download dari riwayat.',
                 'selesai' => 'Sidang skripsi Anda sudah selesai.',
                 default => 'Sidang skripsi Anda sudah diproses.',
             };
 
+            $sudahSelesai = in_array($sidangAktif->status, ['disetujui', 'menunggu_ttd', 'sudah_ditandatangani', 'selesai']);
+
             return view('mahasiswa.pengajuan.terkunci', [
                 'pesan' => $pesanStatus,
                 'linkLabel' => 'Lihat Riwayat Pengajuan',
                 'linkUrl' => route('mahasiswa.riwayat.index'),
+                'sudahSelesai' => $sudahSelesai,
             ]);
         }
 
