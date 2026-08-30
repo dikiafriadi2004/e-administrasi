@@ -41,7 +41,10 @@ docker compose exec app php artisan event:cache
 echo ""
 echo "[6/6] Fix permissions & icons..."
 docker compose exec app chown -R www-data:www-data storage bootstrap/cache
+docker compose exec app chmod -R 775 storage/app/private
 docker compose cp ./public/icons app:/var/www/html/public/
+docker compose cp ./storage/app/private/templates app:/var/www/html/storage/app/private/
+docker compose exec app chown -R www-data:www-data storage/app/private/templates
 docker compose cp ./public/vendor app:/var/www/html/public/ 2>/dev/null || true
 
 echo ""
