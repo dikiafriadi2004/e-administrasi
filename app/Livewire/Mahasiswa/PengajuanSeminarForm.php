@@ -78,7 +78,7 @@ class PengajuanSeminarForm extends Component
             try {
                 $namaAsli = $file->getClientOriginalName();
                 $path = $file->storeAs(
-                    'berkas/'.$mahasiswa->id.'/seminar/'.$pengajuan->id,
+                    'berkas/'.$mahasiswa->nim.'/seminar_proposal',
                     Str::uuid().'.'.$file->extension(),
                     'private'
                 );

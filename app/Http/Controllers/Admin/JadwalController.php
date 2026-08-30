@@ -236,13 +236,16 @@ class JadwalController extends Controller
             'file_undangan.max' => 'Ukuran file maksimal 10 MB.',
         ]);
 
+        $pengajuan->loadMissing('mahasiswa');
+        $nim = $pengajuan->mahasiswa?->nim ?? 'unknown';
+
         // Hapus file undangan lama jika ada
         if ($pengajuan->file_scan) {
             Storage::disk('private')->delete($pengajuan->file_scan);
         }
 
         $path = $request->file('file_undangan')->storeAs(
-            "undangan/{$pengajuan->id}",
+            "undangan/{$nim}/{$pengajuan->jenis_surat}",
             'undangan_'.now()->format('Ymd_His').'.pdf',
             'private'
         );
@@ -298,9 +301,11 @@ class JadwalController extends Controller
             Storage::disk('private')->delete($pengajuan->file_absensi_seminar);
         }
 
+        $pengajuan->loadMissing('mahasiswa');
+        $nim = $pengajuan->mahasiswa?->nim ?? 'unknown';
         $ext = $request->file('file_absensi')->getClientOriginalExtension();
         $path = $request->file('file_absensi')->storeAs(
-            "berkas/{$pengajuan->id}/absensi",
+            "absensi/{$nim}",
             'absensi_'.now()->format('Ymd_His').'.'.$ext,
             'private'
         );

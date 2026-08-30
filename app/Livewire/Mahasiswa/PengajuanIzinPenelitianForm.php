@@ -107,10 +107,9 @@ class PengajuanIzinPenelitianForm extends Component
             'status' => 'diajukan',
         ]);
 
-        // Upload cover proposal (wajib — sudah TTD pembimbing + penguji)
         $ext = $this->fileCoverProposal->getClientOriginalExtension();
         $namaAsli = $this->fileCoverProposal->getClientOriginalName();
-        $path = 'berkas/'.$mahasiswa->id.'/penelitian/'.$pengajuan->id.'/'.Str::uuid().'.'.$ext;
+        $path = 'berkas/'.$mahasiswa->nim.'/izin_penelitian/'.Str::uuid().'.'.$ext;
 
         Storage::disk('private')->put($path, file_get_contents($this->fileCoverProposal->getRealPath()));
 

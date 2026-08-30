@@ -99,8 +99,10 @@ class GenerateSuratController extends Controller
             'file_scan.max' => 'Ukuran file maksimal 10 MB.',
         ]);
 
+        $surat->loadMissing('mahasiswa');
+        $nim = $surat->mahasiswa?->nim ?? 'unknown';
         $path = $request->file('file_scan')->storeAs(
-            "surat/{$surat->id}",
+            "surat/{$nim}/{$surat->jenis_surat}",
             'scan_'.now()->format('Ymd_His').'.pdf',
             'private'
         );

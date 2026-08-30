@@ -100,7 +100,7 @@ class PengajuanJudulForm extends Component
             try {
                 $namaAsli = $file->getClientOriginalName();
                 $path = $file->storeAs(
-                    'berkas/'.$mahasiswa->id.'/judul/'.$pengajuan->id,
+                    'berkas/'.$mahasiswa->nim.'/judul',
                     Str::uuid().'.'.$file->extension(),
                     'private'
                 );

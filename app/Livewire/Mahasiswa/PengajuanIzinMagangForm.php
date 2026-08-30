@@ -68,7 +68,7 @@ class PengajuanIzinMagangForm extends Component
         if ($this->fileSuratInstansi) {
             $ext = $this->fileSuratInstansi->getClientOriginalExtension();
             $namaAsli = $this->fileSuratInstansi->getClientOriginalName();
-            $path = "berkas/{$mahasiswa->id}/magang/{$pengajuan->id}/".Str::uuid().".{$ext}";
+            $path = "berkas/{$mahasiswa->nim}/magang/".Str::uuid().".{$ext}";
 
             Storage::disk('private')->put($path, file_get_contents($this->fileSuratInstansi->getRealPath()));
 

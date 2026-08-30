@@ -95,7 +95,7 @@ class PengajuanSidangForm extends Component
             try {
                 $namaAsli = $file->getClientOriginalName();
                 $path = $file->storeAs(
-                    'berkas/'.$mahasiswa->id.'/sidang/'.$pengajuan->id,
+                    'berkas/'.$mahasiswa->nim.'/sidang_skripsi',
                     Str::uuid().'.'.$file->extension(),
                     'private'
                 );

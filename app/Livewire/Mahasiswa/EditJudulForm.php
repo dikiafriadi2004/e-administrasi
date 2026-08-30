@@ -68,7 +68,7 @@ class EditJudulForm extends Component
         foreach ($this->fileBerkas as $file) {
             $namaAsli = $file->getClientOriginalName();
             $path = $file->storeAs(
-                'berkas/'.$mahasiswa->id.'/judul/'.$this->pengajuan->id,
+                'berkas/'.$mahasiswa->nim.'/judul',
                 Str::uuid().'.'.$file->extension(),
                 'private'
             );

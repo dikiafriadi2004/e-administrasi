@@ -51,8 +51,10 @@ class SuratGeneratorService
             );
         }
 
-        // Buat direktori output per pengajuan
-        $outputDir = "surat/{$pengajuan->id}";
+        // Buat direktori output berdasarkan NIM + jenis surat (bukan ID)
+        $nim = $pengajuan->mahasiswa?->nim ?? 'unknown';
+        $jenis = $pengajuan->jenis_surat;
+        $outputDir = "surat/{$nim}/{$jenis}";
         Storage::disk('private')->makeDirectory($outputDir);
         $outputDirAbs = Storage::disk('private')->path($outputDir);
 
