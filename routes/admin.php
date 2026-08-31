@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\GenerateSuratController;
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\MahasiswaImportController;
+use App\Http\Controllers\Admin\DosenImportController;
 use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\Admin\TemplateSuratController;
 use App\Http\Controllers\ProfilController;
@@ -27,6 +28,11 @@ Route::post('mahasiswa/{mahasiswa}/toggle-active', [MahasiswaController::class, 
     ->name('mahasiswa.toggle-active');
 Route::get('mahasiswa/import', [MahasiswaImportController::class, 'create'])->name('mahasiswa.import.create');
 Route::post('mahasiswa/import', [MahasiswaImportController::class, 'store'])->name('mahasiswa.import.store');
+Route::get('mahasiswa/import/template', [MahasiswaImportController::class, 'template'])->name('mahasiswa.import.template');
+
+Route::get('dosen/import', [DosenImportController::class, 'create'])->name('dosen.import.create');
+Route::post('dosen/import', [DosenImportController::class, 'store'])->name('dosen.import.store');
+Route::get('dosen/import/template', [DosenImportController::class, 'template'])->name('dosen.import.template');
 
 // Dosen
 Route::resource('dosen', DosenController::class)->except(['show', 'destroy']);

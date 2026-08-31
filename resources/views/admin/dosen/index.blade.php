@@ -8,11 +8,18 @@
                 <h2 class="text-lg font-semibold text-gray-800">Daftar Dosen</h2>
                 <p class="text-sm text-slate-500">Total: {{ $dosens->total() }} dosen</p>
             </div>
-            <a href="{{ route('admin.dosen.create') }}"
-               class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 transition-colors">
-                <x-icon name="user-plus" class="h-4 w-4" />
-                Tambah Dosen
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.dosen.import.create') }}"
+                   class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                    <x-icon name="upload" class="h-4 w-4" />
+                    Import Excel
+                </a>
+                <a href="{{ route('admin.dosen.create') }}"
+                   class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 transition-colors">
+                    <x-icon name="user-plus" class="h-4 w-4" />
+                    Tambah Dosen
+                </a>
+            </div>
         </div>
 
         {{-- Tabel --}}

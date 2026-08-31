@@ -1,9 +1,9 @@
-﻿<x-app-layout>
-    <x-slot name="title">Import Mahasiswa dari Excel</x-slot>
+<x-app-layout>
+    <x-slot name="title">Import Dosen dari Excel</x-slot>
 
     <div class="mx-auto max-w-2xl space-y-5">
         <div class="mb-4 flex items-center gap-2 text-sm text-gray-500">
-            <a href="{{ route('admin.mahasiswa.index') }}" class="hover:text-brand-600">Data Mahasiswa</a>
+            <a href="{{ route('admin.dosen.index') }}" class="hover:text-brand-600">Data Dosen</a>
             <span>/</span>
             <span class="text-gray-700">Import Excel</span>
         </div>
@@ -13,10 +13,10 @@
             <div>
                 <p class="text-sm font-semibold text-emerald-800">Download Template Excel</p>
                 <p class="text-xs text-emerald-700 mt-0.5">
-                    Download file template, isi data mahasiswa sesuai format, lalu upload kembali di bawah.
+                    Download file template, isi data dosen sesuai format, lalu upload kembali di bawah.
                 </p>
             </div>
-            <a href="{{ route('admin.mahasiswa.import.template') }}"
+            <a href="{{ route('admin.dosen.import.template') }}"
                class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors">
                 <x-icon name="download" class="h-4 w-4" />
                 Download Template
@@ -25,17 +25,15 @@
 
         {{-- Form Upload --}}
         <div class="rounded-xl border bg-white p-6 shadow-sm">
-            <h2 class="mb-1 text-base font-semibold text-gray-800">Import Massal Mahasiswa</h2>
+            <h2 class="mb-1 text-base font-semibold text-gray-800">Import Massal Dosen</h2>
             <p class="mb-4 text-sm text-gray-500">
                 Upload file Excel yang sudah diisi. Kolom wajib:
-                <code class="rounded bg-gray-100 px-1 font-mono text-xs">nim</code>,
-                <code class="rounded bg-gray-100 px-1 font-mono text-xs">nama</code>,
-                <code class="rounded bg-gray-100 px-1 font-mono text-xs">email</code>,
-                <code class="rounded bg-gray-100 px-1 font-mono text-xs">angkatan</code>.
-                Duplikat NIM/email akan dilewati.
+                <code class="rounded bg-gray-100 px-1 font-mono text-xs">nip</code>,
+                <code class="rounded bg-gray-100 px-1 font-mono text-xs">nama</code>.
+                Duplikat NIP akan dilewati.
             </p>
 
-            <form method="POST" action="{{ route('admin.mahasiswa.import.store') }}"
+            <form method="POST" action="{{ route('admin.dosen.import.store') }}"
                   enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>
@@ -46,7 +44,7 @@
                                   file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1
                                   file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-100" />
                     <x-input-error :messages="$errors->get('file_excel')" class="mt-1" />
-                    <p class="mt-1 text-xs text-slate-400">Maks 5 MB · Password default setiap mahasiswa = NIM-nya</p>
+                    <p class="mt-1 text-xs text-slate-400">Maks 5 MB</p>
                 </div>
                 <x-primary-button>Upload & Proses</x-primary-button>
             </form>
@@ -62,20 +60,16 @@
                 <table class="min-w-full divide-y divide-blue-200 text-xs">
                     <thead>
                         <tr class="text-left font-semibold text-brand-700">
-                            <th class="px-3 py-1.5">nim</th>
+                            <th class="px-3 py-1.5">nip</th>
                             <th class="px-3 py-1.5">nama</th>
-                            <th class="px-3 py-1.5">email</th>
-                            <th class="px-3 py-1.5">angkatan</th>
-                            <th class="px-3 py-1.5">alamat</th>
+                            <th class="px-3 py-1.5">kapasitas_maksimal</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-brand-100">
                         <tr class="text-brand-700">
-                            <td class="px-3 py-1.5 font-mono">2021001</td>
-                            <td class="px-3 py-1.5">Budi Santoso</td>
-                            <td class="px-3 py-1.5">budi@mail.com</td>
-                            <td class="px-3 py-1.5">2021</td>
-                            <td class="px-3 py-1.5 text-slate-400">opsional</td>
+                            <td class="px-3 py-1.5 font-mono">198001012005011001</td>
+                            <td class="px-3 py-1.5">Dr. Nama Dosen, M.Kom.</td>
+                            <td class="px-3 py-1.5 text-slate-400">5 (opsional)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -97,7 +91,7 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div class="rounded-lg bg-green-50 border border-green-200 p-3 text-center">
                         <p class="text-2xl font-bold text-green-700">{{ count($berhasil) }}</p>
-                        <p class="text-xs text-green-600 mt-0.5">Berhasil Dibuat</p>
+                        <p class="text-xs text-green-600 mt-0.5">Berhasil Ditambah</p>
                     </div>
                     <div class="rounded-lg bg-yellow-50 border border-yellow-200 p-3 text-center">
                         <p class="text-2xl font-bold text-yellow-700">{{ count($dilewati) }}</p>
@@ -115,7 +109,7 @@
                         <ul class="space-y-1">
                             @foreach ($dilewati as $item)
                                 <li class="rounded bg-yellow-50 px-3 py-1.5 text-xs text-yellow-800">
-                                    Baris {{ $item['baris'] }} — NIM <strong>{{ $item['nim'] }}</strong>: {{ $item['alasan'] }}
+                                    Baris {{ $item['baris'] }} — NIP <strong>{{ $item['nip'] }}</strong>: {{ $item['alasan'] }}
                                 </li>
                             @endforeach
                         </ul>
@@ -124,11 +118,11 @@
 
                 @if (count($gagal) > 0)
                     <div>
-                        <p class="mb-2 text-xs font-semibold text-red-700">Gagal (data tidak valid):</p>
+                        <p class="mb-2 text-xs font-semibold text-red-700">Gagal:</p>
                         <ul class="space-y-1">
                             @foreach ($gagal as $item)
                                 <li class="rounded bg-red-50 px-3 py-1.5 text-xs text-red-800">
-                                    Baris {{ $item['baris'] }} — NIM <strong>{{ $item['nim'] }}</strong>: {{ $item['alasan'] }}
+                                    Baris {{ $item['baris'] }} — NIP <strong>{{ $item['nip'] }}</strong>: {{ $item['alasan'] }}
                                 </li>
                             @endforeach
                         </ul>
@@ -138,7 +132,7 @@
                 @if (count($berhasil) > 0)
                     <div class="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                         <x-icon name="circle-check" class="h-4 w-4 shrink-0 text-emerald-600" />
-                        {{ count($berhasil) }} akun mahasiswa berhasil dibuat. Password default = NIM masing-masing.
+                        {{ count($berhasil) }} data dosen berhasil ditambahkan.
                     </div>
                 @endif
             </div>
