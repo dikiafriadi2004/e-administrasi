@@ -36,7 +36,7 @@
     @endphp
 
     {{-- Layout dua kolom: kiri = aksi, kanan = preview --}}
-    <div class="flex gap-5 items-start"
+    <div class="flex gap-5 items-start overflow-x-hidden"
          x-data="{
              nomorUrutan: '{{ old('nomor_urutan', $pengajuan->nomor_surat ?? '') }}',
              nomorSuffix: '{{ $nomorSuffix }}',
@@ -44,7 +44,7 @@
          }">
 
         {{-- ===== KOLOM KIRI: Info + Aksi ===== --}}
-        <div class="w-96 shrink-0 space-y-4">
+        <div class="w-80 shrink-0 space-y-4">
 
             {{-- Info Jadwal --}}
             <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -240,11 +240,11 @@
                             </p>
                         </div>
                         <details class="text-xs" open>
-                            <summary class="cursor-pointer text-sky-600 font-medium hover:text-sky-800 mb-2">
-                                <x-icon name="pencil" class="h-3 w-3 inline mr-1" />
+                            <summary class="cursor-pointer text-sky-600 font-medium hover:text-sky-800 mb-2 list-none flex items-center gap-1">
+                                <x-icon name="pencil" class="h-3 w-3" />
                                 Ubah jadwal
                             </summary>
-                            <form method="POST" action="{{ route('admin.jadwal.tetapkan-jadwal', $pengajuan) }}" class="mt-2 space-y-2 bg-slate-50 rounded-xl p-3">
+                            <form method="POST" action="{{ route('admin.jadwal.tetapkan-jadwal', $pengajuan) }}" class="mt-2 space-y-2 rounded-xl bg-slate-50 p-3 border border-slate-200">
                                 @csrf
                                 <div>
                                     <label class="block text-[11px] font-medium text-slate-600 mb-1">Tanggal</label>
@@ -267,7 +267,8 @@
                                            class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
                                 </div>
                                 <button type="submit"
-                                        class="flex w-full items-center justify-center gap-1.5 rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
+                                        style="background-color: #0ea5e9; color: white;"
+                                        class="flex w-full items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold hover:opacity-90 transition-opacity">
                                     <x-icon name="save" class="h-3.5 w-3.5" />
                                     Simpan Perubahan Jadwal
                                 </button>

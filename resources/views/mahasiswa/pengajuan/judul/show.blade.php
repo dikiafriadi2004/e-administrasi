@@ -95,6 +95,14 @@
                         Revisi Pengajuan
                     </a>
                 </div>
+            @elseif ($pengajuan->status === 'disetujui')
+                <div class="mt-4 border-t border-slate-100 pt-4 flex gap-3">
+                    <a href="{{ route('mahasiswa.pengajuan.judul.download-bukti', $pengajuan) }}"
+                       class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 transition-colors">
+                        <x-icon name="download" class="h-4 w-4" />
+                        Download Bukti Persetujuan
+                    </a>
+                </div>
             @endif
         </div>
 

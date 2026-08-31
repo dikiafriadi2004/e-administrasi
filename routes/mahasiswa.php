@@ -19,6 +19,7 @@ Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index
 // Pengajuan Judul Skripsi
 Route::get('/pengajuan/judul/create', [PengajuanJudulController::class, 'create'])->name('pengajuan.judul.create');
 Route::get('/pengajuan/judul/{pengajuanJudul}/edit', [PengajuanJudulController::class, 'edit'])->name('pengajuan.judul.edit');
+Route::get('/pengajuan/judul/{pengajuanJudul}/download-bukti', [PengajuanJudulController::class, 'downloadBukti'])->name('pengajuan.judul.download-bukti');
 Route::get('/pengajuan/judul/{pengajuanJudul}', [PengajuanJudulController::class, 'show'])->name('pengajuan.judul.show');
 
 // Pengajuan Surat — Aktif Kuliah

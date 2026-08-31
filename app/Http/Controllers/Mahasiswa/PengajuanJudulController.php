@@ -80,4 +80,31 @@ class PengajuanJudulController extends Controller
             'pengajuan' => $pengajuanJudul,
         ]);
     }
+
+    /**
+     * Download bukti persetujuan judul sebagai PDF.
+     * Dicetak mahasiswa dan diberikan ke dosen pembimbing.
+     */
+    public function downloadBukti(PengajuanJudul $pengajuanJudul): Response
+    {
+        abort_unless(
+            $pengajuanJudul->mahasiswa_id === auth()->user()->mahasiswa?->id,
+            403
+        );
+        abort_unless($pengajuanJudul->status === 'disetujui', 403, 'Bukti hanya tersedia untuk judul yang sudah disetujui.');
+
+        $pengajuanJudul->load(['dosenPembimbing', 'mahasiswa.user']);
+
+        $mahasiswa = $pengajuanJudul->mahasiswa;
+        $user = $mahasiswa->user;
+        $pembimbing = $pengajuanJudul->dosenPembimbing;
+        $tanggal = $pengajuanJudul->updated_at->locale('id')->isoFormat('D MMMM Y');
+
+        $html = view('mahasiswa.pengajuan.judul.bukti', compact(
+            'pengajuanJudul', 'mahasiswa', 'user', 'pembimbing', 'tanggal'
+        ))->render();
+
+        // Return sebagai HTML yang bisa diprint browser
+        return response($html, 200)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
 }
