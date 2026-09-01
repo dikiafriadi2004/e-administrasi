@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\BerkasPengajuan;
 use App\Models\PengajuanJudul;
 use App\Models\PengajuanSurat;
+use App\Models\StatusHistory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PengajuanJudulController extends Controller
@@ -14,7 +19,6 @@ class PengajuanJudulController extends Controller
     {
         $mahasiswa = auth()->user()->mahasiswa;
 
-        // Guard: cegah duplikasi pengajuan aktif
         $aktif = PengajuanJudul::where('mahasiswa_id', $mahasiswa->id)
             ->whereNotIn('status', ['ditolak'])
             ->first();
@@ -24,10 +28,82 @@ class PengajuanJudulController extends Controller
                 'pesan' => 'Anda sudah memiliki pengajuan judul yang masih aktif.',
                 'linkLabel' => 'Lihat Status Pengajuan',
                 'linkUrl' => route('mahasiswa.riwayat.index'),
+                'sudahSelesai' => false,
             ]);
         }
 
         return view('mahasiswa.pengajuan.judul.create');
+    }
+
+    /** POST — simpan pengajuan judul baru */
+    public function store(Request $request): RedirectResponse
+    {
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        // Guard duplikasi
+        $aktif = PengajuanJudul::where('mahasiswa_id', $mahasiswa->id)
+            ->whereNotIn('status', ['ditolak'])
+            ->exists();
+
+        if ($aktif) {
+            return redirect()->route('mahasiswa.riwayat.index')
+                ->with('error', 'Anda sudah memiliki pengajuan judul yang masih aktif.');
+        }
+
+        $request->validate([
+            'judul' => ['required', 'string', 'min:10', 'max:500'],
+            'bidangKajian' => ['required', 'string', 'max:255'],
+            'ringkasan' => ['required', 'string', 'min:50'],
+            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+        ], [
+            'judul.required' => 'Judul skripsi wajib diisi.',
+            'judul.min' => 'Judul skripsi minimal 10 karakter.',
+            'bidangKajian.required' => 'Bidang kajian wajib diisi.',
+            'ringkasan.required' => 'Ringkasan wajib diisi.',
+            'ringkasan.min' => 'Ringkasan minimal 50 karakter.',
+            'fileBerkas.*.mimes' => 'File harus berformat PDF, DOC, atau DOCX.',
+            'fileBerkas.*.max' => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        $pengajuan = PengajuanJudul::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'judul' => $request->judul,
+            'bidang_kajian' => $request->bidangKajian,
+            'ringkasan' => $request->ringkasan,
+            'status' => 'diajukan',
+        ]);
+
+        // Upload berkas pendukung
+        foreach ($request->file('fileBerkas', []) as $file) {
+            if (! $file || ! $file->isValid()) {
+                continue;
+            }
+            $path = $file->storeAs(
+                'berkas/'.$mahasiswa->nim.'/judul',
+                Str::uuid().'.'.$file->extension(),
+                'private'
+            );
+            BerkasPengajuan::create([
+                'pengajuan_type' => PengajuanJudul::class,
+                'pengajuan_id' => $pengajuan->id,
+                'label' => 'Dokumen Pendukung',
+                'path_file' => $path,
+                'nama_asli' => $file->getClientOriginalName(),
+            ]);
+        }
+
+        StatusHistory::create([
+            'model_type' => PengajuanJudul::class,
+            'model_id' => $pengajuan->id,
+            'status_lama' => null,
+            'status_baru' => 'diajukan',
+            'catatan' => 'Pengajuan judul baru disubmit oleh mahasiswa.',
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('mahasiswa.riwayat.index')
+            ->with('success', 'Pengajuan judul berhasil dikirim! Kaprodi akan segera meninjau.');
     }
 
     /** Edit judul — boleh saat: ditolak, diajukan, atau disetujui (revisi mandiri) */

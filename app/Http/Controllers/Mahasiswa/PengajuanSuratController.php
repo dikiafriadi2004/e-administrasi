@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\BerkasPengajuan;
 use App\Models\PengajuanJudul;
 use App\Models\PengajuanSurat;
+use App\Models\StatusHistory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -35,6 +39,76 @@ class PengajuanSuratController extends Controller
     public function createIzinPenelitian(): View
     {
         return view('mahasiswa.pengajuan.izin-penelitian.create');
+    }
+
+    /** POST — simpan pengajuan seminar proposal */
+    public function storeSeminar(Request $request): RedirectResponse
+    {
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        // Guard: judul harus disetujui
+        $judulDisetujui = $this->getJudulDisetujui();
+        if (! $judulDisetujui) {
+            return redirect()->route('mahasiswa.riwayat.index')
+                ->with('error', 'Judul skripsi harus disetujui terlebih dahulu.');
+        }
+
+        // Guard: tidak boleh ada seminar aktif
+        $seminarAktif = PengajuanSurat::where('mahasiswa_id', $mahasiswa->id)
+            ->where('jenis_surat', 'seminar_proposal')
+            ->whereNotIn('status', ['ditolak'])
+            ->exists();
+
+        if ($seminarAktif) {
+            return redirect()->route('mahasiswa.riwayat.index')
+                ->with('error', 'Anda sudah memiliki pengajuan seminar proposal yang aktif.');
+        }
+
+        $request->validate([
+            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+        ], [
+            'fileBerkas.*.mimes' => 'File harus berformat PDF, DOC, atau DOCX.',
+            'fileBerkas.*.max' => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        $pengajuan = PengajuanSurat::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'jenis_surat' => 'seminar_proposal',
+            'pengajuan_judul_id' => $judulDisetujui->id,
+            'data_form' => [],
+            'status' => 'diajukan',
+        ]);
+
+        foreach ($request->file('fileBerkas', []) as $file) {
+            if (! $file || ! $file->isValid()) {
+                continue;
+            }
+            $path = $file->storeAs(
+                'berkas/'.$mahasiswa->nim.'/seminar_proposal',
+                Str::uuid().'.'.$file->extension(),
+                'private'
+            );
+            BerkasPengajuan::create([
+                'pengajuan_type' => PengajuanSurat::class,
+                'pengajuan_id' => $pengajuan->id,
+                'label' => 'Berkas Syarat',
+                'path_file' => $path,
+                'nama_asli' => $file->getClientOriginalName(),
+            ]);
+        }
+
+        StatusHistory::create([
+            'model_type' => PengajuanSurat::class,
+            'model_id' => $pengajuan->id,
+            'status_lama' => null,
+            'status_baru' => 'diajukan',
+            'catatan' => 'Pengajuan Seminar Proposal disubmit oleh mahasiswa.',
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('mahasiswa.riwayat.index')
+            ->with('success', 'Pengajuan Seminar Proposal berhasil dikirim. Kaprodi akan meninjau berkas.');
     }
 
     /** Tampilkan form Seminar Proposal (dengan guard). */

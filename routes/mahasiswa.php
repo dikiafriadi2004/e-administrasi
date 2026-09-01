@@ -18,6 +18,7 @@ Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index
 
 // Pengajuan Judul Skripsi
 Route::get('/pengajuan/judul/create', [PengajuanJudulController::class, 'create'])->name('pengajuan.judul.create');
+Route::post('/pengajuan/judul', [PengajuanJudulController::class, 'store'])->name('pengajuan.judul.store');
 Route::get('/pengajuan/judul/{pengajuanJudul}/edit', [PengajuanJudulController::class, 'edit'])->name('pengajuan.judul.edit');
 Route::get('/pengajuan/judul/{pengajuanJudul}/download-bukti', [PengajuanJudulController::class, 'downloadBukti'])->name('pengajuan.judul.download-bukti');
 Route::get('/pengajuan/judul/{pengajuanJudul}', [PengajuanJudulController::class, 'show'])->name('pengajuan.judul.show');
@@ -36,6 +37,7 @@ Route::get('/pengajuan/izin-penelitian/create', [PengajuanSuratController::class
 
 // Pengajuan Surat — Seminar Proposal
 Route::get('/pengajuan/seminar/create', [PengajuanSuratController::class, 'createSeminar'])->name('pengajuan.seminar.create');
+Route::post('/pengajuan/seminar', [PengajuanSuratController::class, 'storeSeminar'])->name('pengajuan.seminar.store');
 
 // Pengajuan Surat — Sidang Skripsi
 Route::get('/pengajuan/sidang/create', [PengajuanSuratController::class, 'createSidang'])->name('pengajuan.sidang.create');
