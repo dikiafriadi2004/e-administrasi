@@ -46,8 +46,52 @@
         </div>
 
         {{-- Notifikasi Jadwal Menunggu Surat Undangan --}}
-        @if ($jadwalMenungguSurat > 0 || $jadwalMenungguScan > 0)
+        @if ($sidangPerluVerifikasi > 0 || $menungguJadwal > 0 || $jadwalMenungguSurat > 0 || $jadwalMenungguScan > 0)
             <div class="space-y-2">
+
+                {{-- Sidang baru diajukan, butuh verifikasi berkas --}}
+                @if ($sidangPerluVerifikasi > 0)
+                    <div class="flex items-start gap-4 rounded-2xl border border-violet-200 bg-violet-50 p-4">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100">
+                            <x-icon name="clipboard-check" class="h-5 w-5 text-violet-600" />
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-violet-900">
+                                {{ $sidangPerluVerifikasi }} pengajuan sidang skripsi menunggu verifikasi berkas
+                            </p>
+                            <p class="mt-0.5 text-xs text-violet-700">
+                                Periksa kelengkapan berkas mahasiswa. Jika lengkap, teruskan ke Kaprodi untuk ACC.
+                            </p>
+                            <a href="{{ route('admin.jadwal.index') }}"
+                               class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-violet-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-violet-600 transition-colors">
+                                <x-icon name="clipboard-check" class="h-3.5 w-3.5" />
+                                Verifikasi Sekarang
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Disetujui Kaprodi tapi belum ada jadwal --}}
+                @if ($menungguJadwal > 0)
+                    <div class="flex items-start gap-4 rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-100">
+                            <x-icon name="calendar-plus" class="h-5 w-5 text-sky-600" />
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-sky-900">
+                                {{ $menungguJadwal }} pengajuan menunggu penetapan jadwal
+                            </p>
+                            <p class="mt-0.5 text-xs text-sky-700">
+                                Kaprodi sudah menentukan dosen penguji. Tetapkan tanggal, waktu, dan tempat seminar/sidang.
+                            </p>
+                            <a href="{{ route('admin.jadwal.index') }}"
+                               class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
+                                <x-icon name="calendar-days" class="h-3.5 w-3.5" />
+                                Tetapkan Jadwal
+                            </a>
+                        </div>
+                    </div>
+                @endif
                 @if ($jadwalMenungguSurat > 0)
                     <div class="flex items-start gap-4 rounded-2xl border border-red-200 bg-red-50 p-4">
                         <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100">

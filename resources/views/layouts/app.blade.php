@@ -69,15 +69,31 @@
             @endif
 
             @if ($role === 'admin')
+                @php
+                    // Hitung notifikasi untuk admin — hanya query sekali
+                    $badgeSuratMasuk = \App\Models\PengajuanSurat::where('status', 'diajukan')
+                        ->whereIn('jenis_surat', ['aktif_kuliah', 'izin_magang', 'rekomendasi_magang', 'izin_penelitian'])
+                        ->count();
+
+                    $badgeJadwal = \App\Models\PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
+                        ->where(function ($q) {
+                            $q->where('status', 'diajukan') // sidang butuh verifikasi berkas
+                              ->orWhere(function ($q2) {
+                                  $q2->where('status', 'disetujui')->whereNull('tanggal_jadwal'); // disetujui tapi belum ada jadwal
+                              });
+                        })
+                        ->count();
+                @endphp
+
                 <x-sidebar-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard') && !request()->routeIs('admin.dashboard.rasio')" icon="layout-dashboard">
                     Dashboard
                 </x-sidebar-link>
 
                 <p class="mt-5 mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Surat</p>
-                <x-sidebar-link :href="route('admin.surat.index')" :active="request()->routeIs('admin.surat.*')" icon="inbox">
+                <x-sidebar-link :href="route('admin.surat.index')" :active="request()->routeIs('admin.surat.*')" icon="inbox" :badge="$badgeSuratMasuk ?: null">
                     Antrian Surat
                 </x-sidebar-link>
-                <x-sidebar-link :href="route('admin.jadwal.index')" :active="request()->routeIs('admin.jadwal.*')" icon="calendar-days">
+                <x-sidebar-link :href="route('admin.jadwal.index')" :active="request()->routeIs('admin.jadwal.*')" icon="calendar-days" :badge="$badgeJadwal ?: null">
                     Jadwal Seminar/Sidang
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('admin.buat-surat.create')" :active="request()->routeIs('admin.buat-surat.*')" icon="pen-line">

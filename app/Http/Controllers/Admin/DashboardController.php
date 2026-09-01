@@ -25,6 +25,18 @@ class DashboardController extends Controller
             ->whereIn('jenis_surat', ['aktif_kuliah', 'izin_magang', 'rekomendasi_magang', 'izin_penelitian'])
             ->count();
 
+        // Sidang yang baru diajukan — butuh verifikasi berkas
+        $sidangPerluVerifikasi = PengajuanSurat::where('jenis_surat', 'sidang_skripsi')
+            ->where('status', 'diajukan')
+            ->where('berkas_diverifikasi', false)
+            ->count();
+
+        // Seminar/sidang disetujui Kaprodi tapi jadwal belum ditetapkan Admin
+        $menungguJadwal = PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
+            ->where('status', 'disetujui')
+            ->whereNull('tanggal_jadwal')
+            ->count();
+
         // Jadwal yang perlu dibuatkan surat undangan (sudah disetujui Kaprodi, belum ada DOCX)
         $jadwalMenungguSurat = PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
             ->where('status', 'disetujui')
@@ -56,6 +68,8 @@ class DashboardController extends Controller
             'totalMahasiswaAktif' => User::where('role', 'mahasiswa')->where('is_active', true)->count(),
             'totalDosen' => Dosen::count(),
             'suratMasuk' => $suratMasuk,
+            'sidangPerluVerifikasi' => $sidangPerluVerifikasi,
+            'menungguJadwal' => $menungguJadwal,
             'jadwalMenungguSurat' => $jadwalMenungguSurat,
             'jadwalMenungguScan' => $jadwalMenungguScan,
             'suratBulanIni' => PengajuanSurat::whereMonth('created_at', now()->month)
