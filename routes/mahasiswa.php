@@ -25,15 +25,19 @@ Route::get('/pengajuan/judul/{pengajuanJudul}', [PengajuanJudulController::class
 
 // Pengajuan Surat — Aktif Kuliah
 Route::get('/pengajuan/aktif-kuliah/create', [PengajuanSuratController::class, 'createAktifKuliah'])->name('pengajuan.aktif-kuliah.create');
+Route::post('/pengajuan/aktif-kuliah', [PengajuanSuratController::class, 'storeAktifKuliah'])->name('pengajuan.aktif-kuliah.store');
 
 // Pengajuan Surat — Izin Magang
 Route::get('/pengajuan/izin-magang/create', [PengajuanSuratController::class, 'createIzinMagang'])->name('pengajuan.izin-magang.create');
+Route::post('/pengajuan/izin-magang', [PengajuanSuratController::class, 'storeIzinMagang'])->name('pengajuan.izin-magang.store');
 
 // Pengajuan Surat — Rekomendasi Magang
 Route::get('/pengajuan/rekomendasi-magang/create', [PengajuanSuratController::class, 'createRekomendasiMagang'])->name('pengajuan.rekomendasi-magang.create');
+Route::post('/pengajuan/rekomendasi-magang', [PengajuanSuratController::class, 'storeRekomendasiMagang'])->name('pengajuan.rekomendasi-magang.store');
 
 // Pengajuan Surat — Izin Penelitian
 Route::get('/pengajuan/izin-penelitian/create', [PengajuanSuratController::class, 'createIzinPenelitian'])->name('pengajuan.izin-penelitian.create');
+Route::post('/pengajuan/izin-penelitian', [PengajuanSuratController::class, 'storeIzinPenelitian'])->name('pengajuan.izin-penelitian.store');
 
 // Pengajuan Surat — Seminar Proposal
 Route::get('/pengajuan/seminar/create', [PengajuanSuratController::class, 'createSeminar'])->name('pengajuan.seminar.create');
@@ -41,6 +45,7 @@ Route::post('/pengajuan/seminar', [PengajuanSuratController::class, 'storeSemina
 
 // Pengajuan Surat — Sidang Skripsi
 Route::get('/pengajuan/sidang/create', [PengajuanSuratController::class, 'createSidang'])->name('pengajuan.sidang.create');
+Route::post('/pengajuan/sidang', [PengajuanSuratController::class, 'storeSidang'])->name('pengajuan.sidang.store');
 
 // Detail & Download Surat
 Route::get('/surat/{pengajuanSurat}', [PengajuanSuratController::class, 'show'])->name('surat.show');

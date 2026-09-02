@@ -23,10 +23,78 @@ class PengajuanSuratController extends Controller
         return view('mahasiswa.pengajuan.aktif-kuliah.create');
     }
 
+    /** POST — simpan pengajuan aktif kuliah */
+    public function storeAktifKuliah(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'keperluan' => ['required', 'string', 'max:255'],
+            'tujuanInstansi' => ['nullable', 'string', 'max:255'],
+        ], ['keperluan.required' => 'Keperluan surat wajib dipilih.']);
+
+        $mahasiswa = auth()->user()->mahasiswa;
+        $keperluan = $request->keperluan === 'lainnya'
+            ? trim($request->keperluanManual ?? '')
+            : $request->keperluan;
+
+        $pengajuan = PengajuanSurat::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'jenis_surat' => 'aktif_kuliah',
+            'data_form' => ['keperluan' => $keperluan, 'tujuan_instansi' => $request->tujuanInstansi],
+            'status' => 'diajukan',
+        ]);
+
+        StatusHistory::create([
+            'model_type' => PengajuanSurat::class,
+            'model_id' => $pengajuan->id,
+            'status_lama' => null, 'status_baru' => 'diajukan',
+            'catatan' => 'Pengajuan Surat Aktif Kuliah disubmit.',
+            'changed_by' => auth()->id(), 'created_at' => now(),
+        ]);
+
+        return redirect()->route('mahasiswa.riwayat.index')
+            ->with('success', 'Pengajuan Surat Aktif Kuliah berhasil dikirim.');
+    }
+
     /** Tampilkan form Surat Izin Magang. */
     public function createIzinMagang(): View
     {
         return view('mahasiswa.pengajuan.izin-magang.create');
+    }
+
+    /** POST — simpan pengajuan izin magang */
+    public function storeIzinMagang(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'namaInstansi' => ['required', 'string', 'max:255'],
+            'alamatInstansi' => ['required', 'string', 'max:500'],
+            'tanggalMulai' => ['required', 'date'],
+            'tanggalSelesai' => ['required', 'date', 'after_or_equal:tanggalMulai'],
+            'fileSuratInstansi' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+        ]);
+
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        $pengajuan = PengajuanSurat::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'jenis_surat' => 'izin_magang',
+            'data_form' => [
+                'nama_instansi' => $request->namaInstansi,
+                'alamat_instansi' => $request->alamatInstansi,
+                'tanggal_mulai' => $request->tanggalMulai,
+                'tanggal_selesai' => $request->tanggalSelesai,
+            ],
+            'status' => 'diajukan',
+        ]);
+
+        if ($request->hasFile('fileSuratInstansi') && $request->file('fileSuratInstansi')->isValid()) {
+            $file = $request->file('fileSuratInstansi');
+            $path = $file->storeAs('berkas/'.$mahasiswa->nim.'/magang', Str::uuid().'.'.$file->extension(), 'private');
+            BerkasPengajuan::create(['pengajuan_type' => PengajuanSurat::class, 'pengajuan_id' => $pengajuan->id, 'label' => 'Surat dari Instansi', 'path_file' => $path, 'nama_asli' => $file->getClientOriginalName()]);
+        }
+
+        StatusHistory::create(['model_type' => PengajuanSurat::class, 'model_id' => $pengajuan->id, 'status_lama' => null, 'status_baru' => 'diajukan', 'catatan' => 'Pengajuan Izin Magang disubmit.', 'changed_by' => auth()->id(), 'created_at' => now()]);
+
+        return redirect()->route('mahasiswa.riwayat.index')->with('success', 'Pengajuan Izin Magang berhasil dikirim.');
     }
 
     /** Tampilkan form Surat Rekomendasi Magang. */
@@ -35,10 +103,131 @@ class PengajuanSuratController extends Controller
         return view('mahasiswa.pengajuan.rekomendasi-magang.create');
     }
 
+    /** POST — simpan pengajuan rekomendasi magang */
+    public function storeRekomendasiMagang(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'namaInstansi' => ['required', 'string', 'max:255'],
+            'alamatInstansi' => ['required', 'string', 'max:500'],
+            'fileSuratInstansi' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+        ]);
+
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        $pengajuan = PengajuanSurat::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'jenis_surat' => 'rekomendasi_magang',
+            'data_form' => ['nama_instansi' => $request->namaInstansi, 'alamat_instansi' => $request->alamatInstansi],
+            'status' => 'diajukan',
+        ]);
+
+        if ($request->hasFile('fileSuratInstansi') && $request->file('fileSuratInstansi')->isValid()) {
+            $file = $request->file('fileSuratInstansi');
+            $path = $file->storeAs('berkas/'.$mahasiswa->nim.'/rekomendasi_magang', Str::uuid().'.'.$file->extension(), 'private');
+            BerkasPengajuan::create(['pengajuan_type' => PengajuanSurat::class, 'pengajuan_id' => $pengajuan->id, 'label' => 'Surat dari Instansi', 'path_file' => $path, 'nama_asli' => $file->getClientOriginalName()]);
+        }
+
+        StatusHistory::create(['model_type' => PengajuanSurat::class, 'model_id' => $pengajuan->id, 'status_lama' => null, 'status_baru' => 'diajukan', 'catatan' => 'Pengajuan Rekomendasi Magang disubmit.', 'changed_by' => auth()->id(), 'created_at' => now()]);
+
+        return redirect()->route('mahasiswa.riwayat.index')->with('success', 'Pengajuan Rekomendasi Magang berhasil dikirim.');
+    }
+
     /** Tampilkan form Surat Izin Penelitian. */
     public function createIzinPenelitian(): View
     {
         return view('mahasiswa.pengajuan.izin-penelitian.create');
+    }
+
+    /** POST — simpan pengajuan izin penelitian */
+    public function storeIzinPenelitian(Request $request): RedirectResponse
+    {
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        $seminar = PengajuanSurat::where('mahasiswa_id', $mahasiswa->id)
+            ->where('jenis_surat', 'seminar_proposal')
+            ->whereIn('status', ['disetujui', 'menunggu_ttd', 'sudah_ditandatangani', 'selesai'])
+            ->whereNotNull('file_absensi_seminar')
+            ->latest()->first();
+
+        if (! $seminar) {
+            return redirect()->route('mahasiswa.riwayat.index')
+                ->with('error', 'Seminar proposal harus selesai dan absensi sudah diupload admin.');
+        }
+
+        $izinAktif = PengajuanSurat::where('mahasiswa_id', $mahasiswa->id)
+            ->where('jenis_surat', 'izin_penelitian')
+            ->whereNotIn('status', ['ditolak'])->exists();
+
+        if ($izinAktif) {
+            return redirect()->route('mahasiswa.riwayat.index')->with('error', 'Sudah ada pengajuan izin penelitian aktif.');
+        }
+
+        $request->validate(['fileCoverProposal' => ['required', 'file', 'mimes:pdf', 'max:10240']]);
+
+        $pengajuanJudul = PengajuanJudul::where('mahasiswa_id', $mahasiswa->id)->where('status', 'disetujui')->first();
+
+        $pengajuan = PengajuanSurat::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'jenis_surat' => 'izin_penelitian',
+            'pengajuan_judul_id' => $pengajuanJudul?->id,
+            'data_form' => ['judul_penelitian' => $pengajuanJudul?->judul ?? '', 'bidang_penelitian' => $pengajuanJudul?->bidang_kajian ?? '', 'seminar_id' => $seminar->id],
+            'status' => 'diajukan',
+        ]);
+
+        $file = $request->file('fileCoverProposal');
+        $path = $file->storeAs('berkas/'.$mahasiswa->nim.'/izin_penelitian', Str::uuid().'.'.$file->extension(), 'private');
+        BerkasPengajuan::create(['pengajuan_type' => PengajuanSurat::class, 'pengajuan_id' => $pengajuan->id, 'label' => 'Cover Proposal (TTD Pembimbing & Penguji)', 'path_file' => $path, 'nama_asli' => $file->getClientOriginalName()]);
+
+        StatusHistory::create(['model_type' => PengajuanSurat::class, 'model_id' => $pengajuan->id, 'status_lama' => null, 'status_baru' => 'diajukan', 'catatan' => 'Pengajuan Izin Penelitian disubmit.', 'changed_by' => auth()->id(), 'created_at' => now()]);
+
+        return redirect()->route('mahasiswa.riwayat.index')->with('success', 'Pengajuan Izin Penelitian berhasil dikirim.');
+    }
+
+    /** POST — simpan pengajuan sidang skripsi */
+    public function storeSidang(Request $request): RedirectResponse
+    {
+        $mahasiswa = auth()->user()->mahasiswa;
+        $judulDisetujui = $this->getJudulDisetujui();
+
+        if (! $judulDisetujui) {
+            return redirect()->route('mahasiswa.riwayat.index')->with('error', 'Judul skripsi harus disetujui terlebih dahulu.');
+        }
+
+        if (! $this->seminarSudahSelesai()) {
+            return redirect()->route('mahasiswa.riwayat.index')->with('error', 'Seminar Proposal harus disetujui Kaprodi terlebih dahulu.');
+        }
+
+        $sidangAktif = PengajuanSurat::where('mahasiswa_id', $mahasiswa->id)
+            ->where('jenis_surat', 'sidang_skripsi')->whereNotIn('status', ['ditolak'])->exists();
+
+        if ($sidangAktif) {
+            return redirect()->route('mahasiswa.riwayat.index')->with('error', 'Sudah ada pengajuan sidang aktif.');
+        }
+
+        $request->validate([
+            'tanggalRencana' => ['nullable', 'date', 'after:today'],
+            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+        ]);
+
+        $pengajuan = PengajuanSurat::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'jenis_surat' => 'sidang_skripsi',
+            'pengajuan_judul_id' => $judulDisetujui->id,
+            'data_form' => ['tanggal_rencana' => $request->tanggalRencana ?: null],
+            'status' => 'diajukan',
+        ]);
+
+        foreach ($request->file('fileBerkas', []) as $file) {
+            if (! $file || ! $file->isValid()) {
+                continue;
+            }
+            $path = $file->storeAs('berkas/'.$mahasiswa->nim.'/sidang_skripsi', Str::uuid().'.'.$file->extension(), 'private');
+            BerkasPengajuan::create(['pengajuan_type' => PengajuanSurat::class, 'pengajuan_id' => $pengajuan->id, 'label' => 'Berkas Syarat', 'path_file' => $path, 'nama_asli' => $file->getClientOriginalName()]);
+        }
+
+        StatusHistory::create(['model_type' => PengajuanSurat::class, 'model_id' => $pengajuan->id, 'status_lama' => null, 'status_baru' => 'diajukan', 'catatan' => 'Pengajuan Sidang Skripsi disubmit.', 'changed_by' => auth()->id(), 'created_at' => now()]);
+
+        return redirect()->route('mahasiswa.riwayat.index')->with('success', 'Pengajuan Sidang Skripsi berhasil dikirim.');
     }
 
     /** POST — simpan pengajuan seminar proposal */
