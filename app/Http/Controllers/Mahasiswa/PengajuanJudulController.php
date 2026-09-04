@@ -106,7 +106,83 @@ class PengajuanJudulController extends Controller
             ->with('success', 'Pengajuan judul berhasil dikirim! Kaprodi akan segera meninjau.');
     }
 
-    /** Edit judul — boleh saat: ditolak, diajukan, atau disetujui (revisi mandiri) */
+    /**
+     * PUT — update/revisi judul yang sudah diajukan.
+     */
+    public function update(Request $request, PengajuanJudul $pengajuanJudul): RedirectResponse
+    {
+        abort_unless(
+            $pengajuanJudul->mahasiswa_id === auth()->user()->mahasiswa?->id,
+            403
+        );
+        abort_unless(in_array($pengajuanJudul->status, ['diajukan', 'ditolak', 'disetujui']), 403);
+
+        // Guard: tidak boleh revisi jika sidang sudah aktif
+        $sidangAktif = PengajuanSurat::where('mahasiswa_id', auth()->user()->mahasiswa?->id)
+            ->where('jenis_surat', 'sidang_skripsi')
+            ->whereNotIn('status', ['ditolak'])
+            ->exists();
+
+        if ($sidangAktif) {
+            return redirect()->route('mahasiswa.riwayat.index')
+                ->with('error', 'Judul tidak dapat direvisi karena sidang skripsi sudah aktif.');
+        }
+
+        $request->validate([
+            'judul' => ['required', 'string', 'min:10', 'max:500'],
+            'bidangKajian' => ['required', 'string', 'max:255'],
+            'ringkasan' => ['required', 'string', 'min:50'],
+            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+        ]);
+
+        $statusSebelumnya = $pengajuanJudul->status;
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        $pengajuanJudul->update([
+            'judul' => $request->judul,
+            'bidang_kajian' => $request->bidangKajian,
+            'ringkasan' => $request->ringkasan,
+            'status' => 'diajukan',
+        ]);
+
+        foreach ($request->file('fileBerkas', []) as $file) {
+            if (! $file || ! $file->isValid()) {
+                continue;
+            }
+            $path = $file->storeAs(
+                'berkas/'.$mahasiswa->nim.'/judul',
+                Str::uuid().'.'.$file->extension(),
+                'private'
+            );
+            BerkasPengajuan::create([
+                'pengajuan_type' => PengajuanJudul::class,
+                'pengajuan_id' => $pengajuanJudul->id,
+                'label' => 'Dokumen Pendukung',
+                'path_file' => $path,
+                'nama_asli' => $file->getClientOriginalName(),
+            ]);
+        }
+
+        $catatan = $statusSebelumnya === 'disetujui'
+            ? 'Mahasiswa mengajukan revisi judul (revisi mandiri setelah seminar).'
+            : 'Mahasiswa mengajukan revisi judul.';
+
+        StatusHistory::create([
+            'model_type' => PengajuanJudul::class,
+            'model_id' => $pengajuanJudul->id,
+            'status_lama' => $statusSebelumnya,
+            'status_baru' => 'diajukan',
+            'catatan' => $catatan,
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('mahasiswa.riwayat.index')
+            ->with('success', $statusSebelumnya === 'disetujui'
+                ? 'Revisi judul berhasil diajukan. Kaprodi akan meninjau kembali.'
+                : 'Judul berhasil direvisi dan diajukan kembali.');
+    }
+
     public function edit(PengajuanJudul $pengajuanJudul): View|Response
     {
         abort_unless(

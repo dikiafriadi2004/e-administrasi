@@ -111,7 +111,6 @@ class TemplatePreviewService
             'alamat_mahasiswa' => '',
             'keperluan' => '',
             'tujuan_instansi' => '',
-            'tujuan_instansi' => '',
             'semester_aktif' => Pengaturan::nilai('semester_aktif', ''),
             'tahun_akademik' => Pengaturan::nilai('tahun_akademik', ''),
             'judul_skripsi' => '',

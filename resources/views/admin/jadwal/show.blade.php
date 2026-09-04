@@ -410,12 +410,12 @@
                 </form>
             </div>
 
-            {{-- Langkah 3: Upload Absensi Seminar (khusus seminar_proposal) --}}
+            {{-- Langkah 4: Upload Absensi Seminar (khusus seminar_proposal) --}}
             @if ($pengajuan->jenis_surat === 'seminar_proposal')
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <h3 class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700">
                         <x-icon name="clipboard-list" class="h-4 w-4 text-sky-500" />
-                        Langkah 3 — Upload Absensi Seminar
+                        Langkah 4 — Upload Absensi Seminar
                     </h3>
                     <p class="mb-3 text-[11px] text-slate-400">
                         Upload absensi kehadiran seminar proposal. Mahasiswa akan melihat file ini sebagai syarat pengajuan Izin Penelitian.

@@ -20,6 +20,7 @@ Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat.index
 Route::get('/pengajuan/judul/create', [PengajuanJudulController::class, 'create'])->name('pengajuan.judul.create');
 Route::post('/pengajuan/judul', [PengajuanJudulController::class, 'store'])->name('pengajuan.judul.store');
 Route::get('/pengajuan/judul/{pengajuanJudul}/edit', [PengajuanJudulController::class, 'edit'])->name('pengajuan.judul.edit');
+Route::put('/pengajuan/judul/{pengajuanJudul}', [PengajuanJudulController::class, 'update'])->name('pengajuan.judul.update');
 Route::get('/pengajuan/judul/{pengajuanJudul}/download-bukti', [PengajuanJudulController::class, 'downloadBukti'])->name('pengajuan.judul.download-bukti');
 Route::get('/pengajuan/judul/{pengajuanJudul}', [PengajuanJudulController::class, 'show'])->name('pengajuan.judul.show');
 
