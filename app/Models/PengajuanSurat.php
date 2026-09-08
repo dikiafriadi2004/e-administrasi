@@ -113,6 +113,7 @@ class PengajuanSurat extends Model
 
     public function sudahDigenerate(): bool
     {
-        return $this->file_docx !== null && $this->file_pdf !== null;
+        // file_pdf tidak digenerate (admin cetak dari Word), cukup cek file_docx
+        return $this->file_docx !== null;
     }
 }

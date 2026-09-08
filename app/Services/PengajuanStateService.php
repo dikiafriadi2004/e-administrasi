@@ -91,7 +91,9 @@ class PengajuanStateService
      */
     public function verifikasiBerkas(PengajuanSurat $surat, User $actor, string $catatan, bool $lulus): void
     {
-        abort_unless($surat->jenis_surat === 'sidang_skripsi', 422, 'Hanya untuk sidang skripsi.');
+        if ($surat->jenis_surat !== 'sidang_skripsi') {
+            throw new \DomainException('Verifikasi berkas hanya berlaku untuk sidang skripsi.');
+        }
 
         if (! $lulus) {
             // Berkas kurang — kembalikan ke mahasiswa dengan catatan

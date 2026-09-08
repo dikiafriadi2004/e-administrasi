@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Kaprodi;
 
+use App\Exceptions\InvalidStateTransitionException;
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanSurat;
 use App\Services\PengajuanStateService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UploadScanController extends Controller
 {
@@ -32,7 +34,14 @@ class UploadScanController extends Controller
             'private'
         );
 
-        $this->stateService->uploadScan($surat, auth()->user(), $path);
+        try {
+            $this->stateService->uploadScan($surat, auth()->user(), $path);
+        } catch (InvalidStateTransitionException $e) {
+            // Hapus file yang sudah terupload karena state transition gagal
+            Storage::disk('private')->delete($path);
+
+            return back()->with('error', 'Gagal upload scan: '.$e->getMessage());
+        }
 
         return back()->with('success', 'Scan surat berhasil diupload. Status diperbarui.');
     }

@@ -107,7 +107,11 @@ class JadwalController extends Controller
         $lulus = $request->keputusan === 'lulus';
         $catatan = $request->catatan ?? '';
 
-        $this->stateService->verifikasiBerkas($pengajuan, auth()->user(), $catatan, $lulus);
+        try {
+            $this->stateService->verifikasiBerkas($pengajuan, auth()->user(), $catatan, $lulus);
+        } catch (\DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         if ($lulus) {
             return back()->with('success', 'Berkas dinyatakan lengkap. Pengajuan sudah bisa di-ACC oleh Kaprodi.');

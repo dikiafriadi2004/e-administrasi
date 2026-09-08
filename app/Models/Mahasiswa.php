@@ -6,6 +6,7 @@ use Database\Factories\MahasiswaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Mahasiswa extends Model
 {
@@ -29,5 +30,15 @@ class Mahasiswa extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function pengajuanJudul(): HasMany
+    {
+        return $this->hasMany(PengajuanJudul::class);
+    }
+
+    public function pengajuanSurat(): HasMany
+    {
+        return $this->hasMany(PengajuanSurat::class);
     }
 }

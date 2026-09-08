@@ -408,7 +408,10 @@ class PengajuanSuratController extends Controller
 
         $pengajuanSurat->load([
             'pengajuanJudul.dosenPembimbing',
+            'pengajuanJudul.dosenPembimbing2',
             'dosenPenguji',
+            'dosenPenguji2',
+            'berkas',
             'statusHistories.changedBy',
         ]);
 

@@ -19,11 +19,14 @@ class ArsipSuratExport implements FromQuery, WithColumnWidths, WithHeadings, Wit
         'seminar_proposal' => 'Seminar Proposal',
         'sidang_skripsi' => 'Sidang Skripsi',
         'undangan_penguji' => 'Undangan Penguji',
+        'izin_magang' => 'Izin Magang / PKL',
+        'rekomendasi_magang' => 'Rekomendasi Magang',
+        'izin_penelitian' => 'Izin Penelitian',
     ];
 
     private const STATUS_LIST = [
         'diajukan' => 'Diajukan',
-        'diverifikasi' => 'Diverifikasi',
+        'disetujui' => 'Disetujui',
         'menunggu_ttd' => 'Menunggu TTD',
         'sudah_ditandatangani' => 'Sudah Ditandatangani',
         'selesai' => 'Selesai',

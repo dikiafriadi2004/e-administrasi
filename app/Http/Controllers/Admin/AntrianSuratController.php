@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\InvalidStateTransitionException;
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanSurat;
 use App\Services\NomorSuratService;
@@ -99,7 +100,11 @@ class AntrianSuratController extends Controller
             'catatan_penolakan.required' => 'Alasan penolakan wajib diisi.',
         ]);
 
-        $this->stateService->tolak($surat, auth()->user(), $request->catatan_penolakan);
+        try {
+            $this->stateService->tolak($surat, auth()->user(), $request->catatan_penolakan);
+        } catch (InvalidStateTransitionException $e) {
+            return back()->with('error', 'Tidak bisa menolak: '.$e->getMessage());
+        }
 
         return redirect()->route('admin.surat.index')
             ->with('success', 'Pengajuan surat ditolak.');
@@ -108,7 +113,11 @@ class AntrianSuratController extends Controller
     /** Tandai selesai setelah scan diupload. */
     public function selesaikan(PengajuanSurat $surat): RedirectResponse
     {
-        $this->stateService->selesaikan($surat, auth()->user());
+        try {
+            $this->stateService->selesaikan($surat, auth()->user());
+        } catch (InvalidStateTransitionException $e) {
+            return back()->with('error', 'Tidak bisa menandai selesai: '.$e->getMessage());
+        }
 
         return back()->with('success', 'Surat ditandai selesai. Mahasiswa dapat mengunduh scan.');
     }
