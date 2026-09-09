@@ -254,10 +254,18 @@ class PengajuanSuratController extends Controller
         }
 
         $request->validate([
+            'fileCover' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'fileRiwayatBimbingan' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
             'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
         ], [
-            'fileBerkas.*.mimes' => 'File harus berformat PDF, DOC, atau DOCX.',
-            'fileBerkas.*.max' => 'Ukuran file maksimal 10 MB.',
+            'fileCover.required' => 'Cover proposal yang telah di-ACC dosen pembimbing wajib diupload.',
+            'fileCover.mimes' => 'Cover proposal harus berformat PDF, DOC, atau DOCX.',
+            'fileCover.max' => 'Ukuran cover proposal maksimal 10 MB.',
+            'fileRiwayatBimbingan.required' => 'PDF riwayat bimbingan wajib diupload.',
+            'fileRiwayatBimbingan.mimes' => 'Riwayat bimbingan harus berformat PDF, DOC, atau DOCX.',
+            'fileRiwayatBimbingan.max' => 'Ukuran riwayat bimbingan maksimal 10 MB.',
+            'fileBerkas.*.mimes' => 'File tambahan harus berformat PDF, DOC, atau DOCX.',
+            'fileBerkas.*.max' => 'Ukuran file tambahan maksimal 10 MB.',
         ]);
 
         $pengajuan = PengajuanSurat::create([
@@ -268,6 +276,37 @@ class PengajuanSuratController extends Controller
             'status' => 'diajukan',
         ]);
 
+        // Upload cover ACC pembimbing (wajib)
+        $cover = $request->file('fileCover');
+        $pathCover = $cover->storeAs(
+            'berkas/'.$mahasiswa->nim.'/seminar_proposal',
+            'cover_acc_'.Str::uuid().'.'.$cover->extension(),
+            'private'
+        );
+        BerkasPengajuan::create([
+            'pengajuan_type' => PengajuanSurat::class,
+            'pengajuan_id' => $pengajuan->id,
+            'label' => 'Cover ACC Dosen Pembimbing',
+            'path_file' => $pathCover,
+            'nama_asli' => $cover->getClientOriginalName(),
+        ]);
+
+        // Upload riwayat bimbingan TTD pembimbing (wajib)
+        $riwayat = $request->file('fileRiwayatBimbingan');
+        $pathRiwayat = $riwayat->storeAs(
+            'berkas/'.$mahasiswa->nim.'/seminar_proposal',
+            'riwayat_bimbingan_'.Str::uuid().'.'.$riwayat->extension(),
+            'private'
+        );
+        BerkasPengajuan::create([
+            'pengajuan_type' => PengajuanSurat::class,
+            'pengajuan_id' => $pengajuan->id,
+            'label' => 'Riwayat Bimbingan (TTD Pembimbing)',
+            'path_file' => $pathRiwayat,
+            'nama_asli' => $riwayat->getClientOriginalName(),
+        ]);
+
+        // Upload berkas tambahan opsional
         foreach ($request->file('fileBerkas', []) as $file) {
             if (! $file || ! $file->isValid()) {
                 continue;
@@ -280,7 +319,7 @@ class PengajuanSuratController extends Controller
             BerkasPengajuan::create([
                 'pengajuan_type' => PengajuanSurat::class,
                 'pengajuan_id' => $pengajuan->id,
-                'label' => 'Berkas Syarat',
+                'label' => 'Berkas Tambahan',
                 'path_file' => $path,
                 'nama_asli' => $file->getClientOriginalName(),
             ]);
