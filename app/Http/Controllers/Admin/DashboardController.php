@@ -34,6 +34,11 @@ class DashboardController extends Controller
             ->where('berkas_diverifikasi', false)
             ->count();
 
+        // Seminar yang baru diajukan — butuh verifikasi berkas Admin
+        $seminarPerluVerifikasi = PengajuanSurat::where('jenis_surat', 'seminar_proposal')
+            ->where('status', 'diajukan')
+            ->count();
+
         // Seminar/sidang disetujui Kaprodi tapi jadwal belum ditetapkan Admin
         $menungguJadwal = PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
             ->where('status', 'disetujui')
@@ -73,6 +78,7 @@ class DashboardController extends Controller
             'antrianJudul' => $antrianJudul,
             'suratMasuk' => $suratMasuk,
             'sidangPerluVerifikasi' => $sidangPerluVerifikasi,
+            'seminarPerluVerifikasi' => $seminarPerluVerifikasi,
             'menungguJadwal' => $menungguJadwal,
             'jadwalMenungguSurat' => $jadwalMenungguSurat,
             'jadwalMenungguScan' => $jadwalMenungguScan,

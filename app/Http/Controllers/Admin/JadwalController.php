@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\InvalidStateTransitionException;
 use App\Exceptions\SuratGenerationException;
 use App\Http\Controllers\Controller;
 use App\Models\BerkasPengajuan;
@@ -56,15 +57,23 @@ class JadwalController extends Controller
             ->paginate($perPage, ['*'], 'menunggu')
             ->withQueryString();
 
-        // Sidang baru diajukan — perlu verifikasi berkas oleh Admin
+        // Sidang baru diajukan — perlu verifikasi berkas Admin
         $sidangPerluVerifikasi = PengajuanSurat::where('jenis_surat', 'sidang_skripsi')
             ->where('status', 'diajukan')
-            ->with(['mahasiswa.user', 'pengajuanJudul'])
+            ->with(['mahasiswa.user', 'pengajuanJudul', 'berkas'])
             ->orderBy('created_at')
             ->paginate($perPage, ['*'], 'verifikasi')
             ->withQueryString();
 
-        return view('admin.jadwal.index', compact('jadwal', 'menungguJadwal', 'sidangPerluVerifikasi', 'perPage'));
+        // Seminar baru diajukan — perlu verifikasi berkas Admin sebelum ke Kaprodi
+        $seminarPerluVerifikasi = PengajuanSurat::where('jenis_surat', 'seminar_proposal')
+            ->where('status', 'diajukan')
+            ->with(['mahasiswa.user', 'pengajuanJudul', 'berkas'])
+            ->orderBy('created_at')
+            ->paginate($perPage, ['*'], 'seminar_verif')
+            ->withQueryString();
+
+        return view('admin.jadwal.index', compact('jadwal', 'menungguJadwal', 'sidangPerluVerifikasi', 'seminarPerluVerifikasi', 'perPage'));
     }
 
     /** Detail satu jadwal */
@@ -84,6 +93,24 @@ class JadwalController extends Controller
             'pengajuan' => $pengajuan,
             'nomorSuffix' => $this->nomorService->getSuffix(),
         ]);
+    }
+
+    /**
+     * Admin verifikasi berkas seminar proposal — diteruskan ke Kaprodi.
+     * Transisi: diajukan → diverifikasi_admin
+     */
+    public function verifikasiSeminar(Request $request, PengajuanSurat $pengajuan): RedirectResponse
+    {
+        abort_unless($pengajuan->jenis_surat === 'seminar_proposal', 404);
+        abort_unless($pengajuan->status === 'diajukan', 403, 'Hanya bisa verifikasi seminar berstatus diajukan.');
+
+        try {
+            $this->stateService->verifikasiSeminar($pengajuan, auth()->user());
+        } catch (InvalidStateTransitionException $e) {
+            return back()->with('error', 'Gagal verifikasi: '.$e->getMessage());
+        }
+
+        return back()->with('success', 'Berkas seminar dinyatakan lengkap. Diteruskan ke Kaprodi untuk penentuan penguji.');
     }
 
     /**

@@ -66,12 +66,32 @@ class PengajuanStateService
     }
 
     /**
-     * Kaprodi setujui seminar/sidang (PengajuanSurat): diajukan → disetujui
-     * Untuk seminar_proposal dan sidang_skripsi, penguji 1 wajib sudah dipilih.
+     * Admin verifikasi berkas seminar proposal: diajukan → diverifikasi_admin
+     */
+    public function verifikasiSeminar(PengajuanSurat $surat, User $actor): void
+    {
+        if ($surat->status !== 'diajukan') {
+            throw InvalidStateTransitionException::dariKe($surat->status, 'verifikasi_seminar');
+        }
+
+        $surat->update(['status' => 'diverifikasi_admin']);
+
+        $this->recordHistory($surat, 'diajukan', 'diverifikasi_admin', $actor,
+            'Berkas seminar proposal diperiksa dan dinyatakan lengkap oleh Admin. Diteruskan ke Kaprodi.');
+    }
+
+    /**
+     * Kaprodi setujui seminar/sidang (PengajuanSurat): diverifikasi_admin → disetujui
      */
     public function setujuiPengajuanAkademik(PengajuanSurat $surat, User $actor): void
     {
-        if ($surat->status !== 'diajukan') {
+        // Seminar proposal harus sudah diverifikasi admin dulu
+        // Sidang skripsi masih dari 'diajukan' (verifikasi berkas terpisah via berkas_diverifikasi)
+        $statusDiharapkan = $surat->jenis_surat === 'seminar_proposal'
+            ? 'diverifikasi_admin'
+            : 'diajukan';
+
+        if ($surat->status !== $statusDiharapkan) {
             throw InvalidStateTransitionException::dariKe($surat->status, 'setujui_akademik');
         }
 
@@ -90,12 +110,13 @@ class PengajuanStateService
         Cache::forget('top_dosen_tersedia');
 
         $catatan = match ($surat->jenis_surat) {
-            'seminar_proposal' => 'Pengajuan seminar proposal disetujui oleh Kaprodi.',
+            'seminar_proposal' => 'Pengajuan seminar proposal disetujui, penguji ditetapkan oleh Kaprodi.',
             'sidang_skripsi' => 'Pengajuan sidang skripsi disetujui dan penguji ditetapkan oleh Kaprodi.',
             default => 'Pengajuan disetujui oleh Kaprodi.',
         };
 
-        $this->recordHistory($surat, 'diajukan', 'disetujui', $actor, $catatan);
+        $statusLama = $surat->jenis_surat === 'seminar_proposal' ? 'diverifikasi_admin' : 'diajukan';
+        $this->recordHistory($surat, $statusLama, 'disetujui', $actor, $catatan);
     }
 
     // ─── Surat (Aktif Kuliah, Undangan, dll) ─────────────────────────────────

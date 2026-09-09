@@ -9,6 +9,61 @@
 
         <x-per-page-selector :current="$perPage ?? 10" />
 
+        {{-- Tabel: Seminar Perlu Verifikasi Berkas --}}
+        @if ($seminarPerluVerifikasi->count())
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 overflow-hidden shadow-sm">
+                <div class="flex items-center gap-2 border-b border-emerald-200 bg-emerald-100 px-4 py-2.5">
+                    <x-icon name="clipboard-check" class="h-4 w-4 text-emerald-600" />
+                    <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                        Seminar Proposal — Perlu Verifikasi Berkas ({{ $seminarPerluVerifikasi->total() }})
+                    </span>
+                </div>
+                <table class="min-w-full divide-y divide-emerald-100 text-sm">
+                    <thead class="bg-emerald-50 text-xs font-semibold uppercase tracking-wider text-emerald-600">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Mahasiswa</th>
+                            <th class="px-4 py-3 text-left">Judul Skripsi</th>
+                            <th class="px-4 py-3 text-left">Berkas</th>
+                            <th class="px-4 py-3 text-left">Diajukan</th>
+                            <th class="px-4 py-3 text-left">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-emerald-100 bg-white">
+                        @foreach ($seminarPerluVerifikasi as $p)
+                            <tr class="hover:bg-emerald-50 transition-colors">
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-slate-800">{{ $p->mahasiswa->user->name }}</p>
+                                    <p class="text-xs text-slate-400">{{ $p->mahasiswa->nim }}</p>
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-600">
+                                    {{ \Illuminate\Support\Str::limit($p->pengajuanJudul?->judul ?? '—', 50) }}
+                                </td>
+                                <td class="px-4 py-3 text-xs">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700">
+                                        <x-icon name="paperclip" class="h-3 w-3" />
+                                        {{ $p->berkas->count() }} berkas
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-400">
+                                    {{ $p->created_at->format('d M Y') }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('admin.jadwal.show', $p) }}"
+                                       class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600 transition-colors">
+                                        <x-icon name="clipboard-check" class="h-3.5 w-3.5" />
+                                        Verifikasi Berkas
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @if ($seminarPerluVerifikasi->hasPages())
+                    <div class="px-4 py-2 border-t border-emerald-100">{{ $seminarPerluVerifikasi->links() }}</div>
+                @endif
+            </div>
+        @endif
+
         {{-- Tabel: Sidang Perlu Verifikasi Berkas --}}
         @if ($sidangPerluVerifikasi->count())
             <div class="rounded-2xl border border-violet-200 bg-violet-50 overflow-hidden shadow-sm">

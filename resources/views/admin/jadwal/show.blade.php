@@ -133,6 +133,39 @@
                 </div>
             @endif
 
+            {{-- Panel Verifikasi Berkas Seminar (khusus seminar_proposal, status diajukan) --}}
+            @if ($pengajuan->jenis_surat === 'seminar_proposal' && $pengajuan->status === 'diajukan')
+                <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+                    <h3 class="mb-1 flex items-center gap-2 text-xs font-semibold text-emerald-800">
+                        <x-icon name="clipboard-check" class="h-4 w-4 text-emerald-500" />
+                        Verifikasi Berkas Seminar Proposal
+                    </h3>
+                    <p class="mb-3 text-[11px] text-emerald-700">
+                        Periksa berkas yang dilampirkan mahasiswa (Cover ACC pembimbing & Riwayat Bimbingan).
+                        Jika lengkap, klik <strong>Teruskan ke Kaprodi</strong> agar Kaprodi bisa menentukan penguji.
+                    </p>
+
+                    <div class="flex gap-2">
+                        <form method="POST" action="{{ route('admin.jadwal.verifikasi-seminar', $pengajuan) }}">
+                            @csrf
+                            <button type="submit"
+                                    class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition-colors">
+                                <x-icon name="check-circle" class="h-3.5 w-3.5" />
+                                Berkas Lengkap — Teruskan ke Kaprodi
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            @elseif ($pengajuan->jenis_surat === 'seminar_proposal' && $pengajuan->status === 'diverifikasi_admin')
+                <div class="rounded-2xl border border-sky-200 bg-sky-50 p-3 shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <x-icon name="circle-check" class="h-4 w-4 text-sky-600" />
+                        <p class="text-xs font-medium text-sky-700">Berkas sudah diverifikasi — menunggu Kaprodi menentukan penguji</p>
+                    </div>
+                </div>
+            @endif
+
             {{-- Panel Verifikasi Berkas (khusus sidang_skripsi, status diajukan) --}}
             @if ($pengajuan->jenis_surat === 'sidang_skripsi' && $pengajuan->status === 'diajukan')
                 <div class="rounded-2xl border {{ $pengajuan->berkas_diverifikasi ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' }} p-4 shadow-sm">

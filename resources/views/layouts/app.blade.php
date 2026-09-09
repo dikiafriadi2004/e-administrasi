@@ -77,7 +77,7 @@
 
                     $badgeJadwal = \App\Models\PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
                         ->where(function ($q) {
-                            $q->where('status', 'diajukan')
+                            $q->where('status', 'diajukan') // seminar/sidang butuh verifikasi berkas
                               ->orWhere(function ($q2) {
                                   $q2->where('status', 'disetujui')->whereNull('tanggal_jadwal');
                               });

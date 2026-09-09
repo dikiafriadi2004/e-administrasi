@@ -71,6 +71,21 @@
         </div>
 
         @if ($pengajuan->status === 'diajukan')
+            {{-- Belum diverifikasi admin --}}
+            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <x-icon name="clock" class="h-5 w-5 shrink-0 text-amber-500 mt-0.5" />
+                    <div>
+                        <p class="text-sm font-semibold text-amber-800">Menunggu Verifikasi Admin</p>
+                        <p class="mt-1 text-xs text-amber-700">
+                            Berkas seminar proposal mahasiswa ini belum diperiksa oleh Admin.
+                            Penguji baru bisa ditentukan setelah Admin memverifikasi kelengkapan berkas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        @elseif ($pengajuan->status === 'diverifikasi_admin')
             {{-- Tabel Pilih Penguji --}}
             <div class="rounded-xl border bg-white p-6 shadow-sm">
                 <h3 class="mb-1 text-sm font-semibold text-slate-700">Pilih Dosen Penguji</h3>

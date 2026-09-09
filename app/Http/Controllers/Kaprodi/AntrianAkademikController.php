@@ -42,7 +42,7 @@ class AntrianAkademikController extends Controller
             ->withQueryString();
 
         $pengajuanSeminar = PengajuanSurat::where('jenis_surat', 'seminar_proposal')
-            ->where('status', 'diajukan')
+            ->where('status', 'diverifikasi_admin')
             ->with('mahasiswa.user', 'pengajuanJudul')
             ->orderBy('created_at')
             ->paginate($perPage, ['*'], 'seminar')

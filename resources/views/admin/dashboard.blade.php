@@ -46,7 +46,7 @@
         </div>
 
         {{-- Notifikasi Jadwal Menunggu Surat Undangan --}}
-        @if ($antrianJudul > 0 || $sidangPerluVerifikasi > 0 || $menungguJadwal > 0 || $jadwalMenungguSurat > 0 || $jadwalMenungguScan > 0)
+        @if ($antrianJudul > 0 || $sidangPerluVerifikasi > 0 || $seminarPerluVerifikasi > 0 || $menungguJadwal > 0 || $jadwalMenungguSurat > 0 || $jadwalMenungguScan > 0)
             <div class="space-y-2">
 
                 {{-- Pengajuan judul baru dari mahasiswa --}}
@@ -86,6 +86,28 @@
                             </p>
                             <a href="{{ route('admin.jadwal.index') }}"
                                class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-violet-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-violet-600 transition-colors">
+                                <x-icon name="clipboard-check" class="h-3.5 w-3.5" />
+                                Verifikasi Sekarang
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Seminar baru diajukan, butuh verifikasi berkas --}}
+                @if ($seminarPerluVerifikasi > 0)
+                    <div class="flex items-start gap-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+                            <x-icon name="clipboard-check" class="h-5 w-5 text-emerald-600" />
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-emerald-900">
+                                {{ $seminarPerluVerifikasi }} pengajuan seminar proposal menunggu verifikasi berkas
+                            </p>
+                            <p class="mt-0.5 text-xs text-emerald-700">
+                                Periksa Cover ACC dan Riwayat Bimbingan yang dilampirkan mahasiswa.
+                            </p>
+                            <a href="{{ route('admin.jadwal.index') }}"
+                               class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600 transition-colors">
                                 <x-icon name="clipboard-check" class="h-3.5 w-3.5" />
                                 Verifikasi Sekarang
                             </a>
