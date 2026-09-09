@@ -89,7 +89,46 @@
                 </div>
 
                 <div>
-                    <x-input-label for="fileBerkas" value="Tambah Berkas Pendukung (opsional)" />
+                    <x-input-label for="pendekatanPenelitian" value="Pendekatan Penelitian" />
+                    <x-text-input id="pendekatanPenelitian" name="pendekatanPenelitian" type="text" class="mt-1 block w-full"
+                                  placeholder="Contoh: Kualitatif / Kuantitatif / Mixed Method"
+                                  value="{{ old('pendekatanPenelitian', $pengajuan->pendekatan_penelitian) }}" />
+                    @error('pendekatanPenelitian') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <x-input-label for="namaDosenwali" value="Nama Dosen Wali" />
+                        <x-text-input id="namaDosenwali" name="namaDosenwali" type="text" class="mt-1 block w-full"
+                                      placeholder="Nama dosen wali Anda"
+                                      value="{{ old('namaDosenwali', $pengajuan->nama_dosen_wali) }}" />
+                        @error('namaDosenwali') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <x-input-label for="namaDosenSpup" value="Nama Dosen SPUP" />
+                        <x-text-input id="namaDosenSpup" name="namaDosenSpup" type="text" class="mt-1 block w-full"
+                                      placeholder="Nama dosen SPUP"
+                                      value="{{ old('namaDosenSpup', $pengajuan->nama_dosen_spup) }}" />
+                        @error('namaDosenSpup') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                {{-- Form SPUP --}}
+                <div class="rounded-xl border border-amber-100 bg-amber-50 p-4">
+                    <label for="fileSpup" class="block text-xs font-semibold text-amber-800 mb-1">
+                        Form SPUP yang Sudah Ditandatangani Kaprodi
+                    </label>
+                    <p class="mb-2 text-xs text-amber-700">Upload Form SPUP baru jika ada perubahan atau penggantian.</p>
+                    <input id="fileSpup" name="fileSpup" type="file" accept=".pdf,.doc,.docx"
+                           class="block w-full rounded-xl border border-amber-200 bg-white px-3 py-2 text-sm
+                                  file:mr-3 file:rounded-lg file:border-0 file:bg-amber-100 file:px-3 file:py-1
+                                  file:text-sm file:font-medium file:text-amber-700 hover:file:bg-amber-200" />
+                    <p class="mt-1 text-xs text-amber-600">PDF, DOC, atau DOCX · Maks 10 MB</p>
+                    @error('fileSpup') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <x-input-label for="fileBerkas" value="Tambah Berkas Pendukung Lainnya (opsional)" />
                     <input id="fileBerkas" name="fileBerkas[]" type="file" multiple accept=".pdf,.doc,.docx"
                            class="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm
                                   file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1

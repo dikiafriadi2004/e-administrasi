@@ -54,7 +54,11 @@ class PengajuanJudulController extends Controller
             'judul' => ['required', 'string', 'min:10', 'max:500'],
             'bidangKajian' => ['required', 'string', 'max:255'],
             'ringkasan' => ['required', 'string', 'min:50'],
+            'pendekatanPenelitian' => ['nullable', 'string', 'max:255'],
+            'namaDosenwali' => ['nullable', 'string', 'max:255'],
+            'namaDosenSpup' => ['nullable', 'string', 'max:255'],
             'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'fileSpup' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
         ], [
             'judul.required' => 'Judul skripsi wajib diisi.',
             'judul.min' => 'Judul skripsi minimal 10 karakter.',
@@ -63,6 +67,8 @@ class PengajuanJudulController extends Controller
             'ringkasan.min' => 'Ringkasan minimal 50 karakter.',
             'fileBerkas.*.mimes' => 'File harus berformat PDF, DOC, atau DOCX.',
             'fileBerkas.*.max' => 'Ukuran file maksimal 10 MB.',
+            'fileSpup.mimes' => 'Form SPUP harus berformat PDF, DOC, atau DOCX.',
+            'fileSpup.max' => 'Ukuran file Form SPUP maksimal 10 MB.',
         ]);
 
         $pengajuan = PengajuanJudul::create([
@@ -70,8 +76,28 @@ class PengajuanJudulController extends Controller
             'judul' => $request->judul,
             'bidang_kajian' => $request->bidangKajian,
             'ringkasan' => $request->ringkasan,
+            'pendekatan_penelitian' => $request->pendekatanPenelitian,
+            'nama_dosen_wali' => $request->namaDosenwali,
+            'nama_dosen_spup' => $request->namaDosenSpup,
             'status' => 'diajukan',
         ]);
+
+        // Upload Form SPUP (berkas wajib jika ada)
+        if ($request->hasFile('fileSpup') && $request->file('fileSpup')->isValid()) {
+            $file = $request->file('fileSpup');
+            $path = $file->storeAs(
+                'berkas/'.$mahasiswa->nim.'/judul',
+                'SPUP_'.Str::uuid().'.'.$file->extension(),
+                'private'
+            );
+            BerkasPengajuan::create([
+                'pengajuan_type' => PengajuanJudul::class,
+                'pengajuan_id' => $pengajuan->id,
+                'label' => 'Form SPUP (TTD Kaprodi)',
+                'path_file' => $path,
+                'nama_asli' => $file->getClientOriginalName(),
+            ]);
+        }
 
         // Upload berkas pendukung
         foreach ($request->file('fileBerkas', []) as $file) {
@@ -132,7 +158,11 @@ class PengajuanJudulController extends Controller
             'judul' => ['required', 'string', 'min:10', 'max:500'],
             'bidangKajian' => ['required', 'string', 'max:255'],
             'ringkasan' => ['required', 'string', 'min:50'],
+            'pendekatanPenelitian' => ['nullable', 'string', 'max:255'],
+            'namaDosenwali' => ['nullable', 'string', 'max:255'],
+            'namaDosenSpup' => ['nullable', 'string', 'max:255'],
             'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'fileSpup' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
         ]);
 
         $statusSebelumnya = $pengajuanJudul->status;
@@ -142,8 +172,28 @@ class PengajuanJudulController extends Controller
             'judul' => $request->judul,
             'bidang_kajian' => $request->bidangKajian,
             'ringkasan' => $request->ringkasan,
+            'pendekatan_penelitian' => $request->pendekatanPenelitian,
+            'nama_dosen_wali' => $request->namaDosenwali,
+            'nama_dosen_spup' => $request->namaDosenSpup,
             'status' => 'diajukan',
         ]);
+
+        // Upload Form SPUP jika ada
+        if ($request->hasFile('fileSpup') && $request->file('fileSpup')->isValid()) {
+            $file = $request->file('fileSpup');
+            $path = $file->storeAs(
+                'berkas/'.$mahasiswa->nim.'/judul',
+                'SPUP_'.Str::uuid().'.'.$file->extension(),
+                'private'
+            );
+            BerkasPengajuan::create([
+                'pengajuan_type' => PengajuanJudul::class,
+                'pengajuan_id' => $pengajuanJudul->id,
+                'label' => 'Form SPUP (TTD Kaprodi)',
+                'path_file' => $path,
+                'nama_asli' => $file->getClientOriginalName(),
+            ]);
+        }
 
         foreach ($request->file('fileBerkas', []) as $file) {
             if (! $file || ! $file->isValid()) {

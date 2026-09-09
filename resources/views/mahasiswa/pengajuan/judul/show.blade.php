@@ -29,6 +29,24 @@
                     <dt class="font-medium text-slate-500">Ringkasan</dt>
                     <dd class="col-span-2 leading-relaxed text-slate-700">{{ $pengajuan->ringkasan }}</dd>
                 </div>
+                @if ($pengajuan->pendekatan_penelitian)
+                    <div class="grid grid-cols-3 gap-2">
+                        <dt class="font-medium text-slate-500">Pendekatan</dt>
+                        <dd class="col-span-2 text-slate-800">{{ $pengajuan->pendekatan_penelitian }}</dd>
+                    </div>
+                @endif
+                @if ($pengajuan->nama_dosen_wali)
+                    <div class="grid grid-cols-3 gap-2">
+                        <dt class="font-medium text-slate-500">Dosen Wali</dt>
+                        <dd class="col-span-2 text-slate-800">{{ $pengajuan->nama_dosen_wali }}</dd>
+                    </div>
+                @endif
+                @if ($pengajuan->nama_dosen_spup)
+                    <div class="grid grid-cols-3 gap-2">
+                        <dt class="font-medium text-slate-500">Dosen SPUP</dt>
+                        <dd class="col-span-2 text-slate-800">{{ $pengajuan->nama_dosen_spup }}</dd>
+                    </div>
+                @endif
                 @if ($pengajuan->dosenPembimbing)
                     <div class="grid grid-cols-3 gap-2">
                         <dt class="font-medium text-slate-500">Pembimbing 1</dt>
