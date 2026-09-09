@@ -57,9 +57,29 @@ class DosenImport implements ToCollection, WithHeadingRow
                 'nip' => $nip,
                 'nama' => $nama,
                 'kapasitas_maksimal' => $kapasitasMaksimal !== '' ? (int) $kapasitasMaksimal : null,
+                'bidang_kajian' => $this->parseListColumn((string) ($row['bidang_kajian'] ?? '')),
+                'mata_kuliah' => $this->parseListColumn((string) ($row['mata_kuliah'] ?? '')),
             ]);
 
             $this->berhasil[] = $nip;
         }
+    }
+
+    /**
+     * Parse kolom list yang dipisah koma/titik koma menjadi array.
+     * Contoh input: "Basis Data; Pemrograman Web" → ["Basis Data","Pemrograman Web"]
+     *
+     * @return array<string>|null
+     */
+    private function parseListColumn(string $value): ?array
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        $items = preg_split('/[;,]/', $value);
+
+        return array_values(array_filter(array_map('trim', $items)));
     }
 }

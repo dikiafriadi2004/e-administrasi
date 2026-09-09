@@ -34,6 +34,8 @@
                     <tr>
                         <th class="px-4 py-3">Nama</th>
                         <th class="px-4 py-3">NIP</th>
+                        <th class="px-4 py-3">Bidang Kajian</th>
+                        <th class="px-4 py-3">Mata Kuliah</th>
                         <th class="px-4 py-3">Kapasitas Bimbingan</th>
                         <th class="px-4 py-3">Aksi</th>
                     </tr>
@@ -43,6 +45,20 @@
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-4 py-3 font-medium text-gray-800">{{ $dosen->nama }}</td>
                             <td class="px-4 py-3 font-mono text-gray-600">{{ $dosen->nip }}</td>
+                            <td class="px-4 py-3 text-xs">
+                                @forelse ($dosen->bidang_kajian ?? [] as $bk)
+                                    <span class="inline-block mb-0.5 rounded-full bg-brand-100 px-2 py-0.5 text-brand-700">{{ $bk }}</span>
+                                @empty
+                                    <span class="text-gray-400 italic">—</span>
+                                @endforelse
+                            </td>
+                            <td class="px-4 py-3 text-xs">
+                                @forelse ($dosen->mata_kuliah ?? [] as $mk)
+                                    <span class="inline-block mb-0.5 rounded-full bg-sky-100 px-2 py-0.5 text-sky-700">{{ $mk }}</span>
+                                @empty
+                                    <span class="text-gray-400 italic">—</span>
+                                @endforelse
+                            </td>
                             <td class="px-4 py-3 text-gray-500">
                                 @if ($dosen->kapasitas_maksimal)
                                     {{ $dosen->kapasitas_maksimal }} mhs
@@ -60,7 +76,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-8 text-center text-sm text-gray-400">
+                            <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-400">
                                 Belum ada data dosen.
                             </td>
                         </tr>

@@ -16,12 +16,16 @@ class Dosen extends Model
         'nama',
         'nip',
         'kapasitas_maksimal',
+        'bidang_kajian',
+        'mata_kuliah',
     ];
 
     protected function casts(): array
     {
         return [
             'kapasitas_maksimal' => 'integer',
+            'bidang_kajian' => 'array',
+            'mata_kuliah' => 'array',
         ];
     }
 

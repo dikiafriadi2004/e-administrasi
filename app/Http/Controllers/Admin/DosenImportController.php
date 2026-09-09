@@ -49,7 +49,7 @@ class DosenImportController extends Controller
         $sheet->setTitle('Data Dosen');
 
         // Header
-        $headers = ['nip', 'nama', 'kapasitas_maksimal'];
+        $headers = ['nip', 'nama', 'kapasitas_maksimal', 'bidang_kajian', 'mata_kuliah'];
         foreach ($headers as $col => $header) {
             $cell = chr(65 + $col).'1';
             $sheet->setCellValue($cell, $header);
@@ -58,6 +58,8 @@ class DosenImportController extends Controller
                 match ($header) {
                     'nama' => 35,
                     'nip' => 25,
+                    'bidang_kajian' => 40,
+                    'mata_kuliah' => 40,
                     default => 20,
                 }
             );
@@ -65,8 +67,8 @@ class DosenImportController extends Controller
 
         // Baris contoh
         $contoh = [
-            ['198001012005011001', 'Dr. Nama Dosen, M.Kom.', 5],
-            ['197505152003121002', 'Nama Dosen Dua, S.T., M.T.', ''],
+            ['198001012005011001', 'Dr. Nama Dosen, M.Kom.', 5, 'Rekayasa Perangkat Lunak; Basis Data', 'Pemrograman Web; Algoritma & Pemrograman'],
+            ['197505152003121002', 'Nama Dosen Dua, S.T., M.T.', '', 'Jaringan Komputer', ''],
         ];
         foreach ($contoh as $r => $row) {
             foreach ($row as $c => $val) {
@@ -75,7 +77,7 @@ class DosenImportController extends Controller
         }
 
         // Warnai header
-        $sheet->getStyle('A1:C1')->getFill()
+        $sheet->getStyle('A1:E1')->getFill()
             ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setRGB('E2E8F0');
 
@@ -84,6 +86,8 @@ class DosenImportController extends Controller
         $sheet->setCellValue('A6', '- nip                : NIP dosen (wajib, unik, maks 30 karakter)');
         $sheet->setCellValue('A7', '- nama               : Nama lengkap beserta gelar (wajib)');
         $sheet->setCellValue('A8', '- kapasitas_maksimal : Batas maks bimbingan (opsional, kosongkan jika tidak dibatasi)');
+        $sheet->setCellValue('A9', '- bidang_kajian      : Pisahkan dengan titik koma (;) jika lebih dari satu. Contoh: Basis Data; Jaringan');
+        $sheet->setCellValue('A10', '- mata_kuliah        : Pisahkan dengan titik koma (;) jika lebih dari satu. Contoh: Pemrograman Web; Algoritma');
 
         $writer = new Xlsx($spreadsheet);
         $filename = 'template_import_dosen.xlsx';
