@@ -25,6 +25,9 @@ class DashboardController extends Controller
             ->whereIn('jenis_surat', ['aktif_kuliah', 'izin_magang', 'rekomendasi_magang', 'izin_penelitian'])
             ->count();
 
+        // Pengajuan judul baru — belum diperiksa Admin
+        $antrianJudul = PengajuanJudul::where('status', 'diajukan')->count();
+
         // Sidang yang baru diajukan — butuh verifikasi berkas
         $sidangPerluVerifikasi = PengajuanSurat::where('jenis_surat', 'sidang_skripsi')
             ->where('status', 'diajukan')
@@ -67,6 +70,7 @@ class DashboardController extends Controller
         return view('admin.dashboard', [
             'totalMahasiswaAktif' => User::where('role', 'mahasiswa')->where('is_active', true)->count(),
             'totalDosen' => Dosen::count(),
+            'antrianJudul' => $antrianJudul,
             'suratMasuk' => $suratMasuk,
             'sidangPerluVerifikasi' => $sidangPerluVerifikasi,
             'menungguJadwal' => $menungguJadwal,

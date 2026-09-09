@@ -70,16 +70,16 @@
 
             @if ($role === 'admin')
                 @php
-                    // Hitung notifikasi untuk admin — hanya query sekali
+                    $badgeAntrianJudul = \App\Models\PengajuanJudul::where('status', 'diajukan')->count();
                     $badgeSuratMasuk = \App\Models\PengajuanSurat::where('status', 'diajukan')
                         ->whereIn('jenis_surat', ['aktif_kuliah', 'izin_magang', 'rekomendasi_magang', 'izin_penelitian'])
                         ->count();
 
                     $badgeJadwal = \App\Models\PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
                         ->where(function ($q) {
-                            $q->where('status', 'diajukan') // sidang butuh verifikasi berkas
+                            $q->where('status', 'diajukan')
                               ->orWhere(function ($q2) {
-                                  $q2->where('status', 'disetujui')->whereNull('tanggal_jadwal'); // disetujui tapi belum ada jadwal
+                                  $q2->where('status', 'disetujui')->whereNull('tanggal_jadwal');
                               });
                         })
                         ->count();
@@ -87,6 +87,11 @@
 
                 <x-sidebar-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard') && !request()->routeIs('admin.dashboard.rasio')" icon="layout-dashboard">
                     Dashboard
+                </x-sidebar-link>
+
+                <p class="mt-5 mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Akademik</p>
+                <x-sidebar-link :href="route('admin.antrian-judul.index')" :active="request()->routeIs('admin.antrian-judul.*')" icon="file-text" :badge="$badgeAntrianJudul ?: null">
+                    Antrian Judul Skripsi
                 </x-sidebar-link>
 
                 <p class="mt-5 mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Surat</p>

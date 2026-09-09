@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AntrianJudulController;
 use App\Http\Controllers\Admin\AntrianSuratController;
 use App\Http\Controllers\Admin\ArsipSuratController;
 use App\Http\Controllers\Admin\BuatSuratLangsungController;
@@ -42,6 +43,14 @@ Route::get('template-surat', [TemplateSuratController::class, 'index'])->name('t
 Route::get('template-surat/{jenis}/upload', [TemplateSuratController::class, 'upload'])->name('template-surat.upload');
 Route::get('template-surat/{jenis}/download', [TemplateSuratController::class, 'download'])->name('template-surat.download');
 Route::post('template-surat/{jenis}', [TemplateSuratController::class, 'store'])->name('template-surat.store');
+
+// ── Antrian Pengajuan Judul Skripsi (verifikasi berkas sebelum ke Kaprodi) ─
+Route::prefix('antrian-judul')->name('antrian-judul.')->group(function () {
+    Route::get('/', [AntrianJudulController::class, 'index'])->name('index');
+    Route::get('/{pengajuan}', [AntrianJudulController::class, 'show'])->name('show');
+    Route::post('/{pengajuan}/verifikasi', [AntrianJudulController::class, 'verifikasi'])->name('verifikasi');
+    Route::post('/{pengajuan}/tolak', [AntrianJudulController::class, 'tolak'])->name('tolak');
+});
 
 // ── Antrian Surat (dari mahasiswa: aktif kuliah, dll) ──────────────────────
 Route::prefix('surat-masuk')->name('surat.')->group(function () {

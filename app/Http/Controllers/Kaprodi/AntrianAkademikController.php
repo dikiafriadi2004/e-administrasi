@@ -35,7 +35,7 @@ class AntrianAkademikController extends Controller
     {
         $perPage = (int) min(max((int) request('perPage', 10), 5), 100);
 
-        $pengajuanJudul = PengajuanJudul::where('status', 'diajukan')
+        $pengajuanJudul = PengajuanJudul::where('status', 'diverifikasi_admin')
             ->with('mahasiswa.user')
             ->orderBy('created_at')
             ->paginate($perPage, ['*'], 'judul')

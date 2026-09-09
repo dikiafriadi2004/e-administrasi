@@ -28,11 +28,27 @@ class PengajuanStateService
     // ─── Pengajuan Akademik ───────────────────────────────────────────────────
 
     /**
-     * Kaprodi setujui judul: diajukan → disetujui (wajib ada pembimbing)
+     * Admin verifikasi kelengkapan berkas pengajuan judul: diajukan → diverifikasi_admin
+     * Setelah ini Kaprodi bisa menetapkan pembimbing.
+     */
+    public function verifikasiJudul(PengajuanJudul $judul, User $actor): void
+    {
+        if ($judul->status !== 'diajukan') {
+            throw InvalidStateTransitionException::dariKe($judul->status, 'verifikasi_judul');
+        }
+
+        $judul->update(['status' => 'diverifikasi_admin']);
+
+        $this->recordHistory($judul, 'diajukan', 'diverifikasi_admin', $actor,
+            'Berkas pengajuan judul diperiksa dan dinyatakan lengkap oleh Admin. Diteruskan ke Kaprodi.');
+    }
+
+    /**
+     * Kaprodi setujui judul: diverifikasi_admin → disetujui (wajib ada pembimbing)
      */
     public function setujuiJudul(PengajuanJudul $judul, User $actor): void
     {
-        if ($judul->status !== 'diajukan') {
+        if ($judul->status !== 'diverifikasi_admin') {
             throw InvalidStateTransitionException::dariKe($judul->status, 'setujui_judul');
         }
 
@@ -45,7 +61,7 @@ class PengajuanStateService
         Cache::forget('rasio_dosen');
         Cache::forget('top_dosen_tersedia');
 
-        $this->recordHistory($judul, 'diajukan', 'disetujui', $actor,
+        $this->recordHistory($judul, 'diverifikasi_admin', 'disetujui', $actor,
             'Judul disetujui dan dosen pembimbing ditetapkan oleh Kaprodi.');
     }
 

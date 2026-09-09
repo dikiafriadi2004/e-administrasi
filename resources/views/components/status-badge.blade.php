@@ -4,6 +4,7 @@
 $map = [
     'diajukan'             => ['label' => 'Diajukan',             'dot' => 'bg-amber-400',   'bg' => 'bg-amber-50',   'text' => 'text-amber-700',  'ring' => 'ring-amber-200'],
     'diverifikasi'         => ['label' => 'Diverifikasi',         'dot' => 'bg-blue-400',    'bg' => 'bg-blue-50',    'text' => 'text-blue-700',   'ring' => 'ring-blue-200'],
+    'diverifikasi_admin'   => ['label' => 'Diverifikasi Admin',   'dot' => 'bg-sky-400',     'bg' => 'bg-sky-50',     'text' => 'text-sky-700',    'ring' => 'ring-sky-200'],
     'menunggu_ttd'         => ['label' => 'Menunggu TTD',         'dot' => 'bg-violet-400',  'bg' => 'bg-violet-50',  'text' => 'text-violet-700', 'ring' => 'ring-violet-200'],
     'sudah_ditandatangani' => ['label' => 'Sudah TTD',            'dot' => 'bg-teal-400',    'bg' => 'bg-teal-50',    'text' => 'text-teal-700',   'ring' => 'ring-teal-200'],
     'selesai'              => ['label' => 'Selesai',              'dot' => 'bg-emerald-400', 'bg' => 'bg-emerald-50', 'text' => 'text-emerald-700','ring' => 'ring-emerald-200'],

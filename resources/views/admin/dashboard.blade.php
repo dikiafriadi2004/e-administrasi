@@ -46,8 +46,30 @@
         </div>
 
         {{-- Notifikasi Jadwal Menunggu Surat Undangan --}}
-        @if ($sidangPerluVerifikasi > 0 || $menungguJadwal > 0 || $jadwalMenungguSurat > 0 || $jadwalMenungguScan > 0)
+        @if ($antrianJudul > 0 || $sidangPerluVerifikasi > 0 || $menungguJadwal > 0 || $jadwalMenungguSurat > 0 || $jadwalMenungguScan > 0)
             <div class="space-y-2">
+
+                {{-- Pengajuan judul baru dari mahasiswa --}}
+                @if ($antrianJudul > 0)
+                    <div class="flex items-start gap-4 rounded-2xl border border-brand-200 bg-brand-50 p-4">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-100">
+                            <x-icon name="file-text" class="h-5 w-5 text-brand-600" />
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-brand-900">
+                                {{ $antrianJudul }} pengajuan judul skripsi menunggu pemeriksaan berkas
+                            </p>
+                            <p class="mt-0.5 text-xs text-brand-700">
+                                Periksa kelengkapan berkas (Form SPUP, dll) sebelum diteruskan ke Kaprodi.
+                            </p>
+                            <a href="{{ route('admin.antrian-judul.index') }}"
+                               class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-600 transition-colors">
+                                <x-icon name="file-text" class="h-3.5 w-3.5" />
+                                Periksa Sekarang
+                            </a>
+                        </div>
+                    </div>
+                @endif
 
                 {{-- Sidang baru diajukan, butuh verifikasi berkas --}}
                 @if ($sidangPerluVerifikasi > 0)
