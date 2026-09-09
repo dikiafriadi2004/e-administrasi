@@ -204,10 +204,61 @@ class PengajuanSuratController extends Controller
             return redirect()->route('mahasiswa.riwayat.index')->with('error', 'Sudah ada pengajuan sidang aktif.');
         }
 
-        $request->validate([
-            'tanggalRencana' => ['nullable', 'date', 'after:today'],
-            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-        ]);
+        // Label untuk setiap berkas
+        $berkasLabels = [
+            'surat_permohonan' => 'Surat Permohonan',
+            'biodata_mahasiswa' => 'Biodata Mahasiswa',
+            'lembar_persetujuan' => 'Lembar Persetujuan Skripsi',
+            'kwitansi_spp' => 'Kwitansi SPP Terakhir',
+            'transkip_nilai' => 'Transkip Nilai (disahkan WD1)',
+            'khs' => 'Kartu Hasil Studi (KHS)',
+            'naskah_skripsi' => 'Naskah Skripsi',
+            'ket_hadir_seminar' => 'Keterangan Hadir Seminar Min. 10 Kali',
+            'buku_bimbingan' => 'Buku Bimbingan Skripsi',
+            'krs_terakhir' => 'KRS Terakhir',
+            'abstrak_skripsi' => 'Abstrak Skripsi',
+            'nilai_toefl' => 'Nilai TOEFL',
+            'sk_pembimbing' => 'SK Pembimbing Mahasiswa',
+            'jurnal_ilmiah' => 'Jurnal Ilmiah Mahasiswa',
+            'map_berwarna' => 'Map Berwarna Merah',
+            'bebas_turnitin' => 'Surat Keterangan Bebas Turnitin ≤30%',
+        ];
+
+        // Berkas yang wajib
+        $berkasWajib = array_keys(array_filter([
+            'surat_permohonan' => true,
+            'biodata_mahasiswa' => true,
+            'lembar_persetujuan' => true,
+            'kwitansi_spp' => true,
+            'transkip_nilai' => true,
+            'khs' => true,
+            'naskah_skripsi' => true,
+            'ket_hadir_seminar' => true,
+            'buku_bimbingan' => true,
+            'krs_terakhir' => true,
+            'abstrak_skripsi' => true,
+            'nilai_toefl' => true,
+            'sk_pembimbing' => true,
+            'jurnal_ilmiah' => true,
+            'map_berwarna' => false, // opsional
+            'bebas_turnitin' => true,
+        ]));
+
+        // Bangun rules validasi dinamis
+        $rules = ['tanggalRencana' => ['nullable', 'date', 'after:today']];
+        foreach ($berkasLabels as $key => $label) {
+            $isWajib = in_array($key, $berkasWajib);
+            $rules["berkas.{$key}"] = [$isWajib ? 'required' : 'nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'];
+        }
+
+        $messages = [];
+        foreach ($berkasLabels as $key => $label) {
+            $messages["berkas.{$key}.required"] = "{$label} wajib diupload.";
+            $messages["berkas.{$key}.mimes"] = "{$label} harus berformat PDF, DOC, DOCX, JPG, atau PNG.";
+            $messages["berkas.{$key}.max"] = "{$label} maksimal 10 MB.";
+        }
+
+        $request->validate($rules, $messages);
 
         $pengajuan = PengajuanSurat::create([
             'mahasiswa_id' => $mahasiswa->id,
@@ -217,17 +268,36 @@ class PengajuanSuratController extends Controller
             'status' => 'diajukan',
         ]);
 
-        foreach ($request->file('fileBerkas', []) as $file) {
-            if (! $file || ! $file->isValid()) {
-                continue;
+        // Upload masing-masing berkas
+        foreach ($berkasLabels as $key => $label) {
+            if ($request->hasFile("berkas.{$key}") && $request->file("berkas.{$key}")?->isValid()) {
+                $file = $request->file("berkas.{$key}");
+                $path = $file->storeAs(
+                    'berkas/'.$mahasiswa->nim.'/sidang_skripsi',
+                    $key.'_'.Str::uuid().'.'.$file->extension(),
+                    'private'
+                );
+                BerkasPengajuan::create([
+                    'pengajuan_type' => PengajuanSurat::class,
+                    'pengajuan_id' => $pengajuan->id,
+                    'label' => $label,
+                    'path_file' => $path,
+                    'nama_asli' => $file->getClientOriginalName(),
+                ]);
             }
-            $path = $file->storeAs('berkas/'.$mahasiswa->nim.'/sidang_skripsi', Str::uuid().'.'.$file->extension(), 'private');
-            BerkasPengajuan::create(['pengajuan_type' => PengajuanSurat::class, 'pengajuan_id' => $pengajuan->id, 'label' => 'Berkas Syarat', 'path_file' => $path, 'nama_asli' => $file->getClientOriginalName()]);
         }
 
-        StatusHistory::create(['model_type' => PengajuanSurat::class, 'model_id' => $pengajuan->id, 'status_lama' => null, 'status_baru' => 'diajukan', 'catatan' => 'Pengajuan Sidang Skripsi disubmit.', 'changed_by' => auth()->id(), 'created_at' => now()]);
+        StatusHistory::create([
+            'model_type' => PengajuanSurat::class,
+            'model_id' => $pengajuan->id,
+            'status_lama' => null,
+            'status_baru' => 'diajukan',
+            'catatan' => 'Pengajuan Sidang Skripsi disubmit dengan '.count($berkasLabels).' jenis berkas.',
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
 
-        return redirect()->route('mahasiswa.riwayat.index')->with('success', 'Pengajuan Sidang Skripsi berhasil dikirim.');
+        return redirect()->route('mahasiswa.riwayat.index')->with('success', 'Pengajuan Sidang Skripsi berhasil dikirim. Admin akan memverifikasi kelengkapan berkas.');
     }
 
     /** POST — simpan pengajuan seminar proposal */
