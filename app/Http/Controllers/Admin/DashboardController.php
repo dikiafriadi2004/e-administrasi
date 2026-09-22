@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dosen;
+use App\Models\PengajuanJudul;
 use App\Models\PengajuanSurat;
 use App\Models\Pengaturan;
 use App\Models\User;

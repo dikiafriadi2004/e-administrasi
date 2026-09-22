@@ -24,15 +24,14 @@ class PreviewSuratController extends Controller
         'izin_magang',
         'rekomendasi_magang',
         'izin_penelitian',
+        'keluar_prodi',
     ];
 
     public function __invoke(Request $request, TemplatePreviewService $service): Response
     {
         $jenis = $request->query('jenis', 'aktif_kuliah');
 
-        if (! in_array($jenis, self::JENIS_TERSEDIA, true)) {
-            $jenis = 'aktif_kuliah';
-        }
+        abort_unless(in_array($jenis, self::JENIS_TERSEDIA, true), 404, 'Jenis surat tidak tersedia.');
 
         // Semua query parameter selain 'jenis' diteruskan sebagai placeholder
         $data = collect($request->query())

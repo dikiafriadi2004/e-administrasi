@@ -7,6 +7,7 @@ use App\Models\PengajuanJudul;
 use App\Models\PengajuanSurat;
 use App\Models\Pengaturan;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class RasioDosenService
 {
@@ -26,11 +27,14 @@ class RasioDosenService
      */
     public function getTahunTersedia(): array
     {
-        $tahunJudul = PengajuanJudul::selectRaw('YEAR(created_at) as tahun')
+        $driver = PengajuanJudul::query()->getConnection()->getDriverName();
+        $yearExpr = $driver === 'sqlite' ? "strftime('%Y', created_at)" : 'YEAR(created_at)';
+
+        $tahunJudul = PengajuanJudul::selectRaw("{$yearExpr} as tahun")
             ->distinct()
             ->pluck('tahun');
 
-        $tahunSurat = PengajuanSurat::selectRaw('YEAR(created_at) as tahun')
+        $tahunSurat = PengajuanSurat::selectRaw("{$yearExpr} as tahun")
             ->distinct()
             ->pluck('tahun');
 
@@ -89,33 +93,7 @@ class RasioDosenService
         ?int $excludeDosenId = null,
         ?string $tahunAkademik = null
     ): Collection {
-        $ta = $tahunAkademik ?? $this->getTahunAktif();
-        [$mulai, $akhir] = $this->rentangTahunAkademik($ta);
-
-        $dosen = Dosen::query()->get()->each(function ($d) use ($mulai, $akhir) {
-            // Bimbingan: hitung mahasiswa UNIK yang dibimbing
-            $d->jumlah_bimbingan = PengajuanJudul::where('dosen_pembimbing_id', $d->id)
-                ->whereNotIn('status', ['ditolak'])
-                ->whereBetween('created_at', [$mulai, $akhir])
-                ->distinct('mahasiswa_id')
-                ->count('mahasiswa_id');
-
-            // Penguji 1: mahasiswa UNIK yang diuji sebagai penguji 1
-            $d->jumlah_penguji_1 = PengajuanSurat::where('dosen_penguji_id', $d->id)
-                ->whereNotIn('status', ['ditolak'])
-                ->whereBetween('created_at', [$mulai, $akhir])
-                ->distinct('mahasiswa_id')
-                ->count('mahasiswa_id');
-
-            // Penguji 2: mahasiswa UNIK yang diuji sebagai penguji 2
-            $d->jumlah_penguji_2 = PengajuanSurat::where('dosen_penguji_2_id', $d->id)
-                ->whereNotIn('status', ['ditolak'])
-                ->whereBetween('created_at', [$mulai, $akhir])
-                ->distinct('mahasiswa_id')
-                ->count('mahasiswa_id');
-
-            $d->jumlah_pengujian = $d->jumlah_penguji_1 + $d->jumlah_penguji_2;
-        });
+        $dosen = $this->getDosenDenganBeban($tahunAkademik);
 
         if ($excludeDosenId) {
             $dosen = $dosen->filter(fn ($d) => $d->id !== $excludeDosenId);
@@ -135,27 +113,57 @@ class RasioDosenService
      */
     public function getRingkasanRasio(?string $tahunAkademik = null): Collection
     {
+        return $this->getDosenDenganBeban($tahunAkademik)->sortBy('nama')->values();
+    }
+
+    /**
+     * Ambil semua dosen + beban bimbingan/pengujian dalam 5 query agregat
+     * (bukan 3N+1). Menghitung pembimbing 1 + pembimbing 2.
+     *
+     * @return Collection<int, Dosen>
+     */
+    private function getDosenDenganBeban(?string $tahunAkademik = null): Collection
+    {
         $ta = $tahunAkademik ?? $this->getTahunAktif();
         [$mulai, $akhir] = $this->rentangTahunAkademik($ta);
 
-        return Dosen::orderBy('nama')->get()->each(function ($d) use ($mulai, $akhir) {
-            $d->jumlah_bimbingan = PengajuanJudul::where('dosen_pembimbing_id', $d->id)
-                ->whereNotIn('status', ['ditolak'])
-                ->whereBetween('created_at', [$mulai, $akhir])
-                ->distinct('mahasiswa_id')
-                ->count('mahasiswa_id');
+        $bimbingan1 = PengajuanJudul::whereNotIn('status', ['ditolak'])
+            ->whereBetween('created_at', [$mulai, $akhir])
+            ->whereNotNull('dosen_pembimbing_id')
+            ->groupBy('dosen_pembimbing_id')
+            ->select('dosen_pembimbing_id as dosen_id', DB::raw('COUNT(DISTINCT mahasiswa_id) as agg'))
+            ->pluck('agg', 'dosen_id');
 
-            $d->jumlah_penguji_1 = PengajuanSurat::where('dosen_penguji_id', $d->id)
-                ->whereNotIn('status', ['ditolak'])
-                ->whereBetween('created_at', [$mulai, $akhir])
-                ->distinct('mahasiswa_id')
-                ->count('mahasiswa_id');
+        $bimbingan2 = PengajuanJudul::whereNotIn('status', ['ditolak'])
+            ->whereBetween('created_at', [$mulai, $akhir])
+            ->whereNotNull('dosen_pembimbing_2_id')
+            ->groupBy('dosen_pembimbing_2_id')
+            ->select('dosen_pembimbing_2_id as dosen_id', DB::raw('COUNT(DISTINCT mahasiswa_id) as agg'))
+            ->pluck('agg', 'dosen_id');
 
-            $d->jumlah_penguji_2 = PengajuanSurat::where('dosen_penguji_2_id', $d->id)
-                ->whereNotIn('status', ['ditolak'])
-                ->whereBetween('created_at', [$mulai, $akhir])
-                ->distinct('mahasiswa_id')
-                ->count('mahasiswa_id');
+        $penguji1 = PengajuanSurat::whereNotIn('status', ['ditolak'])
+            ->whereBetween('created_at', [$mulai, $akhir])
+            ->whereNotNull('dosen_penguji_id')
+            ->groupBy('dosen_penguji_id')
+            ->select('dosen_penguji_id as dosen_id', DB::raw('COUNT(DISTINCT mahasiswa_id) as agg'))
+            ->pluck('agg', 'dosen_id');
+
+        $penguji2 = PengajuanSurat::whereNotIn('status', ['ditolak'])
+            ->whereBetween('created_at', [$mulai, $akhir])
+            ->whereNotNull('dosen_penguji_2_id')
+            ->groupBy('dosen_penguji_2_id')
+            ->select('dosen_penguji_2_id as dosen_id', DB::raw('COUNT(DISTINCT mahasiswa_id) as agg'))
+            ->pluck('agg', 'dosen_id');
+
+        return Dosen::orderBy('nama')->get()->each(function ($d) use ($bimbingan1, $bimbingan2, $penguji1, $penguji2): void {
+            // Bimbingan: gabung pembimbing 1 + 2 (mahasiswa unik per peran; gabungan bisa double jika sama — revisi sadar, tetap lebih akurat dari sebelumnya yang abaikan pembimbing 2).
+            $d->jumlah_bimbingan = (int) ($bimbingan1[$d->id] ?? 0) + (int) ($bimbingan2[$d->id] ?? 0);
+
+            // Penguji 1: mahasiswa UNIK yang diuji sebagai penguji 1
+            $d->jumlah_penguji_1 = (int) ($penguji1[$d->id] ?? 0);
+
+            // Penguji 2: mahasiswa UNIK yang diuji sebagai penguji 2
+            $d->jumlah_penguji_2 = (int) ($penguji2[$d->id] ?? 0);
 
             $d->jumlah_pengujian = $d->jumlah_penguji_1 + $d->jumlah_penguji_2;
         });

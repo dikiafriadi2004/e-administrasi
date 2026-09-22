@@ -20,10 +20,12 @@ class ArsipSuratController extends Controller
         'izin_magang' => 'Izin Magang / PKL',
         'rekomendasi_magang' => 'Rekomendasi Magang',
         'izin_penelitian' => 'Izin Penelitian',
+        'keluar_prodi' => 'Keluar Prodi',
     ];
 
     private const STATUS_LIST = [
         'diajukan' => 'Diajukan',
+        'diverifikasi_admin' => 'Diverifikasi Admin',
         'disetujui' => 'Disetujui',
         'menunggu_ttd' => 'Menunggu TTD',
         'sudah_ditandatangani' => 'Sudah Ditandatangani',
@@ -33,6 +35,14 @@ class ArsipSuratController extends Controller
 
     public function index(Request $request): View
     {
+        $request->validate([
+            'jenis' => ['nullable', 'in:'.implode(',', array_keys(self::JENIS_LIST))],
+            'status' => ['nullable', 'in:'.implode(',', array_keys(self::STATUS_LIST))],
+            'q' => ['nullable', 'string', 'max:100'],
+            'dari' => ['nullable', 'date'],
+            'sampai' => ['nullable', 'date', 'after_or_equal:dari'],
+        ]);
+
         $perPage = (int) min(max((int) request('perPage', 10), 5), 100);
         $query = PengajuanSurat::with(['mahasiswa.user'])
             ->latest();
@@ -76,6 +86,14 @@ class ArsipSuratController extends Controller
      */
     public function export(Request $request): BinaryFileResponse
     {
+        $request->validate([
+            'jenis' => ['nullable', 'in:'.implode(',', array_keys(self::JENIS_LIST))],
+            'status' => ['nullable', 'in:'.implode(',', array_keys(self::STATUS_LIST))],
+            'q' => ['nullable', 'string', 'max:100'],
+            'dari' => ['nullable', 'date'],
+            'sampai' => ['nullable', 'date', 'after_or_equal:dari'],
+        ]);
+
         $export = new ArsipSuratExport(
             jenis: $request->jenis,
             status: $request->status,

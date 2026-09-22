@@ -28,8 +28,12 @@ class PengajuanSuratController extends Controller
     {
         $request->validate([
             'keperluan' => ['required', 'string', 'max:255'],
+            'keperluanManual' => ['required_if:keperluan,lainnya', 'nullable', 'string', 'max:255'],
             'tujuanInstansi' => ['nullable', 'string', 'max:255'],
-        ], ['keperluan.required' => 'Keperluan surat wajib dipilih.']);
+        ], [
+            'keperluan.required' => 'Keperluan surat wajib dipilih.',
+            'keperluanManual.required_if' => 'Keperluan manual wajib diisi saat memilih Lainnya.',
+        ]);
 
         $mahasiswa = auth()->user()->mahasiswa;
         $keperluan = $request->keperluan === 'lainnya'

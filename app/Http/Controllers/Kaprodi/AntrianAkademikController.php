@@ -10,17 +10,19 @@ use App\Services\PengajuanStateService;
 use App\Services\RasioDosenService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Kaprodi mengelola SEMUA pengajuan akademik:
- *   - Pengajuan Judul Skripsi    (langsung dari mahasiswa)
- *   - Pengajuan Seminar Proposal (langsung dari mahasiswa)
- *   - Pengajuan Sidang Skripsi   (langsung dari mahasiswa)
+ *   - Pengajuan Judul Skripsi    (sudah diverifikasi Admin)
+ *   - Pengajuan Seminar Proposal (sudah diverifikasi Admin)
+ *   - Pengajuan Sidang Skripsi   (langsung dari mahasiswa, berkas_diverifikasi)
  *
- * Alur: diajukan → disetujui (atau ditolak)
+ * Alur judul/seminar: diajukan → diverifikasi_admin → disetujui (atau ditolak)
+ * Alur sidang: diajukan → disetujui (atau ditolak)
  * Kaprodi TIDAK mengelola surat.
  */
 class AntrianAkademikController extends Controller
@@ -95,14 +97,16 @@ class AntrianAkademikController extends Controller
     {
         $request->validate([
             'dosen_pembimbing_id' => ['required', 'exists:dosens,id'],
+            'dosen_pembimbing_2_id' => ['nullable', 'exists:dosens,id', 'different:dosen_pembimbing_id'],
         ], [
             'dosen_pembimbing_id.required' => 'Pilih dosen pembimbing sebelum menyetujui.',
+            'dosen_pembimbing_2_id.different' => 'Pembimbing 2 tidak boleh sama dengan Pembimbing 1.',
         ]);
 
-        $pengajuan->update([
+        $pengajuan->update(array_filter([
             'dosen_pembimbing_id' => $request->dosen_pembimbing_id,
-            'dosen_pembimbing_2_id' => null,
-        ]);
+            'dosen_pembimbing_2_id' => $request->dosen_pembimbing_2_id,
+        ], fn ($v) => $v !== null));
         $this->stateService->setujuiJudul($pengajuan, auth()->user());
 
         return redirect()->route('kaprodi.akademik.index')
@@ -263,6 +267,16 @@ class AntrianAkademikController extends Controller
     /** Download berkas syarat mahasiswa (untuk kaprodi) */
     public function downloadBerkas(BerkasPengajuan $berkas): StreamedResponse
     {
+        $pengajuan = $berkas->pengajuan;
+
+        if ($pengajuan instanceof PengajuanSurat) {
+            Gate::authorize('view', $pengajuan);
+        } elseif ($pengajuan instanceof PengajuanJudul) {
+            Gate::authorize('view', $pengajuan);
+        } else {
+            abort(403);
+        }
+
         abort_unless(Storage::disk('private')->exists($berkas->path_file), 404, 'File tidak ditemukan.');
 
         return Storage::disk('private')->download($berkas->path_file, $berkas->nama_asli);

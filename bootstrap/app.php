@@ -43,8 +43,8 @@ return Application::configure(basePath: dirname(__DIR__))
                     return response()->json(['effects' => [], 'serverMemo' => []], 200);
                 }
 
-                // Jika request biasa, redirect back
-                return back();
+                // Jika request biasa, redirect back dengan pesan agar user tahu
+                return back()->with('warning', 'Gagal menulis cache tampilan (izin folder storage). Coba muat ulang halaman.');
             }
         });
 

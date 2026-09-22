@@ -41,7 +41,7 @@
                 </div>
 
                 {{-- Bidang Kajian --}}
-                <div x-data="tagInput('bidang_kajian', {{ json_encode(old('bidang_kajian', [])) }})">
+                <div x-data="tagInput('bidang_kajian', @json(old('bidang_kajian', [])))">
                     <x-input-label value="Bidang Kajian (opsional, bisa banyak)" />
                     <p class="mb-2 text-xs text-slate-400">Ketik bidang kajian lalu tekan Enter atau klik Tambah.</p>
 
@@ -73,7 +73,7 @@
                 </div>
 
                 {{-- Mata Kuliah --}}
-                <div x-data="tagInput('mata_kuliah', {{ json_encode(old('mata_kuliah', [])) }})">
+                <div x-data="tagInput('mata_kuliah', @json(old('mata_kuliah', [])))">
                     <x-input-label value="Mata Kuliah yang Diampu (opsional, bisa banyak)" />
                     <p class="mb-2 text-xs text-slate-400">Ketik nama mata kuliah lalu tekan Enter atau klik Tambah.</p>
 

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -22,17 +22,7 @@ return new class extends Migration
         $driver = Schema::getConnection()->getDriverName();
 
         if ($driver === 'mysql' || $driver === 'mariadb') {
-            Schema::table('pengajuan_surat', function (Blueprint $table) {
-                $table->enum('status', [
-                    'diajukan',
-                    'diverifikasi',
-                    'disetujui',          // baru — untuk seminar/sidang
-                    'menunggu_ttd',
-                    'sudah_ditandatangani',
-                    'selesai',
-                    'ditolak',
-                ])->default('diajukan')->change();
-            });
+            DB::statement("ALTER TABLE pengajuan_surat MODIFY COLUMN status ENUM('diajukan','diverifikasi','disetujui','menunggu_ttd','sudah_ditandatangani','selesai','ditolak') NOT NULL DEFAULT 'diajukan'");
         }
         // SQLite: tidak perlu migrasi — tidak ada CHECK constraint enum di SQLite
         // value bebas diisi string apapun
@@ -43,16 +33,7 @@ return new class extends Migration
         $driver = Schema::getConnection()->getDriverName();
 
         if ($driver === 'mysql' || $driver === 'mariadb') {
-            Schema::table('pengajuan_surat', function (Blueprint $table) {
-                $table->enum('status', [
-                    'diajukan',
-                    'diverifikasi',
-                    'menunggu_ttd',
-                    'sudah_ditandatangani',
-                    'selesai',
-                    'ditolak',
-                ])->default('diajukan')->change();
-            });
+            DB::statement("ALTER TABLE pengajuan_surat MODIFY COLUMN status ENUM('diajukan','diverifikasi','menunggu_ttd','sudah_ditandatangani','selesai','ditolak') NOT NULL DEFAULT 'diajukan'");
         }
     }
 };

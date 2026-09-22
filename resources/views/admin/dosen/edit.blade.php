@@ -43,8 +43,8 @@
                 </div>
 
                 {{-- Bidang Kajian --}}
-                @php $bidangInit = json_encode(old('bidang_kajian', $dosen->bidang_kajian ?? [])); @endphp
-                <div x-data="tagInput('bidang_kajian', {{ $bidangInit }})">
+                @php $bidangInit = old('bidang_kajian', $dosen->bidang_kajian ?? []); @endphp
+                <div x-data="tagInput('bidang_kajian', @json($bidangInit))">
                     <x-input-label value="Bidang Kajian (opsional, bisa banyak)" />
                     <p class="mb-2 text-xs text-slate-400">Ketik bidang kajian lalu tekan Enter atau klik Tambah.</p>
 
@@ -75,8 +75,8 @@
                 </div>
 
                 {{-- Mata Kuliah --}}
-                @php $mkInit = json_encode(old('mata_kuliah', $dosen->mata_kuliah ?? [])); @endphp
-                <div x-data="tagInput('mata_kuliah', {{ $mkInit }})">
+                @php $mkInit = old('mata_kuliah', $dosen->mata_kuliah ?? []); @endphp
+                <div x-data="tagInput('mata_kuliah', @json($mkInit))">
                     <x-input-label value="Mata Kuliah yang Diampu (opsional, bisa banyak)" />
                     <p class="mb-2 text-xs text-slate-400">Ketik nama mata kuliah lalu tekan Enter atau klik Tambah.</p>
 

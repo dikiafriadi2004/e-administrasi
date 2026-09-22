@@ -49,6 +49,11 @@ class Dosen extends Model
         return $this->hasMany(PengajuanJudul::class, 'dosen_pembimbing_id');
     }
 
+    public function pengajuanJudul2(): HasMany
+    {
+        return $this->hasMany(PengajuanJudul::class, 'dosen_pembimbing_2_id');
+    }
+
     public function pengajuanSuratPenguji(): HasMany
     {
         return $this->hasMany(PengajuanSurat::class, 'dosen_penguji_id');

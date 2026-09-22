@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Hash;
  * DemoSeeder — data realistis untuk demo / testing manual.
  *
  * Alur bisnis yang berlaku:
- *   - Pengajuan Judul/Seminar/Sidang → Kaprodi (diajukan → disetujui)
+ *   - Pengajuan Judul: diajukan → diverifikasi_admin → disetujui
+ *   - Seminar Proposal: diajukan → diverifikasi_admin → disetujui
+ *   - Sidang Skripsi: diajukan → disetujui (setelah berkas_diverifikasi)
  *   - Surat Aktif Kuliah → Admin (diajukan → menunggu_ttd → sudah_ditandatangani → selesai)
  *
  * Jalankan: php artisan db:seed --class=DemoSeeder
@@ -57,7 +59,6 @@ class DemoSeeder extends Seeder
             'nama_kaprodi' => 'Dr. Budi Santoso, M.Kom.',
             'nip_kaprodi' => '196501011990011001',
             'kode_institusi' => 'UCI',
-            'kode_fakultas' => 'FIK',
             'kode_prodi' => 'TI',
         ];
 

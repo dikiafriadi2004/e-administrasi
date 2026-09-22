@@ -45,28 +45,31 @@ class TemplatePreviewService
         $tmpPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'preview_'.Str::random(12).'.docx';
         copy($templatePath, $tmpPath);
 
-        $processor = new TemplateProcessor($tmpPath);
+        try {
+            $processor = new TemplateProcessor($tmpPath);
 
-        foreach ($placeholders as $key => $value) {
-            try {
-                $processor->setValue($key, htmlspecialchars((string) $value));
-            } catch (\Throwable) {
-                // Placeholder tidak ada di template — skip
+            foreach ($placeholders as $key => $value) {
+                try {
+                    // TemplateProcessor::setValue sudah escape XML sendiri.
+                    $processor->setValue($key, (string) $value);
+                } catch (\Throwable) {
+                    // Placeholder tidak ada di template — skip
+                }
             }
+
+            $processor->saveAs($tmpPath);
+
+            // Load hasil docx dan convert ke HTML
+            $phpWord = IOFactory::load($tmpPath, 'Word2007');
+            $writer = IOFactory::createWriter($phpWord, 'HTML');
+
+            ob_start();
+            $writer->save('php://output');
+            $fullHtml = ob_get_clean();
+        } finally {
+            // Hapus temp file walau IOFactory::load throw
+            @unlink($tmpPath);
         }
-
-        $processor->saveAs($tmpPath);
-
-        // Load hasil docx dan convert ke HTML
-        $phpWord = IOFactory::load($tmpPath, 'Word2007');
-        $writer = IOFactory::createWriter($phpWord, 'HTML');
-
-        ob_start();
-        $writer->save('php://output');
-        $fullHtml = ob_get_clean();
-
-        // Hapus temp file
-        @unlink($tmpPath);
 
         // Ambil body + render bersih tanpa kop hardcode
         return $this->extractBody($fullHtml);

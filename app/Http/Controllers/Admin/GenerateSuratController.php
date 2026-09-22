@@ -33,9 +33,10 @@ class GenerateSuratController extends Controller
         Gate::authorize('generate', $surat);
 
         $request->validate([
-            'nomor_urutan' => ['required', 'string', 'max:20'],
+            'nomor_urutan' => ['required', 'string', 'max:20', 'regex:/^[A-Za-z0-9\-\/\.]+$/'],
         ], [
             'nomor_urutan.required' => 'Nomor urutan surat wajib diisi sebelum generate.',
+            'nomor_urutan.regex' => 'Nomor urutan hanya boleh huruf, angka, strip, titik, dan garis miring.',
         ]);
 
         // Simpan nomor_urut saja ke database — suffix akan jadi placeholder terpisah di template

@@ -14,7 +14,14 @@ class DosenController extends Controller
     public function index(): View
     {
         $perPage = (int) min(max((int) request('perPage', 10), 5), 100);
-        $dosens = Dosen::orderBy('nama')->paginate($perPage)->withQueryString();
+        $dosens = Dosen::withCount([
+            'pengajuanJudul as jumlah_bimbingan_1',
+            'pengajuanJudul2 as jumlah_bimbingan_2',
+        ])->orderBy('nama')->paginate($perPage)->withQueryString();
+
+        $dosens->getCollection()->each(function ($dosen): void {
+            $dosen->jumlah_bimbingan = ($dosen->jumlah_bimbingan_1 ?? 0) + ($dosen->jumlah_bimbingan_2 ?? 0);
+        });
 
         return view('admin.dosen.index', array_merge(compact('dosens'), ['perPage' => $perPage]));
     }

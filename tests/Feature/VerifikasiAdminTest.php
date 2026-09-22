@@ -15,8 +15,14 @@ use Tests\TestCase;
 /**
  * Tes alur verifikasi sesuai alur bisnis baru:
  *
- * PENGAJUAN AKADEMIK (judul/seminar/sidang) → langsung ke Kaprodi
- *   diajukan → disetujui (atau ditolak) — tidak ada diverifikasi
+ * PENGAJUAN JUDUL:
+ *   diajukan → diverifikasi_admin (Admin) → disetujui (Kaprodi) / ditolak
+ *
+ * SEMINAR PROPOSAL:
+ *   diajukan → diverifikasi_admin (Admin) → disetujui (Kaprodi) / ditolak
+ *
+ * SIDANG SKRIPSI:
+ *   diajukan → disetujui (Kaprodi, setelah berkas_diverifikasi) / ditolak
  *
  * SURAT (aktif kuliah, dll) → Admin
  *   diajukan → (admin generate) → menunggu_ttd → sudah_ditandatangani → selesai
@@ -149,7 +155,7 @@ class VerifikasiAdminTest extends TestCase
     {
         $kaprodi = $this->buatKaprodi();
         $dosen = Dosen::factory()->create();
-        $judul = $this->buatPengajuanJudul('diajukan');
+        $judul = $this->buatPengajuanJudul('diverifikasi_admin');
 
         $this->actingAs($kaprodi)
             ->post(route('kaprodi.akademik.judul.setujui', $judul), [
@@ -166,7 +172,7 @@ class VerifikasiAdminTest extends TestCase
 
     public function test_kaprodi_cannot_setujui_judul_without_pembimbing(): void
     {
-        $judul = $this->buatPengajuanJudul('diajukan');
+        $judul = $this->buatPengajuanJudul('diverifikasi_admin');
 
         $this->actingAs($this->buatKaprodi())
             ->post(route('kaprodi.akademik.judul.setujui', $judul), [
@@ -174,7 +180,37 @@ class VerifikasiAdminTest extends TestCase
             ])
             ->assertSessionHasErrors('dosen_pembimbing_id');
 
+        $this->assertDatabaseHas('pengajuan_judul', ['id' => $judul->id, 'status' => 'diverifikasi_admin']);
+    }
+
+    public function test_kaprodi_cannot_setujui_judul_masih_diajukan(): void
+    {
+        $kaprodi = $this->buatKaprodi();
+        $dosen = Dosen::factory()->create();
+        $judul = $this->buatPengajuanJudul('diajukan');
+
+        $this->actingAs($kaprodi)
+            ->post(route('kaprodi.akademik.judul.setujui', $judul), [
+                'dosen_pembimbing_id' => $dosen->id,
+            ])
+            ->assertSessionHas('error');
+
         $this->assertDatabaseHas('pengajuan_judul', ['id' => $judul->id, 'status' => 'diajukan']);
+    }
+
+    public function test_admin_can_verifikasi_judul(): void
+    {
+        $admin = $this->buatAdmin();
+        $judul = $this->buatPengajuanJudul('diajukan');
+
+        $this->actingAs($admin)
+            ->post(route('admin.antrian-judul.verifikasi', $judul))
+            ->assertRedirect(route('admin.antrian-judul.index'));
+
+        $this->assertDatabaseHas('pengajuan_judul', [
+            'id' => $judul->id,
+            'status' => 'diverifikasi_admin',
+        ]);
     }
 
     public function test_kaprodi_can_tolak_judul(): void
@@ -194,6 +230,30 @@ class VerifikasiAdminTest extends TestCase
     {
         $user = User::factory()->mahasiswa()->create();
         $mahasiswa = Mahasiswa::factory()->create(['user_id' => $user->id]);
+        $penguji1 = Dosen::factory()->create();
+        $penguji2 = Dosen::factory()->create();
+
+        $surat = PengajuanSurat::factory()->seminarProposal()->create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'status' => 'diverifikasi_admin',
+        ]);
+
+        $this->actingAs($this->buatKaprodi())
+            ->post(route('kaprodi.akademik.seminar.setujui', $surat), [
+                'dosen_penguji_id' => $penguji1->id,
+                'dosen_penguji_2_id' => $penguji2->id,
+            ])
+            ->assertRedirect(route('kaprodi.akademik.index'));
+
+        $this->assertDatabaseHas('pengajuan_surat', ['id' => $surat->id, 'status' => 'disetujui']);
+    }
+
+    public function test_kaprodi_cannot_setujui_seminar_masih_diajukan(): void
+    {
+        $user = User::factory()->mahasiswa()->create();
+        $mahasiswa = Mahasiswa::factory()->create(['user_id' => $user->id]);
+        $penguji1 = Dosen::factory()->create();
+        $penguji2 = Dosen::factory()->create();
 
         $surat = PengajuanSurat::factory()->seminarProposal()->create([
             'mahasiswa_id' => $mahasiswa->id,
@@ -202,20 +262,40 @@ class VerifikasiAdminTest extends TestCase
 
         $this->actingAs($this->buatKaprodi())
             ->post(route('kaprodi.akademik.seminar.setujui', $surat), [
-                'tanggal_jadwal' => now()->addWeekdays(8)->format('Y-m-d'),
-                'waktu_jadwal' => '10.00 s/d selesai',
-                'tempat_jadwal' => 'Ruang 01.03',
+                'dosen_penguji_id' => $penguji1->id,
+                'dosen_penguji_2_id' => $penguji2->id,
             ])
-            ->assertRedirect(route('kaprodi.akademik.index'));
+            ->assertSessionHas('error');
 
-        $this->assertDatabaseHas('pengajuan_surat', ['id' => $surat->id, 'status' => 'disetujui']);
+        $this->assertDatabaseHas('pengajuan_surat', ['id' => $surat->id, 'status' => 'diajukan']);
+    }
+
+    public function test_admin_can_verifikasi_seminar(): void
+    {
+        $user = User::factory()->mahasiswa()->create();
+        $mahasiswa = Mahasiswa::factory()->create(['user_id' => $user->id]);
+
+        $surat = PengajuanSurat::factory()->seminarProposal()->create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'status' => 'diajukan',
+        ]);
+
+        $this->actingAs($this->buatAdmin())
+            ->post(route('admin.jadwal.verifikasi-seminar', $surat))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('pengajuan_surat', [
+            'id' => $surat->id,
+            'status' => 'diverifikasi_admin',
+        ]);
     }
 
     public function test_kaprodi_can_setujui_sidang_with_penguji(): void
     {
         $user = User::factory()->mahasiswa()->create();
         $mahasiswa = Mahasiswa::factory()->create(['user_id' => $user->id]);
-        $dosen = Dosen::factory()->create();
+        $penguji1 = Dosen::factory()->create();
+        $penguji2 = Dosen::factory()->create();
 
         $surat = PengajuanSurat::factory()->sidangSkripsi()->create([
             'mahasiswa_id' => $mahasiswa->id,
@@ -224,17 +304,15 @@ class VerifikasiAdminTest extends TestCase
 
         $this->actingAs($this->buatKaprodi())
             ->post(route('kaprodi.akademik.sidang.setujui', $surat), [
-                'dosen_penguji_id' => $dosen->id,
-                'tanggal_jadwal' => now()->addWeekdays(8)->format('Y-m-d'),
-                'waktu_jadwal' => '09.00 WIB',
-                'tempat_jadwal' => 'Ruang Sidang A',
+                'dosen_penguji_id' => $penguji1->id,
+                'dosen_penguji_2_id' => $penguji2->id,
             ])
             ->assertRedirect(route('kaprodi.akademik.index'));
 
         $this->assertDatabaseHas('pengajuan_surat', [
             'id' => $surat->id,
             'status' => 'disetujui',
-            'dosen_penguji_id' => $dosen->id,
+            'dosen_penguji_id' => $penguji1->id,
         ]);
     }
 
@@ -244,7 +322,7 @@ class VerifikasiAdminTest extends TestCase
     {
         $kaprodi = $this->buatKaprodi();
         $dosen = Dosen::factory()->create();
-        $judul = $this->buatPengajuanJudul('diajukan');
+        $judul = $this->buatPengajuanJudul('diverifikasi_admin');
 
         $this->actingAs($kaprodi)
             ->post(route('kaprodi.akademik.judul.setujui', $judul), [

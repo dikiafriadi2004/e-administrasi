@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class PengajuanSurat extends Model
@@ -69,10 +68,9 @@ class PengajuanSurat extends Model
         return $this->belongsTo(Dosen::class, 'dosen_penguji_2_id');
     }
 
-    public function statusHistories(): HasMany
+    public function statusHistories(): MorphMany
     {
-        return $this->hasMany(StatusHistory::class, 'model_id')
-            ->where('model_type', self::class)
+        return $this->morphMany(StatusHistory::class, 'model')
             ->orderBy('created_at');
     }
 

@@ -51,10 +51,9 @@ class PengajuanJudul extends Model
         return $this->hasMany(PengajuanSurat::class);
     }
 
-    public function statusHistories(): HasMany
+    public function statusHistories(): MorphMany
     {
-        return $this->hasMany(StatusHistory::class, 'model_id')
-            ->where('model_type', self::class)
+        return $this->morphMany(StatusHistory::class, 'model')
             ->orderBy('created_at');
     }
 

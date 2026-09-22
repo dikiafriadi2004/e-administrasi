@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -10,6 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        $driver = Schema::getConnection()->getDriverName();
+
+        // SQLite (test) tidak support MODIFY COLUMN ENUM — skip, kolom TEXT bebas diisi.
+        // MySQL pakai DB::statement agar tidak butuh doctrine/dbal.
+        if ($driver !== 'mysql' && $driver !== 'mariadb') {
+            return;
+        }
+
         // Tambahkan 3 jenis surat baru ke enum pengajuan_surat
         DB::statement("ALTER TABLE pengajuan_surat MODIFY COLUMN jenis_surat ENUM(
             'aktif_kuliah',
@@ -38,6 +47,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        $driver = Schema::getConnection()->getDriverName();
+
+        if ($driver !== 'mysql' && $driver !== 'mariadb') {
+            return;
+        }
+
         // Hapus 3 jenis surat baru dari enum pengajuan_surat
         DB::statement("ALTER TABLE pengajuan_surat MODIFY COLUMN jenis_surat ENUM(
             'aktif_kuliah',

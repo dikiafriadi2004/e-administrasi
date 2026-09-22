@@ -24,6 +24,7 @@ class BuatSuratLangsungController extends Controller
         'izin_magang' => 'Surat Izin Magang / PKL',
         'rekomendasi_magang' => 'Surat Rekomendasi Magang',
         'izin_penelitian' => 'Surat Izin Penelitian',
+        'keluar_prodi' => 'Surat Keluar Prodi',
     ];
 
     public function __construct(
@@ -52,9 +53,10 @@ class BuatSuratLangsungController extends Controller
         $request->validate([
             'mahasiswa_id' => ['required', 'exists:mahasiswas,id'],
             'jenis_surat' => ['required', 'in:'.implode(',', array_keys(self::JENIS_TERSEDIA))],
-            'nomor_urutan' => ['required', 'string', 'max:20'],
+            'nomor_urutan' => ['required', 'string', 'max:20', 'regex:/^[A-Za-z0-9\-\/\.]+$/'],
             // Aktif Kuliah
             'keperluan' => ['required_if:jenis_surat,aktif_kuliah', 'nullable', 'string', 'max:255'],
+            'keperluan_manual' => ['required_if:keperluan,lainnya', 'nullable', 'string', 'max:255'],
             'tujuan_instansi' => ['nullable', 'string', 'max:255'],
             // Seminar / Sidang / Undangan
             'tanggal_rencana' => ['required_if:jenis_surat,'.$jenisSeminarSidang, 'nullable', 'date'],
@@ -64,7 +66,7 @@ class BuatSuratLangsungController extends Controller
             // Dosen — pilih dari dropdown (ID), 1 pembimbing, 2 penguji
             'dosen_pembimbing_id' => ['required_if:jenis_surat,'.$jenisSeminarSidang, 'nullable', 'exists:dosens,id'],
             'dosen_penguji_1_id' => ['required_if:jenis_surat,'.$jenisSeminarSidang, 'nullable', 'exists:dosens,id'],
-            'dosen_penguji_2_id' => ['nullable', 'exists:dosens,id'],
+            'dosen_penguji_2_id' => ['nullable', 'exists:dosens,id', 'different:dosen_penguji_1_id'],
             // Magang & Penelitian
             'nama_instansi' => ['required_if:jenis_surat,izin_magang,rekomendasi_magang,izin_penelitian', 'nullable', 'string', 'max:255'],
             'alamat_instansi' => ['required_if:jenis_surat,izin_magang,rekomendasi_magang,izin_penelitian', 'nullable', 'string', 'max:500'],
@@ -74,7 +76,10 @@ class BuatSuratLangsungController extends Controller
             'bidang_penelitian' => ['required_if:jenis_surat,izin_penelitian', 'nullable', 'string', 'max:255'],
         ], [
             'nomor_urutan.required' => 'Nomor urutan surat wajib diisi.',
+            'nomor_urutan.regex' => 'Nomor urutan hanya boleh huruf, angka, strip, titik, dan garis miring.',
             'keperluan.required_if' => 'Keperluan surat wajib diisi.',
+            'keperluan_manual.required_if' => 'Keperluan manual wajib diisi saat memilih Lainnya.',
+            'dosen_penguji_2_id.different' => 'Penguji 2 tidak boleh sama dengan Penguji 1.',
             'tanggal_rencana.required_if' => 'Tanggal pelaksanaan wajib diisi.',
             'judul_skripsi.required_if' => 'Judul skripsi wajib diisi.',
             'dosen_pembimbing_id.required_if' => 'Dosen pembimbing wajib dipilih.',

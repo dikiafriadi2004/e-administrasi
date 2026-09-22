@@ -13,9 +13,14 @@ use Illuminate\Support\Facades\Cache;
 /**
  * State machine aplikasi e-administrasi.
  *
- * PENGAJUAN AKADEMIK (judul / seminar / sidang):
- *   diajukan → disetujui (Kaprodi tetapkan pembimbing/penguji)
- *            → ditolak (Kaprodi)
+ * PENGAJUAN JUDUL:
+ *   diajukan → diverifikasi_admin (Admin) → disetujui (Kaprodi) → ditolak
+ *
+ * SEMINAR PROPOSAL:
+ *   diajukan → diverifikasi_admin (Admin) → disetujui (Kaprodi) → ditolak
+ *
+ * SIDANG SKRIPSI:
+ *   diajukan → disetujui (Kaprodi, setelah berkas_diverifikasi) → ditolak
  *
  * SURAT AKTIF KULIAH (dan surat lain dari mahasiswa):
  *   diajukan → menunggu_ttd  (Admin generate surat)

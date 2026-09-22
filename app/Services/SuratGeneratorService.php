@@ -62,15 +62,20 @@ class SuratGeneratorService
         $uuid = Str::uuid()->toString();
         $docxFilename = "{$uuid}.docx";
         $docxAbsPath = $outputDirAbs.DIRECTORY_SEPARATOR.$docxFilename;
-        copy($templateAbsPath, $docxAbsPath);
+        if (! copy($templateAbsPath, $docxAbsPath)) {
+            throw SuratGenerationException::templateTidakDitemukan(
+                "{$pengajuan->jenis_surat} (gagal menyalin template ke folder output)"
+            );
+        }
 
         // Isi semua placeholder dengan PHPWord TemplateProcessor
+        // TemplateProcessor::setValue sudah escape XML sendiri — jangan htmlspecialchars (double-escape).
         $placeholders = $this->buildPlaceholders($pengajuan);
         $processor = new TemplateProcessor($docxAbsPath);
 
         foreach ($placeholders as $key => $value) {
             try {
-                $processor->setValue($key, htmlspecialchars((string) $value));
+                $processor->setValue($key, (string) $value);
             } catch (\Throwable) {
                 // Placeholder tidak ada di template — skip, catat ke log
                 Log::warning("Placeholder '{$key}' tidak ditemukan di template.", [

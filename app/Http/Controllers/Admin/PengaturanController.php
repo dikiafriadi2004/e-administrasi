@@ -19,7 +19,16 @@ class PengaturanController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        $data = $request->except(['_token', '_method']);
+        $allowedKeys = Pengaturan::pluck('key')->toArray();
+
+        $rules = [];
+        foreach ($allowedKeys as $key) {
+            $rules[$key] = ['nullable', 'string', 'max:1000'];
+        }
+        // Hanya validasi key yang dikenal — tolak key asing sejak awal.
+        $request->validate($rules);
+
+        $data = $request->only($allowedKeys);
 
         foreach ($data as $key => $value) {
             // Hanya update key yang sudah ada di DB (keamanan — jangan bisa inject key sembarangan)
