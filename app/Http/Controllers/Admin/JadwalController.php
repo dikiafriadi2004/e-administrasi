@@ -6,7 +6,6 @@ use App\Exceptions\InvalidStateTransitionException;
 use App\Exceptions\SuratGenerationException;
 use App\Http\Controllers\Controller;
 use App\Models\BerkasPengajuan;
-use App\Models\PengajuanJudul;
 use App\Models\PengajuanSurat;
 use App\Models\StatusHistory;
 use App\Services\NomorSuratService;
@@ -14,7 +13,6 @@ use App\Services\PengajuanStateService;
 use App\Services\SuratGeneratorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -245,8 +243,7 @@ class JadwalController extends Controller
      */
     public function downloadUndangan(PengajuanSurat $pengajuan): mixed
     {
-        Gate::authorize('download', $pengajuan);
-
+        // Route ini hanya untuk admin — diproteksi via middleware
         // Prioritas: scan (sudah TTD) → docx (belum TTD)
         $path = $pengajuan->file_scan ?? $pengajuan->file_docx;
         abort_if(! $path, 404, 'Surat undangan belum tersedia.');
@@ -310,16 +307,7 @@ class JadwalController extends Controller
     /** Download berkas syarat mahasiswa (untuk admin) */
     public function downloadBerkas(BerkasPengajuan $berkas): StreamedResponse
     {
-        $pengajuan = $berkas->pengajuan;
-
-        if ($pengajuan instanceof PengajuanSurat) {
-            Gate::authorize('view', $pengajuan);
-        } elseif ($pengajuan instanceof PengajuanJudul) {
-            Gate::authorize('view', $pengajuan);
-        } else {
-            abort(403);
-        }
-
+        // Route ini hanya untuk admin/kaprodi — diproteksi via middleware
         abort_unless(Storage::disk('private')->exists($berkas->path_file), 404, 'File tidak ditemukan.');
 
         return Storage::disk('private')->download($berkas->path_file, $berkas->nama_asli);
@@ -366,11 +354,10 @@ class JadwalController extends Controller
      */
     public function downloadAbsensi(PengajuanSurat $pengajuan): StreamedResponse
     {
-        Gate::authorize('view', $pengajuan);
-
         abort_unless($pengajuan->file_absensi_seminar, 404, 'Absensi belum tersedia.');
         abort_unless(Storage::disk('private')->exists($pengajuan->file_absensi_seminar), 404, 'File tidak ditemukan.');
 
+        $pengajuan->loadMissing('mahasiswa');
         $nama = 'absensi_seminar_'.$pengajuan->mahasiswa->nim.'.'.pathinfo($pengajuan->file_absensi_seminar, PATHINFO_EXTENSION);
 
         return Storage::disk('private')->download($pengajuan->file_absensi_seminar, $nama);

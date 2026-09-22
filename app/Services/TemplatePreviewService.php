@@ -45,6 +45,7 @@ class TemplatePreviewService
         $tmpPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.'preview_'.Str::random(12).'.docx';
         copy($templatePath, $tmpPath);
 
+        $fullHtml = '';
         try {
             $processor = new TemplateProcessor($tmpPath);
 
@@ -65,10 +66,14 @@ class TemplatePreviewService
 
             ob_start();
             $writer->save('php://output');
-            $fullHtml = ob_get_clean();
+            $fullHtml = ob_get_clean() ?: '';
         } finally {
             // Hapus temp file walau IOFactory::load throw
             @unlink($tmpPath);
+        }
+
+        if ($fullHtml === '') {
+            return $this->htmlTidakAda($jenisSurat);
         }
 
         // Ambil body + render bersih tanpa kop hardcode

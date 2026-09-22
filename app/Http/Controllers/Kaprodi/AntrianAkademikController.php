@@ -10,7 +10,6 @@ use App\Services\PengajuanStateService;
 use App\Services\RasioDosenService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -267,16 +266,7 @@ class AntrianAkademikController extends Controller
     /** Download berkas syarat mahasiswa (untuk kaprodi) */
     public function downloadBerkas(BerkasPengajuan $berkas): StreamedResponse
     {
-        $pengajuan = $berkas->pengajuan;
-
-        if ($pengajuan instanceof PengajuanSurat) {
-            Gate::authorize('view', $pengajuan);
-        } elseif ($pengajuan instanceof PengajuanJudul) {
-            Gate::authorize('view', $pengajuan);
-        } else {
-            abort(403);
-        }
-
+        // Route ini hanya untuk kaprodi — diproteksi via middleware
         abort_unless(Storage::disk('private')->exists($berkas->path_file), 404, 'File tidak ditemukan.');
 
         return Storage::disk('private')->download($berkas->path_file, $berkas->nama_asli);
