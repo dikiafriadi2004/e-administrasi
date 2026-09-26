@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Kaprodi\AntrianAkademikController;
+use App\Http\Controllers\Kaprodi\ArsipSuratController;
 use App\Http\Controllers\Kaprodi\DashboardController;
 use App\Http\Controllers\Kaprodi\UploadScanController;
 use App\Http\Controllers\ProfilController;
@@ -18,6 +19,9 @@ Route::post('/surat/{surat}/upload-scan', [UploadScanController::class, 'store']
 
 // Download berkas syarat mahasiswa
 Route::get('/berkas/{berkas}/download', [AntrianAkademikController::class, 'downloadBerkas'])->name('berkas.download');
+
+// Monitoring surat (read-only)
+Route::get('/monitoring-surat', [ArsipSuratController::class, 'index'])->name('monitoring-surat.index');
 
 // Antrian Akademik (Judul / Seminar / Sidang) — langsung dari mahasiswa ke kaprodi
 Route::prefix('akademik')->name('akademik.')->group(function () {

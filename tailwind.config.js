@@ -45,4 +45,15 @@ export default {
     },
 
     plugins: [forms],
+
+    safelist: [
+        // Warna sky — dipakai di beberapa form tapi tidak selalu ter-scan JIT
+        'bg-sky-50', 'bg-sky-100', 'bg-sky-500', 'bg-sky-600',
+        'text-sky-600', 'text-sky-700', 'text-sky-800',
+        'border-sky-200', 'border-sky-300',
+        'hover:bg-sky-600', 'hover:bg-sky-100',
+        // Warna untuk badge dan notifikasi
+        'bg-red-500', 'bg-red-400',
+        'ring-sky-200',
+    ],
 };

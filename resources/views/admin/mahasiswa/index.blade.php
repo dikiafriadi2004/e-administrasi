@@ -62,6 +62,11 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2">
+                                    <a href="{{ route('admin.mahasiswa.show', $mhs) }}"
+                                       class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium text-sky-600 hover:bg-sky-50 transition-colors">
+                                        <x-icon name="eye" class="h-3.5 w-3.5" />
+                                        Detail
+                                    </a>
                                     <a href="{{ route('admin.mahasiswa.edit', $mhs) }}"
                                        class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium text-brand-600 hover:bg-brand-50 transition-colors">
                                         <x-icon name="pencil" class="h-3.5 w-3.5" />

@@ -24,9 +24,8 @@ Route::get('/dashboard/rasio', [DashboardController::class, 'rasio'])->name('das
 Route::get('/profil', [ProfilController::class, 'show'])->name('profil.show');
 
 // Mahasiswa
-Route::resource('mahasiswa', MahasiswaController::class)->except(['show', 'destroy']);
-Route::post('mahasiswa/{mahasiswa}/toggle-active', [MahasiswaController::class, 'toggleActive'])
-    ->name('mahasiswa.toggle-active');
+Route::resource('mahasiswa', MahasiswaController::class)->except(['destroy']);
+Route::post('mahasiswa/{mahasiswa}/toggle-active', [MahasiswaController::class, 'toggleActive'])->name('mahasiswa.toggle-active');
 Route::get('mahasiswa/import', [MahasiswaImportController::class, 'create'])->name('mahasiswa.import.create');
 Route::post('mahasiswa/import', [MahasiswaImportController::class, 'store'])->name('mahasiswa.import.store');
 Route::get('mahasiswa/import/template', [MahasiswaImportController::class, 'template'])->name('mahasiswa.import.template');

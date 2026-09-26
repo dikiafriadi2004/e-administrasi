@@ -300,8 +300,7 @@
                                            class="block w-full rounded-xl border-slate-200 text-xs shadow-sm focus:border-brand-400 focus:ring-brand-400" required />
                                 </div>
                                 <button type="submit"
-                                        style="background-color: #0ea5e9; color: white;"
-                                        class="flex w-full items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold hover:opacity-90 transition-opacity">
+                                        class="flex w-full items-center justify-center gap-1.5 rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
                                     <x-icon name="save" class="h-3.5 w-3.5" />
                                     Simpan Perubahan Jadwal
                                 </button>

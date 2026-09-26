@@ -60,6 +60,21 @@ class MahasiswaController extends Controller
         return view('admin.mahasiswa.edit', compact('mahasiswa'));
     }
 
+    /** Detail mahasiswa — semua berkas dan riwayat pengajuan terpusat */
+    public function show(Mahasiswa $mahasiswa): View
+    {
+        $mahasiswa->load([
+            'user',
+            'pengajuanJudul.berkas',
+            'pengajuanJudul.dosenPembimbing',
+            'pengajuanJudul.statusHistories',
+            'pengajuanSurat.berkas',
+            'pengajuanSurat.pengajuanJudul',
+        ]);
+
+        return view('admin.mahasiswa.show', compact('mahasiswa'));
+    }
+
     public function update(UpdateMahasiswaRequest $request, Mahasiswa $mahasiswa): RedirectResponse
     {
         DB::transaction(function () use ($request, $mahasiswa) {

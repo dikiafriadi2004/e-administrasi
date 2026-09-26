@@ -141,6 +141,9 @@
                 </x-sidebar-link>
 
                 <p class="mt-5 mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">Laporan</p>
+                <x-sidebar-link :href="route('kaprodi.monitoring-surat.index')" :active="request()->routeIs('kaprodi.monitoring-surat.*')" icon="inbox">
+                    Monitoring Surat
+                </x-sidebar-link>
                 <x-sidebar-link :href="route('kaprodi.dashboard.rasio')" :active="request()->routeIs('kaprodi.dashboard.rasio')" icon="bar-chart-3">
                     Rasio Dosen
                 </x-sidebar-link>
