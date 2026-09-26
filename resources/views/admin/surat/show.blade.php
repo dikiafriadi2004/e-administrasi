@@ -27,6 +27,7 @@
              get nomorPenuh() { return (this.nomorUrutan || '...') + this.nomorSuffix; }
          }"
          x-init="$watch('nomorUrutan', v => {
+             if (!$refs.previewFrame) return;
              const u = new URL($refs.previewFrame.src);
              u.searchParams.set('nomor_urut', v);
              $refs.previewFrame.src = u.toString();

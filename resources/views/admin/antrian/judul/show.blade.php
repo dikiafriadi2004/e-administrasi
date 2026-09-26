@@ -164,63 +164,63 @@
                 @endforelse
             </ol>
         </div>
-    </div>
 
-    {{-- Modal Verifikasi --}}
-    <div x-show="modalVerifikasi" x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-         x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-        <div @click.stop class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
-             x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-            <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100">
-                <x-icon name="check-circle" class="h-6 w-6 text-emerald-600" />
-            </div>
-            <h3 class="mb-2 text-base font-bold text-slate-900">Konfirmasi Verifikasi Berkas</h3>
-            <p class="mb-6 text-sm text-slate-500">
-                Pengajuan judul dari <strong>{{ $pengajuan->mahasiswa->user->name }}</strong> akan diteruskan ke Kaprodi untuk penetapan pembimbing.
-            </p>
-            <div class="flex justify-end gap-3">
-                <button @click="modalVerifikasi = false"
-                        class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
-                <form method="POST" action="{{ route('admin.antrian-judul.verifikasi', $pengajuan) }}">
-                    @csrf
-                    <button type="submit"
-                            class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
-                        <x-icon name="check" class="h-4 w-4" />
-                        Ya, Teruskan ke Kaprodi
-                    </button>
-                </form>
+        {{-- Modal Verifikasi --}}
+        <div x-show="modalVerifikasi" x-cloak
+             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+             x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div @click.stop class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+                 x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100">
+                    <x-icon name="check-circle" class="h-6 w-6 text-emerald-600" />
+                </div>
+                <h3 class="mb-2 text-base font-bold text-slate-900">Konfirmasi Verifikasi Berkas</h3>
+                <p class="mb-6 text-sm text-slate-500">
+                    Pengajuan judul dari <strong>{{ $pengajuan->mahasiswa->user->name }}</strong> akan diteruskan ke Kaprodi untuk penetapan pembimbing.
+                </p>
+                <div class="flex justify-end gap-3">
+                    <button @click="modalVerifikasi = false"
+                            class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                    <form method="POST" action="{{ route('admin.antrian-judul.verifikasi', $pengajuan) }}">
+                        @csrf
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                            <x-icon name="check" class="h-4 w-4" />
+                            Ya, Teruskan ke Kaprodi
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    {{-- Modal Tolak --}}
-    <div x-show="modalTolak" x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-         x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-        <div @click.stop class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
-             x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-            <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100">
-                <x-icon name="x-circle" class="h-6 w-6 text-red-600" />
-            </div>
-            <h3 class="mb-2 text-base font-bold text-slate-900">Tolak Pengajuan Judul</h3>
-            <p class="mb-4 text-sm text-slate-500">Berikan alasan agar mahasiswa bisa memperbaiki pengajuannya.</p>
-            <form method="POST" action="{{ route('admin.antrian-judul.tolak', $pengajuan) }}" class="space-y-4">
-                @csrf
-                <textarea name="catatan_penolakan" rows="3" required
-                          placeholder="Contoh: Berkas SPUP belum dilampirkan..."
-                          class="block w-full rounded-xl border-slate-200 text-sm focus:border-red-400 focus:ring-red-400">{{ old('catatan_penolakan') }}</textarea>
-                @error('catatan_penolakan') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-                <div class="flex justify-end gap-3">
-                    <button type="button" @click="modalTolak = false"
-                            class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
-                    <button type="submit"
-                            class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">
-                        <x-icon name="x-circle" class="h-4 w-4" />
-                        Tolak
-                    </button>
+        {{-- Modal Tolak --}}
+        <div x-show="modalTolak" x-cloak
+             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+             x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <div @click.stop class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+                 x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100">
+                    <x-icon name="x-circle" class="h-6 w-6 text-red-600" />
                 </div>
-            </form>
+                <h3 class="mb-2 text-base font-bold text-slate-900">Tolak Pengajuan Judul</h3>
+                <p class="mb-4 text-sm text-slate-500">Berikan alasan agar mahasiswa bisa memperbaiki pengajuannya.</p>
+                <form method="POST" action="{{ route('admin.antrian-judul.tolak', $pengajuan) }}" class="space-y-4">
+                    @csrf
+                    <textarea name="catatan_penolakan" rows="3" required
+                              placeholder="Contoh: Berkas SPUP belum dilampirkan..."
+                              class="block w-full rounded-xl border-slate-200 text-sm focus:border-red-400 focus:ring-red-400">{{ old('catatan_penolakan') }}</textarea>
+                    @error('catatan_penolakan') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                    <div class="flex justify-end gap-3">
+                        <button type="button" @click="modalTolak = false"
+                                class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">
+                            <x-icon name="x-circle" class="h-4 w-4" />
+                            Tolak
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

@@ -33,10 +33,12 @@
                     <dt class="font-medium text-slate-500">Bidang Kajian</dt>
                     <dd class="col-span-2 text-slate-800">{{ $pengajuan->bidang_kajian }}</dd>
                 </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <dt class="font-medium text-slate-500">Ringkasan</dt>
-                    <dd class="col-span-2 leading-relaxed text-gray-700 text-sm">{{ $pengajuan->ringkasan }}</dd>
-                </div>
+                @if ($pengajuan->ringkasan)
+                    <div class="grid grid-cols-3 gap-2">
+                        <dt class="font-medium text-slate-500">Ringkasan</dt>
+                        <dd class="col-span-2 leading-relaxed text-gray-700 text-sm">{{ $pengajuan->ringkasan }}</dd>
+                    </div>
+                @endif
                 @if ($pengajuan->pendekatan_penelitian)
                     <div class="grid grid-cols-3 gap-2">
                         <dt class="font-medium text-slate-500">Pendekatan</dt>
@@ -72,12 +74,21 @@
             </dl>
         </div>
 
-        @if ($pengajuan->status === 'diajukan')
-            {{-- Tabel Pilih Pembimbing (1 saja) --}}
+        {{-- Panel Aksi Kaprodi --}}
+        @if ($pengajuan->status === 'diverifikasi_admin')
             <div class="rounded-xl border bg-white p-6 shadow-sm"
-                 x-data="{ pembimbing: '', pembimbingNama: '' }">
-                <h3 class="mb-1 text-sm font-semibold text-slate-700">Pilih Dosen Pembimbing</h3>
-                <p class="mb-4 text-xs text-slate-400">Wajib dipilih sebelum menyetujui. Diurutkan dari beban bimbingan terkecil.</p>
+                 x-data="{
+                     pembimbing: '',
+                     pembimbingNama: '',
+                     pembimbing2: '',
+                     pembimbing2Nama: ''
+                 }">
+                <h3 class="mb-1 text-sm font-semibold text-slate-700">Tetapkan Dosen Pembimbing</h3>
+                <p class="mb-4 text-xs text-slate-400">
+                    Pembimbing 1 wajib dipilih. Pembimbing 2 opsional. Diurutkan dari beban bimbingan terkecil.
+                </p>
+
+                {{-- Tabel Dosen --}}
                 <div class="overflow-hidden rounded-lg border">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -87,7 +98,8 @@
                                 <th class="px-4 py-2 text-center">Bimbingan Aktif</th>
                                 <th class="px-4 py-2 text-center">Kapasitas</th>
                                 <th class="px-4 py-2 text-center">Status</th>
-                                <th class="px-4 py-2 text-center">Pilih</th>
+                                <th class="px-4 py-2 text-center">Pembimbing 1</th>
+                                <th class="px-4 py-2 text-center">Pembimbing 2</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -107,12 +119,22 @@
                                             <span class="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Tersedia</span>
                                         @endif
                                     </td>
+                                    {{-- Tombol Pembimbing 1 --}}
                                     <td class="px-4 py-2 text-center">
                                         <button type="button"
-                                                @click="pembimbing = '{{ $dosen->id }}'; pembimbingNama = '{{ addslashes($dosen->nama) }}'"
+                                                @click="pembimbing = '{{ $dosen->id }}'; pembimbingNama = '{{ addslashes($dosen->nama) }}'; if (pembimbing2 === '{{ $dosen->id }}') { pembimbing2 = ''; pembimbing2Nama = ''; }"
                                                 :class="pembimbing === '{{ $dosen->id }}' ? 'bg-brand-500 text-white' : 'border border-brand-300 text-brand-600 hover:bg-brand-50'"
                                                 class="rounded-lg px-3 py-1 text-xs font-medium transition-colors">
                                             <span x-text="pembimbing === '{{ $dosen->id }}' ? '✓ Dipilih' : 'Pilih'"></span>
+                                        </button>
+                                    </td>
+                                    {{-- Tombol Pembimbing 2 --}}
+                                    <td class="px-4 py-2 text-center">
+                                        <button type="button"
+                                                @click="pembimbing2 = (pembimbing2 === '{{ $dosen->id }}') ? '' : '{{ $dosen->id }}'; pembimbing2Nama = (pembimbing2 === '{{ $dosen->id }}') ? '{{ addslashes($dosen->nama) }}' : ''; if (pembimbing === '{{ $dosen->id }}') { pembimbing = ''; pembimbingNama = ''; }"
+                                                :class="pembimbing2 === '{{ $dosen->id }}' ? 'bg-slate-600 text-white' : 'border border-slate-300 text-slate-600 hover:bg-slate-50'"
+                                                class="rounded-lg px-3 py-1 text-xs font-medium transition-colors">
+                                            <span x-text="pembimbing2 === '{{ $dosen->id }}' ? '✓ Dipilih' : 'Pilih'"></span>
                                         </button>
                                     </td>
                                 </tr>
@@ -121,17 +143,34 @@
                     </table>
                 </div>
 
-                {{-- Ringkasan --}}
-                <div class="mt-3 rounded-lg bg-gray-50 px-4 py-3 text-xs">
+                {{-- Ringkasan Pilihan --}}
+                <div class="mt-3 rounded-lg bg-gray-50 px-4 py-3 text-xs space-y-1">
                     <div class="flex gap-2">
-                        <span class="w-28 font-medium text-slate-500">Pembimbing:</span>
+                        <span class="w-28 font-medium text-slate-500">Pembimbing 1:</span>
                         <span x-text="pembimbingNama || '— belum dipilih —'"
                               :class="pembimbingNama ? 'font-semibold text-brand-700' : 'text-slate-400 italic'"></span>
                     </div>
+                    <div class="flex gap-2">
+                        <span class="w-28 font-medium text-slate-500">Pembimbing 2:</span>
+                        <span x-text="pembimbing2Nama || '— opsional —'"
+                              :class="pembimbing2Nama ? 'font-semibold text-slate-700' : 'text-slate-400 italic'"></span>
+                    </div>
                 </div>
 
+                {{-- Catatan Kaprodi --}}
+                <div class="mt-4">
+                    <label for="catatan_kaprodi_field" class="block text-xs font-medium text-slate-500 mb-1">
+                        Catatan Kaprodi <span class="text-slate-400 font-normal">(opsional)</span>
+                    </label>
+                    <textarea id="catatan_kaprodi_field" name="catatan_kaprodi_preview" rows="2"
+                              x-ref="catatanKaprodi"
+                              placeholder="Catatan tambahan untuk mahasiswa atau pembimbing..."
+                              class="block w-full rounded-xl border-slate-200 text-sm focus:border-brand-400 focus:ring-brand-400"></textarea>
+                </div>
+
+                {{-- Tombol Aksi --}}
                 <div class="mt-4 flex flex-wrap gap-3">
-                    <button @click="if (!pembimbing) { $dispatch('notify', {type:'warning', message:'Pilih dosen pembimbing terlebih dahulu.'}); return; } modalSetujui = true"
+                    <button @click="if (!pembimbing) { alert('Pilih dosen pembimbing 1 terlebih dahulu.'); return; } modalSetujui = true"
                             class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors">
                         <x-icon name="check-circle" class="h-4 w-4" />
                         Setujui & Tetapkan Pembimbing
@@ -156,10 +195,14 @@
                         <p class="mb-3 text-sm text-slate-600">
                             Judul dari <strong>{{ $pengajuan->mahasiswa->user->name }}</strong> akan disetujui dengan dosen pembimbing:
                         </p>
-                        <div class="mb-4 rounded-xl bg-brand-50 px-3 py-2 text-sm">
+                        <div class="mb-4 rounded-xl bg-brand-50 px-3 py-2 text-sm space-y-1">
                             <div class="flex gap-2">
-                                <span class="w-28 text-slate-500">Pembimbing:</span>
+                                <span class="w-28 text-slate-500">Pembimbing 1:</span>
                                 <span class="font-semibold text-brand-700" x-text="pembimbingNama"></span>
+                            </div>
+                            <div class="flex gap-2" x-show="pembimbing2Nama">
+                                <span class="w-28 text-slate-500">Pembimbing 2:</span>
+                                <span class="font-semibold text-slate-700" x-text="pembimbing2Nama"></span>
                             </div>
                         </div>
                         <div class="flex justify-end gap-3">
@@ -170,6 +213,8 @@
                             <form method="POST" action="{{ route('kaprodi.akademik.judul.setujui', $pengajuan) }}">
                                 @csrf
                                 <input type="hidden" name="dosen_pembimbing_id" :value="pembimbing" />
+                                <input type="hidden" name="dosen_pembimbing_2_id" :value="pembimbing2 || ''" />
+                                <input type="hidden" name="catatan_kaprodi" x-bind:value="$refs.catatanKaprodi.value" />
                                 <button type="submit"
                                         class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors">
                                     <x-icon name="check" class="h-4 w-4" />
@@ -214,15 +259,31 @@
             </div>
 
         @elseif ($pengajuan->status === 'disetujui')
-            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-                <div class="flex items-center gap-2 mb-2">
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+                <div class="flex items-center gap-2 mb-3">
                     <x-icon name="circle-check" class="h-5 w-5 text-emerald-600" />
                     <p class="text-sm font-semibold text-emerald-800">Judul Disetujui</p>
                 </div>
-                <p class="text-sm text-emerald-700">
-                    Pembimbing: <strong>{{ $pengajuan->dosenPembimbing?->nama ?? '—' }}</strong>
-                </p>
+                <dl class="space-y-1.5 text-sm">
+                    <div class="flex gap-2">
+                        <span class="w-32 text-slate-500">Pembimbing 1:</span>
+                        <span class="font-semibold text-slate-800">{{ $pengajuan->dosenPembimbing?->nama ?? '—' }}</span>
+                    </div>
+                    @if ($pengajuan->dosenPembimbing2)
+                        <div class="flex gap-2">
+                            <span class="w-32 text-slate-500">Pembimbing 2:</span>
+                            <span class="font-semibold text-slate-800">{{ $pengajuan->dosenPembimbing2->nama }}</span>
+                        </div>
+                    @endif
+                    @if ($pengajuan->catatan_kaprodi)
+                        <div class="flex gap-2 mt-2 pt-2 border-t border-emerald-200">
+                            <span class="w-32 text-slate-500">Catatan:</span>
+                            <span class="text-slate-700">{{ $pengajuan->catatan_kaprodi }}</span>
+                        </div>
+                    @endif
+                </dl>
             </div>
+
         @elseif ($pengajuan->status === 'ditolak')
             <div class="rounded-2xl border border-red-200 bg-red-50 p-4">
                 <div class="flex items-center gap-2 mb-1">
@@ -230,6 +291,15 @@
                     <p class="text-sm font-semibold text-red-800">Ditolak</p>
                 </div>
                 <p class="mt-1 text-sm text-red-700">{{ $pengajuan->catatan_penolakan }}</p>
+            </div>
+
+        @elseif ($pengajuan->status === 'diajukan')
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <div class="flex items-center gap-2">
+                    <x-icon name="clock" class="h-5 w-5 text-amber-500" />
+                    <p class="text-sm font-semibold text-amber-800">Menunggu Verifikasi Admin</p>
+                </div>
+                <p class="mt-1 text-xs text-amber-700">Berkas belum diverifikasi oleh Admin. Pengajuan akan diteruskan ke Kaprodi setelah Admin memverifikasi kelengkapan berkas.</p>
             </div>
         @endif
 

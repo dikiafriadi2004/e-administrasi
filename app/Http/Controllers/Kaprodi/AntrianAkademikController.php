@@ -91,21 +91,27 @@ class AntrianAkademikController extends Controller
         return view('kaprodi.akademik.show-judul', compact('pengajuan', 'dosenTerurut'));
     }
 
-    /** Setujui judul + tetapkan 1 pembimbing: diajukan → disetujui */
+    /** Setujui judul + tetapkan pembimbing: diverifikasi_admin → disetujui */
     public function setujuiJudul(Request $request, PengajuanJudul $pengajuan): RedirectResponse
     {
         $request->validate([
             'dosen_pembimbing_id' => ['required', 'exists:dosens,id'],
-            'dosen_pembimbing_2_id' => ['nullable', 'exists:dosens,id', 'different:dosen_pembimbing_id'],
+            'dosen_pembimbing_2_id' => ['nullable', 'string', 'exists:dosens,id', 'different:dosen_pembimbing_id'],
+            'catatan_kaprodi' => ['nullable', 'string', 'max:1000'],
         ], [
             'dosen_pembimbing_id.required' => 'Pilih dosen pembimbing sebelum menyetujui.',
             'dosen_pembimbing_2_id.different' => 'Pembimbing 2 tidak boleh sama dengan Pembimbing 1.',
         ]);
 
+        // Nilai kosong dari hidden input Alpine dianggap null
+        $pembimbing2Id = $request->filled('dosen_pembimbing_2_id') ? $request->dosen_pembimbing_2_id : null;
+
         $pengajuan->update(array_filter([
             'dosen_pembimbing_id' => $request->dosen_pembimbing_id,
-            'dosen_pembimbing_2_id' => $request->dosen_pembimbing_2_id,
+            'dosen_pembimbing_2_id' => $pembimbing2Id,
+            'catatan_kaprodi' => $request->catatan_kaprodi,
         ], fn ($v) => $v !== null));
+
         $this->stateService->setujuiJudul($pengajuan, auth()->user());
 
         return redirect()->route('kaprodi.akademik.index')
