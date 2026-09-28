@@ -57,6 +57,12 @@ class AntrianAkademikController extends Controller
             ->withQueryString();
 
         // Riwayat yang sudah diproses (disetujui/ditolak) — untuk referensi Kaprodi
+        $riwayatJudul = PengajuanJudul::whereIn('status', ['disetujui', 'ditolak'])
+            ->with('mahasiswa.user', 'dosenPembimbing')
+            ->orderByDesc('updated_at')
+            ->paginate($perPage, ['*'], 'rwyjudul')
+            ->withQueryString();
+
         $riwayatSeminar = PengajuanSurat::where('jenis_surat', 'seminar_proposal')
             ->whereIn('status', ['disetujui', 'menunggu_ttd', 'sudah_ditandatangani', 'selesai', 'ditolak'])
             ->with('mahasiswa.user', 'dosenPenguji', 'dosenPenguji2')
@@ -75,6 +81,7 @@ class AntrianAkademikController extends Controller
             'pengajuanJudul',
             'pengajuanSeminar',
             'pengajuanSidang',
+            'riwayatJudul',
             'riwayatSeminar',
             'riwayatSidang',
             'perPage'

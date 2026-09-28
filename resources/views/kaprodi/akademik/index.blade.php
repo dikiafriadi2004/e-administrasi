@@ -188,9 +188,63 @@
                 </div>
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">Riwayat Pengajuan yang Sudah Diproses</h2>
-                    <p class="text-xs text-slate-400">Seminar & sidang yang sudah mendapat keputusan (disetujui/ditolak).</p>
+                    <p class="text-xs text-slate-400">Judul, seminar & sidang yang sudah mendapat keputusan (disetujui/ditolak).</p>
                 </div>
             </div>
+
+            {{-- Riwayat Judul --}}
+            @if ($riwayatJudul->total() > 0)
+                <div class="overflow-hidden rounded-xl border bg-white shadow-sm">
+                    <div class="border-b bg-slate-50 px-4 py-2.5 flex items-center gap-2">
+                        <x-icon name="file-text" class="h-3.5 w-3.5 text-slate-500" />
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Judul Skripsi</span>
+                        <span class="ml-auto text-xs text-slate-400">{{ $riwayatJudul->total() }} total</span>
+                    </div>
+                    <table class="min-w-full divide-y divide-slate-100 text-sm">
+                        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Mahasiswa</th>
+                                <th class="px-4 py-3 text-left">Judul</th>
+                                <th class="px-4 py-3 text-left">Pembimbing</th>
+                                <th class="px-4 py-3 text-left">Tanggal</th>
+                                <th class="px-4 py-3 text-left">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach ($riwayatJudul as $r)
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-4 py-3">
+                                        <p class="font-medium text-slate-800">{{ $r->mahasiswa->user->name }}</p>
+                                        <p class="text-xs text-slate-400">{{ $r->mahasiswa->nim }}</p>
+                                    </td>
+                                    <td class="px-4 py-3 text-xs text-slate-600 max-w-xs">
+                                        <p class="font-medium text-slate-700 leading-snug">{{ \Illuminate\Support\Str::limit($r->judul, 60) }}</p>
+                                        @if ($r->bidang_kajian)
+                                            <p class="text-slate-400">{{ $r->bidang_kajian }}</p>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-xs">
+                                        @if ($r->dosenPembimbing)
+                                            <span class="font-medium text-brand-700">{{ $r->dosenPembimbing->nama }}</span>
+                                        @else
+                                            <span class="text-slate-300 italic">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-xs text-slate-400 whitespace-nowrap">
+                                        {{ $r->updated_at->format('d M Y') }}
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <x-status-badge :status="$r->status" />
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @if ($riwayatJudul->hasPages())
+                        <div class="px-4 py-2 border-t">{{ $riwayatJudul->links() }}</div>
+                    @endif
+                </div>
+            @endif
 
             {{-- Riwayat Seminar --}}
             @if ($riwayatSeminar->total() > 0)
