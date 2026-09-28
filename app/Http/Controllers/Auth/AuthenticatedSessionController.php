@@ -14,6 +14,12 @@ class AuthenticatedSessionController extends Controller
 {
     public function create(): View
     {
+        // Pastikan session fresh saat buka halaman login
+        // agar CSRF token selalu valid dan tidak 419 saat submit
+        if (! session()->has('_token')) {
+            session()->regenerateToken();
+        }
+
         return view('auth.login');
     }
 

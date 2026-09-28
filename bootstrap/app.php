@@ -26,10 +26,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // 419 CSRF token expired — redirect ke login dengan pesan yang jelas
+        // 419 CSRF token expired — refresh token dan redirect ke halaman yang sama
         $exceptions->render(function (TokenMismatchException $e, Request $request) {
-            return redirect()->route('login')
-                ->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            // Regenerate token agar form berikutnya valid
+            if ($request->hasSession()) {
+                $request->session()->regenerateToken();
+            }
+
+            // Jika dari halaman login — redirect back ke login agar form fresh
+            if ($request->routeIs('login') || $request->is('login')) {
+                return redirect()->route('login')
+                    ->with('error', 'Token keamanan kadaluarsa. Silakan coba login kembali.');
+            }
+
+            // Untuk halaman lain — redirect back dengan pesan
+            return back()->with('error', 'Token keamanan kadaluarsa. Silakan coba lagi.');
         });
         // Tangani error file permission (rename/write pada storage) — jangan tampilkan ke user
         $exceptions->render(function (ErrorException $e, Request $request) {
