@@ -36,12 +36,14 @@
     @endphp
 
     {{-- Layout dua kolom: kiri = aksi, kanan = preview --}}
-    <div class="flex gap-5 items-start overflow-x-hidden"
-         x-data="{
+    <div class="space-y-5" x-data="{
              nomorUrutan: '{{ old('nomor_urutan', $pengajuan->nomor_surat ?? '') }}',
              nomorSuffix: '{{ $nomorSuffix }}',
              get nomorPenuh() { return (this.nomorUrutan || '...') + this.nomorSuffix; }
          }">
+
+    {{-- Baris 1: dua kolom info + preview --}}
+    <div class="flex gap-5 items-start overflow-x-hidden">
 
         {{-- ===== KOLOM KIRI: Info + Aksi ===== --}}
         <div class="w-80 shrink-0 space-y-4">
@@ -110,28 +112,6 @@
                     @endif
                 </dl>
             </div>
-
-            {{-- Berkas Syarat --}}
-            @if ($pengajuan->berkas->count())
-                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <h3 class="mb-2.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                        <x-icon name="paperclip" class="h-3.5 w-3.5" />
-                        Berkas Syarat
-                    </h3>
-                    <ul class="space-y-1.5">
-                        @foreach ($pengajuan->berkas as $berkas)
-                            <li class="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs">
-                                <x-icon name="file" class="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                                <span class="flex-1 truncate text-slate-700">{{ $berkas->nama_asli }}</span>
-                                <a href="{{ route('admin.berkas.download', $berkas) }}"
-                                   class="shrink-0 text-brand-600 hover:text-brand-700">
-                                    <x-icon name="download" class="h-3.5 w-3.5" />
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
             {{-- Panel Verifikasi Berkas Seminar (khusus seminar_proposal, status diajukan) --}}
             @if ($pengajuan->jenis_surat === 'seminar_proposal' && $pengajuan->status === 'diajukan')
@@ -549,5 +529,240 @@
             @endif
         </div>
 
-    </div>
+    </div>{{-- end flex 2-kolom --}}
+
+    {{-- ===== BARIS 2: Tabel Berkas Full-Width ===== --}}
+    @php
+        // Definisi checklist berkas per jenis pengajuan
+        $checklistSidang = [
+            'surat_permohonan'   => 'Surat Permohonan',
+            'biodata_mahasiswa'  => 'Biodata Mahasiswa',
+            'lembar_persetujuan' => 'Lembar Persetujuan Skripsi',
+            'kwitansi_spp'       => 'Kwitansi SPP Terakhir',
+            'transkip_nilai'     => 'Transkip Nilai (disahkan WD1)',
+            'khs'                => 'Kartu Hasil Studi (KHS) Semester 1 s/d Akhir',
+            'naskah_skripsi'     => 'Naskah Skripsi (4 eksemplar — scan/PDF)',
+            'ket_hadir_seminar'  => 'Keterangan Hadir Seminar Minimal 10 Kali',
+            'buku_bimbingan'     => 'Buku Bimbingan Skripsi',
+            'krs_terakhir'       => 'Kartu Rencana Studi (KRS) Terakhir',
+            'abstrak_skripsi'    => 'Abstrak Skripsi',
+            'nilai_toefl'        => 'Nilai TOEFL',
+            'sk_pembimbing'      => 'SK Pembimbing Mahasiswa',
+            'jurnal_ilmiah'      => 'Jurnal Ilmiah Mahasiswa',
+            'map_berwarna'       => 'Map Berwarna Merah',
+            'bebas_turnitin'     => 'Surat Keterangan Bebas Turnitin ≤30%',
+        ];
+
+        $checklistSeminar = [
+            'Cover ACC Dosen Pembimbing'       => 'Cover ACC Dosen Pembimbing',
+            'Riwayat Bimbingan (TTD Pembimbing)' => 'Riwayat Bimbingan (TTD Pembimbing)',
+        ];
+
+        // Berkas yang sudah diupload — index by label
+        $berkasUploaded = $pengajuan->berkas->keyBy('label');
+        // Alternatif: index by key prefix (untuk sidang)
+        $berkasUploadedByKey = $pengajuan->berkas->keyBy(fn($b) => explode('_', $b->path_file)[count(explode('_', $b->path_file))-2] ?? '');
+
+        $isSidang  = $pengajuan->jenis_surat === 'sidang_skripsi';
+        $isSeminar = $pengajuan->jenis_surat === 'seminar_proposal';
+
+        // Hitung yang ada berdasarkan label (lebih reliable)
+        $jumlahUpload = $pengajuan->berkas->count();
+        $jumlahChecklist = $isSidang ? count($checklistSidang) : ($isSeminar ? count($checklistSeminar) : 0);
+    @endphp
+
+    @if ($pengajuan->berkas->count() > 0 || $isSidang || $isSeminar)
+        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            {{-- Header --}}
+            <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-5 py-3">
+                <div class="flex items-center gap-3">
+                    <x-icon name="paperclip" class="h-4 w-4 text-slate-400" />
+                    <span class="text-sm font-semibold text-slate-700">
+                        Berkas yang Dilampirkan Mahasiswa
+                    </span>
+                    <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium
+                        {{ $jumlahUpload >= $jumlahChecklist && $jumlahChecklist > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                        {{ $jumlahUpload }} / {{ $jumlahChecklist ?: $jumlahUpload }} berkas
+                    </span>
+                </div>
+                @if ($jumlahChecklist > 0)
+                    <p class="text-xs text-slate-400">
+                        <span class="inline-flex items-center gap-1 text-emerald-600"><x-icon name="check-circle" class="h-3 w-3" /> = Sudah diupload</span>
+                        &nbsp;
+                        <span class="inline-flex items-center gap-1 text-red-500"><x-icon name="x-circle" class="h-3 w-3" /> = Belum ada</span>
+                    </p>
+                @endif
+            </div>
+
+            <table class="min-w-full divide-y divide-slate-100 text-sm">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <tr>
+                        <th class="w-8 px-4 py-3 text-center">No</th>
+                        <th class="px-4 py-3 text-left">Jenis Berkas</th>
+                        <th class="px-4 py-3 text-left">Nama File</th>
+                        <th class="px-4 py-3 text-center w-24">Status</th>
+                        <th class="px-4 py-3 text-left w-28">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+
+                    @if ($isSidang)
+                        {{-- Checklist 16 berkas sidang --}}
+                        @foreach ($checklistSidang as $key => $labelChecklist)
+                            @php
+                                // Cari berkas yang sesuai dengan key atau label
+                                $found = $pengajuan->berkas->first(fn($b) =>
+                                    str_starts_with(basename($b->path_file), $key.'_') ||
+                                    $b->label === $labelChecklist
+                                );
+                                $no = $loop->iteration;
+                                $wajib = $key !== 'map_berwarna';
+                            @endphp
+                            <tr class="{{ $found ? 'bg-white' : ($wajib ? 'bg-red-50' : 'bg-white') }} hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3 text-center text-xs text-slate-400">{{ $no }}</td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium text-slate-700">{{ $labelChecklist }}</span>
+                                    @if (!$wajib) <span class="ml-1 text-[10px] text-slate-400">(opsional)</span> @endif
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-500">
+                                    @if ($found)
+                                        <div class="flex items-center gap-1.5">
+                                            <x-icon name="file" class="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                                            <span class="truncate max-w-xs" title="{{ $found->nama_asli }}">{{ $found->nama_asli }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-300 italic">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    @if ($found)
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                            <x-icon name="check" class="h-3 w-3" /> Ada
+                                        </span>
+                                    @elseif ($wajib)
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600">
+                                            <x-icon name="x" class="h-3 w-3" /> Belum
+                                        </span>
+                                    @else
+                                        <span class="text-[10px] text-slate-300">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if ($found)
+                                        <a href="{{ route('admin.berkas.download', $found) }}"
+                                           class="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors">
+                                            <x-icon name="download" class="h-3 w-3" />
+                                            Download
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+
+                    @elseif ($isSeminar)
+                        {{-- Checklist berkas seminar --}}
+                        @foreach ($checklistSeminar as $key => $labelChecklist)
+                            @php
+                                $found = $pengajuan->berkas->first(fn($b) => $b->label === $key);
+                                $no = $loop->iteration;
+                            @endphp
+                            <tr class="{{ $found ? 'bg-white' : 'bg-red-50' }} hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3 text-center text-xs text-slate-400">{{ $no }}</td>
+                                <td class="px-4 py-3">
+                                    <span class="text-xs font-medium text-slate-700">{{ $labelChecklist }}</span>
+                                    <span class="ml-1 text-red-400 text-[10px]">*</span>
+                                </td>
+                                <td class="px-4 py-3 text-xs text-slate-500">
+                                    @if ($found)
+                                        <div class="flex items-center gap-1.5">
+                                            <x-icon name="file" class="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                                            <span class="truncate max-w-xs" title="{{ $found->nama_asli }}">{{ $found->nama_asli }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-300 italic">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    @if ($found)
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                            <x-icon name="check" class="h-3 w-3" /> Ada
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600">
+                                            <x-icon name="x" class="h-3 w-3" /> Belum
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if ($found)
+                                        <a href="{{ route('admin.berkas.download', $found) }}"
+                                           class="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors">
+                                            <x-icon name="download" class="h-3 w-3" />
+                                            Download
+                                        </a>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+
+                        {{-- Berkas tambahan seminar (selain wajib) --}}
+                        @foreach ($pengajuan->berkas->whereNotIn('label', array_keys($checklistSeminar)) as $berkas)
+                            <tr class="bg-white hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3 text-center text-xs text-slate-400">{{ $loop->iteration + count($checklistSeminar) }}</td>
+                                <td class="px-4 py-3 text-xs text-slate-600">{{ $berkas->label ?: 'Berkas Tambahan' }}</td>
+                                <td class="px-4 py-3 text-xs text-slate-500">
+                                    <div class="flex items-center gap-1.5">
+                                        <x-icon name="file" class="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                                        <span class="truncate max-w-xs" title="{{ $berkas->nama_asli }}">{{ $berkas->nama_asli }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700">
+                                        <x-icon name="plus" class="h-3 w-3" /> Tambahan
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('admin.berkas.download', $berkas) }}"
+                                       class="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors">
+                                        <x-icon name="download" class="h-3 w-3" />
+                                        Download
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+
+                    @else
+                        {{-- Jenis lain — tampilkan semua berkas apa adanya --}}
+                        @foreach ($pengajuan->berkas as $berkas)
+                            <tr class="bg-white hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-3 text-center text-xs text-slate-400">{{ $loop->iteration }}</td>
+                                <td class="px-4 py-3 text-xs text-slate-600">{{ $berkas->label ?: '—' }}</td>
+                                <td class="px-4 py-3 text-xs text-slate-500">
+                                    <div class="flex items-center gap-1.5">
+                                        <x-icon name="file" class="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                                        <span class="truncate max-w-xs">{{ $berkas->nama_asli }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                        <x-icon name="check" class="h-3 w-3" /> Ada
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('admin.berkas.download', $berkas) }}"
+                                       class="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors">
+                                        <x-icon name="download" class="h-3 w-3" />
+                                        Download
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+
+                </tbody>
+            </table>
+        </div>
+    @endif
+
+    </div>{{-- end space-y-5 --}}
 </x-app-layout>
