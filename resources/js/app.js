@@ -4,7 +4,4 @@ import './bootstrap';
 // @livewireScripts di app.blade.php sudah meng-inject Alpine secara otomatis.
 // JANGAN load Alpine di sini — menyebabkan "multiple instances" error.
 
-// Chart.js — expose ke window agar bisa dipakai di blade inline script
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
-window.Chart = Chart;
+// Chart.js dimuat via CDN langsung di view dashboard-rasio (tidak perlu bundle di sini)

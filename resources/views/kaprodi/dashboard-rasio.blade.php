@@ -148,45 +148,26 @@
 </x-app-layout>
 @if ($rasio->isNotEmpty())
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-(function () {
-    const labels    = @json($rasio->pluck('nama')->map(fn($n) => strlen($n) > 20 ? substr($n, 0, 20).'…' : $n)->values());
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('rasioChart');
+    if (!ctx) return;
+
+    const fullNames = @json($rasio->pluck('nama')->values());
+    const labels    = fullNames.map(n => n.length > 22 ? n.substring(0, 22) + '\u2026' : n);
     const bimbingan = @json($rasio->pluck('jumlah_bimbingan')->values());
     const penguji1  = @json($rasio->pluck('jumlah_penguji_1')->values());
     const penguji2  = @json($rasio->pluck('jumlah_penguji_2')->values());
 
-    const ctx = document.getElementById('rasioChart');
-    if (!ctx || !window.Chart) return;
-
-    new window.Chart(ctx, {
+    new Chart(ctx, {
         type: 'bar',
         data: {
             labels,
             datasets: [
-                {
-                    label: 'Bimbingan',
-                    data: bimbingan,
-                    backgroundColor: 'rgba(20, 184, 166, 0.8)',
-                    borderColor:     'rgba(15, 118, 110, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                },
-                {
-                    label: 'Penguji I',
-                    data: penguji1,
-                    backgroundColor: 'rgba(56, 189, 248, 0.8)',
-                    borderColor:     'rgba(14, 165, 233, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                },
-                {
-                    label: 'Penguji II',
-                    data: penguji2,
-                    backgroundColor: 'rgba(167, 139, 250, 0.8)',
-                    borderColor:     'rgba(139, 92, 246, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                },
+                { label: 'Bimbingan', data: bimbingan, backgroundColor: 'rgba(20,184,166,0.85)', borderColor: 'rgba(15,118,110,1)', borderWidth:1, borderRadius:4 },
+                { label: 'Penguji I', data: penguji1,  backgroundColor: 'rgba(56,189,248,0.85)', borderColor: 'rgba(14,165,233,1)', borderWidth:1, borderRadius:4 },
+                { label: 'Penguji II', data: penguji2, backgroundColor: 'rgba(167,139,250,0.85)',borderColor: 'rgba(139,92,246,1)', borderWidth:1, borderRadius:4 },
             ],
         },
         options: {
@@ -196,28 +177,18 @@
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        title: (items) => {
-                            const fullNames = @json($rasio->pluck('nama')->values());
-                            return fullNames[items[0].dataIndex] ?? items[0].label;
-                        },
-                        label: (item) => ` ${item.dataset.label}: ${item.raw} mahasiswa`,
+                        title: (items) => fullNames[items[0].dataIndex] ?? items[0].label,
+                        label: (item)  => ` ${item.dataset.label}: ${item.raw} mahasiswa`,
                     },
                 },
             },
             scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { font: { size: 11 }, maxRotation: 30, color: '#64748b' },
-                },
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1, precision: 0, color: '#64748b', font: { size: 11 } },
-                    grid: { color: 'rgba(0,0,0,0.05)' },
-                },
+                x: { grid: { display: false }, ticks: { font: { size:11 }, maxRotation:30, color:'#64748b' } },
+                y: { beginAtZero: true, ticks: { stepSize:1, precision:0, color:'#64748b', font:{size:11} }, grid: { color:'rgba(0,0,0,0.05)' } },
             },
         },
     });
-})();
+});
 </script>
 @endpush
 @endif
