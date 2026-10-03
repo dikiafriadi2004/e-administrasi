@@ -350,8 +350,90 @@ class JadwalController extends Controller
     }
 
     /**
-     * Download absensi seminar proposal (oleh admin atau mahasiswa).
+     * Upload berkas post-sidang (absensi sidang, lembar penilaian, berita acara).
+     * Dilakukan Admin setelah sidang selesai.
      */
+    public function uploadPostSidang(Request $request, PengajuanSurat $pengajuan): RedirectResponse
+    {
+        abort_unless($pengajuan->jenis_surat === 'sidang_skripsi', 404);
+
+        $request->validate([
+            'jenis'      => ['required', 'in:absensi_sidang,lembar_penilaian,berita_acara'],
+            'file_berkas' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+        ], [
+            'jenis.required'       => 'Jenis berkas wajib dipilih.',
+            'file_berkas.required' => 'File wajib diupload.',
+            'file_berkas.mimes'    => 'File harus berformat PDF, JPG, atau PNG.',
+            'file_berkas.max'      => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        $pengajuan->loadMissing('mahasiswa');
+        $nim   = $pengajuan->mahasiswa?->nim ?? 'unknown';
+        $jenis = $request->jenis;
+        $ext   = $request->file('file_berkas')->getClientOriginalExtension();
+
+        $kolom = match ($jenis) {
+            'absensi_sidang'    => 'file_absensi_sidang',
+            'lembar_penilaian'  => 'file_lembar_penilaian',
+            'berita_acara'      => 'file_berita_acara',
+        };
+
+        // Hapus file lama jika ada
+        if ($pengajuan->$kolom) {
+            Storage::disk('private')->delete($pengajuan->$kolom);
+        }
+
+        $path = $request->file('file_berkas')->storeAs(
+            "post_sidang/{$nim}",
+            "{$jenis}_".now()->format('Ymd_His').'.'.$ext,
+            'private'
+        );
+
+        $pengajuan->update([$kolom => $path]);
+
+        $labelMap = [
+            'absensi_sidang'   => 'Absensi Sidang',
+            'lembar_penilaian' => 'Lembar Penilaian',
+            'berita_acara'     => 'Berita Acara Sidang',
+        ];
+
+        StatusHistory::create([
+            'model_type' => PengajuanSurat::class,
+            'model_id'   => $pengajuan->id,
+            'status_lama' => $pengajuan->status,
+            'status_baru' => $pengajuan->status,
+            'catatan'    => "{$labelMap[$jenis]} diupload oleh admin.",
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
+        return back()->with('success', "{$labelMap[$jenis]} berhasil diupload.");
+    }
+
+    /**
+     * Download berkas post-sidang.
+     */
+    public function downloadPostSidang(PengajuanSurat $pengajuan, string $jenis): StreamedResponse
+    {
+        abort_unless($pengajuan->jenis_surat === 'sidang_skripsi', 404);
+
+        $kolom = match ($jenis) {
+            'absensi_sidang'   => 'file_absensi_sidang',
+            'lembar_penilaian' => 'file_lembar_penilaian',
+            'berita_acara'     => 'file_berita_acara',
+            default            => null,
+        };
+
+        abort_if(! $kolom || ! $pengajuan->$kolom, 404, 'File tidak tersedia.');
+        abort_unless(Storage::disk('private')->exists($pengajuan->$kolom), 404, 'File tidak ditemukan.');
+
+        $pengajuan->loadMissing('mahasiswa');
+        $nim      = $pengajuan->mahasiswa?->nim ?? 'unknown';
+        $ext      = pathinfo($pengajuan->$kolom, PATHINFO_EXTENSION);
+        $namaFile = "{$jenis}_{$nim}.{$ext}";
+
+        return Storage::disk('private')->download($pengajuan->$kolom, $namaFile);
+    }
     public function downloadAbsensi(PengajuanSurat $pengajuan): StreamedResponse
     {
         abort_unless($pengajuan->file_absensi_seminar, 404, 'Absensi belum tersedia.');

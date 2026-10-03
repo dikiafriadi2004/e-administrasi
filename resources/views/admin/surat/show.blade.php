@@ -186,6 +186,13 @@
                             <x-icon name="circle-1" class="h-4 w-4" />
                             Isi Nomor Urutan & Generate
                         </p>
+                        @if (in_array($surat->jenis_surat, ['izin_magang', 'rekomendasi_magang', 'izin_penelitian']))
+                            <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-700">
+                                <x-icon name="info" class="h-3.5 w-3.5 inline mr-1" />
+                                Surat ini memerlukan TTD <strong>Wakil Dekan 1 (WD1)</strong>, bukan Kaprodi.
+                                Cetak → minta TTD WD1 → scan → upload di bawah.
+                            </div>
+                        @endif
                         <form method="POST" action="{{ route('admin.surat.generate', $surat) }}" id="form-generate" class="space-y-2">
                             @csrf
                             <div class="flex items-center gap-0">
@@ -231,7 +238,11 @@
                         <div class="rounded-xl border border-brand-100 bg-brand-50 p-3 space-y-2">
                             <p class="flex items-center gap-1.5 text-xs font-semibold text-brand-800">
                                 <x-icon name="circle-2" class="h-4 w-4" />
-                                Upload Scan Sudah TTD
+                                @if (in_array($surat->jenis_surat, ['izin_magang', 'rekomendasi_magang', 'izin_penelitian']))
+                                    Upload Scan Sudah TTD <span class="text-amber-600 font-bold ml-1">WD1</span>
+                                @else
+                                    Upload Scan Sudah TTD Kaprodi
+                                @endif
                             </p>
                             <form method="POST" action="{{ route('admin.surat.upload-scan', $surat) }}"
                                   enctype="multipart/form-data" class="space-y-2">

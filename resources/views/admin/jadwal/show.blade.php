@@ -467,6 +467,65 @@
                 </div>
             @endif
 
+            {{-- Langkah 4 (Post-Sidang): Upload Berkas Setelah Sidang (khusus sidang_skripsi, setelah selesai/sudah TTD) --}}
+            @if ($pengajuan->jenis_surat === 'sidang_skripsi' && in_array($pengajuan->status, ['sudah_ditandatangani', 'selesai', 'disetujui', 'menunggu_ttd']))
+                @php
+                    $postSidangBerkas = [
+                        'absensi_sidang'   => ['label' => 'Absensi Sidang',        'kolom' => 'file_absensi_sidang',   'icon' => 'clipboard-list', 'color' => 'violet'],
+                        'lembar_penilaian' => ['label' => 'Lembar Penilaian',       'kolom' => 'file_lembar_penilaian', 'icon' => 'file-check',    'color' => 'emerald'],
+                        'berita_acara'     => ['label' => 'Berita Acara Sidang',    'kolom' => 'file_berita_acara',     'icon' => 'scroll',        'color' => 'amber'],
+                    ];
+                @endphp
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold text-slate-700">
+                        <x-icon name="folder-check" class="h-4 w-4 text-violet-500" />
+                        Berkas Pasca Sidang
+                    </h3>
+                    <p class="mb-4 text-[11px] text-slate-400">
+                        Upload berkas hasil sidang yang sudah ditandatangani dosen. Mahasiswa dapat mendownload dari riwayat.
+                    </p>
+
+                    <div class="space-y-3">
+                        @foreach ($postSidangBerkas as $jenis => $info)
+                            @php $fileAda = $pengajuan->{$info['kolom']}; @endphp
+                            <div class="rounded-xl border {{ $fileAda ? 'border-emerald-200 bg-emerald-50' : 'border-slate-100 bg-slate-50' }} p-3">
+                                <div class="flex items-center justify-between gap-2 mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <x-icon name="{{ $info['icon'] }}" class="h-3.5 w-3.5 {{ $fileAda ? 'text-emerald-600' : 'text-slate-400' }}" />
+                                        <span class="text-xs font-medium {{ $fileAda ? 'text-emerald-800' : 'text-slate-600' }}">{{ $info['label'] }}</span>
+                                    </div>
+                                    @if ($fileAda)
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[10px] text-emerald-600">✓ Sudah diupload</span>
+                                            <a href="{{ route('admin.jadwal.download-post-sidang', [$pengajuan, $jenis]) }}"
+                                               class="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-white px-2 py-0.5 text-[10px] font-medium text-emerald-700 hover:bg-emerald-50 transition-colors">
+                                                <x-icon name="download" class="h-3 w-3" />
+                                                Download
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                                <form method="POST" action="{{ route('admin.jadwal.upload-post-sidang', $pengajuan) }}"
+                                      enctype="multipart/form-data" class="flex items-center gap-2">
+                                    @csrf
+                                    <input type="hidden" name="jenis" value="{{ $jenis }}" />
+                                    <input type="file" name="file_berkas" accept=".pdf,.jpg,.jpeg,.png"
+                                           class="flex-1 rounded-xl border border-slate-200 bg-white px-2 py-1 text-xs
+                                                  file:mr-2 file:rounded-lg file:border-0 file:bg-slate-100 file:px-2 file:py-0.5
+                                                  file:text-xs file:font-medium file:text-slate-600 hover:file:bg-slate-200"
+                                           {{ $fileAda ? '' : 'required' }} />
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1 rounded-xl bg-slate-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition-colors shrink-0">
+                                        <x-icon name="upload" class="h-3 w-3" />
+                                        {{ $fileAda ? 'Ulang' : 'Upload' }}
+                                    </button>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- Riwayat Status --}}
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">

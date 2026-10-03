@@ -585,6 +585,37 @@ class PengajuanSuratController extends Controller
         return Storage::disk('private')->download($berkas->path_file, $berkas->nama_asli);
     }
 
+    /** Download berkas pasca sidang (absensi_sidang, lembar_penilaian, berita_acara). */
+    public function downloadPostSidang(PengajuanSurat $pengajuanSurat, string $jenis): StreamedResponse
+    {
+        abort_unless(
+            $pengajuanSurat->mahasiswa_id === auth()->user()->mahasiswa?->id,
+            403
+        );
+        abort_unless($pengajuanSurat->jenis_surat === 'sidang_skripsi', 404);
+
+        $kolom = match ($jenis) {
+            'absensi_sidang' => 'file_absensi_sidang',
+            'lembar_penilaian' => 'file_lembar_penilaian',
+            'berita_acara' => 'file_berita_acara',
+            default => null,
+        };
+
+        abort_unless($kolom !== null, 404, 'Jenis berkas tidak valid.');
+        abort_unless($pengajuanSurat->$kolom, 404, 'Berkas belum tersedia.');
+        abort_unless(Storage::disk('private')->exists($pengajuanSurat->$kolom), 404, 'File tidak ditemukan.');
+
+        $labelNama = [
+            'absensi_sidang' => 'absensi_sidang',
+            'lembar_penilaian' => 'lembar_penilaian',
+            'berita_acara' => 'berita_acara',
+        ];
+        $ext = pathinfo($pengajuanSurat->$kolom, PATHINFO_EXTENSION);
+        $nama = $labelNama[$jenis].'_'.$pengajuanSurat->mahasiswa->nim.'.'.$ext;
+
+        return Storage::disk('private')->download($pengajuanSurat->$kolom, $nama);
+    }
+
     /** Download absensi seminar proposal milik mahasiswa (syarat izin penelitian). */
     public function downloadAbsensi(PengajuanSurat $pengajuanSurat): StreamedResponse
     {

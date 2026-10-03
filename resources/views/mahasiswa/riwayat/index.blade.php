@@ -256,17 +256,43 @@
                                 </td>
                                 <td class="px-4 py-3"><x-status-badge :status="$s->status" /></td>
                                 <td class="px-4 py-3">
-                                    @if ($s->file_scan)
-                                        <a href="{{ route('mahasiswa.surat.download', [$s, 'scan']) }}"
-                                           class="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 transition-colors">
-                                            <x-icon name="download" class="h-3.5 w-3.5" />
-                                            Undangan
-                                        </a>
-                                    @elseif ($s->status === 'ditolak')
-                                        <span class="text-xs text-red-500 italic">Ditolak</span>
-                                    @else
-                                        <span class="text-xs text-slate-400 italic">Belum tersedia</span>
-                                    @endif
+                                    <div class="flex flex-col gap-1.5">
+                                        @if ($s->file_scan)
+                                            <a href="{{ route('mahasiswa.surat.download', [$s, 'scan']) }}"
+                                               class="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 transition-colors">
+                                                <x-icon name="download" class="h-3.5 w-3.5" />
+                                                Undangan Sidang
+                                            </a>
+                                        @endif
+                                        @if ($s->file_absensi_sidang)
+                                            <a href="{{ route('mahasiswa.sidang.download-post-sidang', [$s, 'absensi_sidang']) }}"
+                                               class="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700 hover:bg-sky-100 transition-colors">
+                                                <x-icon name="download" class="h-3.5 w-3.5" />
+                                                Absensi Sidang
+                                            </a>
+                                        @endif
+                                        @if ($s->file_lembar_penilaian)
+                                            <a href="{{ route('mahasiswa.sidang.download-post-sidang', [$s, 'lembar_penilaian']) }}"
+                                               class="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 hover:bg-violet-100 transition-colors">
+                                                <x-icon name="download" class="h-3.5 w-3.5" />
+                                                Lembar Penilaian
+                                            </a>
+                                        @endif
+                                        @if ($s->file_berita_acara)
+                                            <a href="{{ route('mahasiswa.sidang.download-post-sidang', [$s, 'berita_acara']) }}"
+                                               class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-100 transition-colors">
+                                                <x-icon name="download" class="h-3.5 w-3.5" />
+                                                Berita Acara
+                                            </a>
+                                        @endif
+                                        @if (! $s->file_scan && ! $s->file_absensi_sidang && ! $s->file_lembar_penilaian && ! $s->file_berita_acara)
+                                            @if ($s->status === 'ditolak')
+                                                <span class="text-xs text-red-500 italic">Ditolak</span>
+                                            @else
+                                                <span class="text-xs text-slate-400 italic">Belum tersedia</span>
+                                            @endif
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty

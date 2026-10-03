@@ -70,6 +70,9 @@ Route::prefix('jadwal')->name('jadwal.')->group(function () {
     Route::post('/{pengajuan}/upload-undangan', [JadwalController::class, 'uploadUndangan'])->name('upload-undangan');
     Route::post('/{pengajuan}/upload-absensi', [JadwalController::class, 'uploadAbsensi'])->name('upload-absensi');
     Route::get('/{pengajuan}/download-absensi', [JadwalController::class, 'downloadAbsensi'])->name('download-absensi');
+    // Berkas post-sidang
+    Route::post('/{pengajuan}/upload-post-sidang', [JadwalController::class, 'uploadPostSidang'])->name('upload-post-sidang');
+    Route::get('/{pengajuan}/download-post-sidang/{jenis}', [JadwalController::class, 'downloadPostSidang'])->name('download-post-sidang');
     Route::get('/{pengajuan}/download-undangan', [JadwalController::class, 'downloadUndangan'])->name('download-undangan');
 });
 

@@ -54,6 +54,8 @@ Route::get('/surat/{pengajuanSurat}/download/{tipe}', [PengajuanSuratController:
 
 // Download absensi seminar (untuk izin penelitian)
 Route::get('/seminar/{pengajuanSurat}/download-absensi', [PengajuanSuratController::class, 'downloadAbsensi'])->name('seminar.download-absensi');
+// Download berkas post-sidang
+Route::get('/sidang/{pengajuanSurat}/download-post-sidang/{jenis}', [PengajuanSuratController::class, 'downloadPostSidang'])->name('sidang.download-post-sidang');
 
 // Download berkas syarat
 Route::get('/berkas/{berkas}/download', [PengajuanSuratController::class, 'downloadBerkas'])->name('berkas.download');
