@@ -166,7 +166,7 @@ class PengajuanSuratController extends Controller
             return redirect()->route('mahasiswa.riwayat.index')->with('error', 'Sudah ada pengajuan izin penelitian aktif.');
         }
 
-        $request->validate(['fileCoverProposal' => ['required', 'file', 'mimes:pdf', 'max:10240']]);
+        $request->validate(['fileCoverProposal' => ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:10240']]);
 
         $pengajuanJudul = PengajuanJudul::where('mahasiswa_id', $mahasiswa->id)->where('status', 'disetujui')->first();
 

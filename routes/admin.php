@@ -6,11 +6,11 @@ use App\Http\Controllers\Admin\ArsipSuratController;
 use App\Http\Controllers\Admin\BuatSuratLangsungController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DosenController;
+use App\Http\Controllers\Admin\DosenImportController;
 use App\Http\Controllers\Admin\GenerateSuratController;
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\MahasiswaImportController;
-use App\Http\Controllers\Admin\DosenImportController;
 use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\Admin\TemplateSuratController;
 use App\Http\Controllers\ProfilController;
@@ -23,12 +23,12 @@ Route::get('/dashboard/rasio', [DashboardController::class, 'rasio'])->name('das
 // Profil
 Route::get('/profil', [ProfilController::class, 'show'])->name('profil.show');
 
-// Mahasiswa
-Route::resource('mahasiswa', MahasiswaController::class)->except(['destroy']);
-Route::post('mahasiswa/{mahasiswa}/toggle-active', [MahasiswaController::class, 'toggleActive'])->name('mahasiswa.toggle-active');
+// Mahasiswa — import harus SEBELUM resource agar tidak diinterpretasi sebagai {mahasiswa} wildcard
 Route::get('mahasiswa/import', [MahasiswaImportController::class, 'create'])->name('mahasiswa.import.create');
 Route::post('mahasiswa/import', [MahasiswaImportController::class, 'store'])->name('mahasiswa.import.store');
 Route::get('mahasiswa/import/template', [MahasiswaImportController::class, 'template'])->name('mahasiswa.import.template');
+Route::resource('mahasiswa', MahasiswaController::class)->except(['destroy']);
+Route::post('mahasiswa/{mahasiswa}/toggle-active', [MahasiswaController::class, 'toggleActive'])->name('mahasiswa.toggle-active');
 
 Route::get('dosen/import', [DosenImportController::class, 'create'])->name('dosen.import.create');
 Route::post('dosen/import', [DosenImportController::class, 'store'])->name('dosen.import.store');

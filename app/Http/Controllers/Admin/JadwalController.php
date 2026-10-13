@@ -262,7 +262,7 @@ class JadwalController extends Controller
     public function uploadUndangan(Request $request, PengajuanSurat $pengajuan): RedirectResponse
     {
         $request->validate([
-            'file_undangan' => ['required', 'file', 'mimes:pdf', 'max:10240'],
+            'file_undangan' => ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:10240'],
         ], [
             'file_undangan.required' => 'File undangan wajib diupload.',
             'file_undangan.mimes' => 'File harus berformat PDF.',
@@ -358,24 +358,24 @@ class JadwalController extends Controller
         abort_unless($pengajuan->jenis_surat === 'sidang_skripsi', 404);
 
         $request->validate([
-            'jenis'      => ['required', 'in:absensi_sidang,lembar_penilaian,berita_acara'],
+            'jenis' => ['required', 'in:absensi_sidang,lembar_penilaian,berita_acara'],
             'file_berkas' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
         ], [
-            'jenis.required'       => 'Jenis berkas wajib dipilih.',
+            'jenis.required' => 'Jenis berkas wajib dipilih.',
             'file_berkas.required' => 'File wajib diupload.',
-            'file_berkas.mimes'    => 'File harus berformat PDF, JPG, atau PNG.',
-            'file_berkas.max'      => 'Ukuran file maksimal 10 MB.',
+            'file_berkas.mimes' => 'File harus berformat PDF, JPG, atau PNG.',
+            'file_berkas.max' => 'Ukuran file maksimal 10 MB.',
         ]);
 
         $pengajuan->loadMissing('mahasiswa');
-        $nim   = $pengajuan->mahasiswa?->nim ?? 'unknown';
+        $nim = $pengajuan->mahasiswa?->nim ?? 'unknown';
         $jenis = $request->jenis;
-        $ext   = $request->file('file_berkas')->getClientOriginalExtension();
+        $ext = $request->file('file_berkas')->getClientOriginalExtension();
 
         $kolom = match ($jenis) {
-            'absensi_sidang'    => 'file_absensi_sidang',
-            'lembar_penilaian'  => 'file_lembar_penilaian',
-            'berita_acara'      => 'file_berita_acara',
+            'absensi_sidang' => 'file_absensi_sidang',
+            'lembar_penilaian' => 'file_lembar_penilaian',
+            'berita_acara' => 'file_berita_acara',
         };
 
         // Hapus file lama jika ada
@@ -392,17 +392,17 @@ class JadwalController extends Controller
         $pengajuan->update([$kolom => $path]);
 
         $labelMap = [
-            'absensi_sidang'   => 'Absensi Sidang',
+            'absensi_sidang' => 'Absensi Sidang',
             'lembar_penilaian' => 'Lembar Penilaian',
-            'berita_acara'     => 'Berita Acara Sidang',
+            'berita_acara' => 'Berita Acara Sidang',
         ];
 
         StatusHistory::create([
             'model_type' => PengajuanSurat::class,
-            'model_id'   => $pengajuan->id,
+            'model_id' => $pengajuan->id,
             'status_lama' => $pengajuan->status,
             'status_baru' => $pengajuan->status,
-            'catatan'    => "{$labelMap[$jenis]} diupload oleh admin.",
+            'catatan' => "{$labelMap[$jenis]} diupload oleh admin.",
             'changed_by' => auth()->id(),
             'created_at' => now(),
         ]);
@@ -418,22 +418,23 @@ class JadwalController extends Controller
         abort_unless($pengajuan->jenis_surat === 'sidang_skripsi', 404);
 
         $kolom = match ($jenis) {
-            'absensi_sidang'   => 'file_absensi_sidang',
+            'absensi_sidang' => 'file_absensi_sidang',
             'lembar_penilaian' => 'file_lembar_penilaian',
-            'berita_acara'     => 'file_berita_acara',
-            default            => null,
+            'berita_acara' => 'file_berita_acara',
+            default => null,
         };
 
         abort_if(! $kolom || ! $pengajuan->$kolom, 404, 'File tidak tersedia.');
         abort_unless(Storage::disk('private')->exists($pengajuan->$kolom), 404, 'File tidak ditemukan.');
 
         $pengajuan->loadMissing('mahasiswa');
-        $nim      = $pengajuan->mahasiswa?->nim ?? 'unknown';
-        $ext      = pathinfo($pengajuan->$kolom, PATHINFO_EXTENSION);
+        $nim = $pengajuan->mahasiswa?->nim ?? 'unknown';
+        $ext = pathinfo($pengajuan->$kolom, PATHINFO_EXTENSION);
         $namaFile = "{$jenis}_{$nim}.{$ext}";
 
         return Storage::disk('private')->download($pengajuan->$kolom, $namaFile);
     }
+
     public function downloadAbsensi(PengajuanSurat $pengajuan): StreamedResponse
     {
         abort_unless($pengajuan->file_absensi_seminar, 404, 'Absensi belum tersedia.');

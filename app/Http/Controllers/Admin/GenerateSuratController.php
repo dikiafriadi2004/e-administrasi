@@ -43,6 +43,11 @@ class GenerateSuratController extends Controller
         $surat->update(['nomor_surat' => trim($request->nomor_urutan)]);
         $surat->refresh();
 
+        // Cegah double-generate: jika docx sudah ada, skip generate dan redirect langsung
+        if ($surat->file_docx && Storage::disk('private')->exists($surat->file_docx)) {
+            return back()->with('warning', 'Surat sudah pernah digenerate. Hapus file lama terlebih dahulu jika ingin generate ulang.');
+        }
+
         try {
             $this->generator->generate($surat);
 
@@ -94,7 +99,7 @@ class GenerateSuratController extends Controller
         Gate::authorize('uploadScan', $surat);
 
         $request->validate([
-            'file_scan' => ['required', 'file', 'mimes:pdf', 'max:10240'],
+            'file_scan' => ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:10240'],
         ], [
             'file_scan.mimes' => 'File scan harus berformat PDF.',
             'file_scan.max' => 'Ukuran file maksimal 10 MB.',

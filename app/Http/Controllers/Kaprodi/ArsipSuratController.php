@@ -54,12 +54,17 @@ class ArsipSuratController extends Controller
 
         $surat = $query->paginate($perPage)->withQueryString();
 
-        // Statistik ringkas
+        // Statistik ringkas — 1 query groupBy menggantikan 4 query terpisah
+        $statsRaw = PengajuanSurat::whereIn('jenis_surat', array_keys(self::JENIS_DITANGANI_ADMIN))
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
         $stats = [
-            'diajukan' => PengajuanSurat::whereIn('jenis_surat', array_keys(self::JENIS_DITANGANI_ADMIN))->where('status', 'diajukan')->count(),
-            'menunggu_ttd' => PengajuanSurat::whereIn('jenis_surat', array_keys(self::JENIS_DITANGANI_ADMIN))->where('status', 'menunggu_ttd')->count(),
-            'sudah_ditandatangani' => PengajuanSurat::whereIn('jenis_surat', array_keys(self::JENIS_DITANGANI_ADMIN))->where('status', 'sudah_ditandatangani')->count(),
-            'selesai' => PengajuanSurat::whereIn('jenis_surat', array_keys(self::JENIS_DITANGANI_ADMIN))->where('status', 'selesai')->count(),
+            'diajukan' => $statsRaw->get('diajukan', 0),
+            'menunggu_ttd' => $statsRaw->get('menunggu_ttd', 0),
+            'sudah_ditandatangani' => $statsRaw->get('sudah_ditandatangani', 0),
+            'selesai' => $statsRaw->get('selesai', 0),
         ];
 
         return view('kaprodi.arsip.index', [

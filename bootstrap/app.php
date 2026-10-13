@@ -5,6 +5,7 @@ use App\Exceptions\SuratGenerationException;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureKaprodi;
 use App\Http\Middleware\EnsureMahasiswa;
+use ErrorException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

@@ -35,6 +35,8 @@ class ArsipSuratExport implements FromQuery, WithColumnWidths, WithHeadings, Wit
         'ditolak' => 'Ditolak',
     ];
 
+    private int $no = 0;
+
     public function __construct(
         private readonly ?string $jenis = null,
         private readonly ?string $status = null,
@@ -95,11 +97,10 @@ class ArsipSuratExport implements FromQuery, WithColumnWidths, WithHeadings, Wit
     /** @param PengajuanSurat $row */
     public function map($row): array
     {
-        static $no = 0;
-        $no++;
+        $this->no++;
 
         return [
-            $no,
+            $this->no,
             $row->mahasiswa?->nim ?? '-',
             $row->mahasiswa?->user?->name ?? '-',
             self::JENIS_LIST[$row->jenis_surat] ?? $row->jenis_surat,

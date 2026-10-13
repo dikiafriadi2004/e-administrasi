@@ -19,7 +19,7 @@ class UploadScanController extends Controller
     public function store(Request $request, PengajuanSurat $surat): RedirectResponse
     {
         $request->validate([
-            'file_scan' => ['required', 'file', 'mimes:pdf', 'max:10240'],
+            'file_scan' => ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:10240'],
         ], [
             'file_scan.required' => 'File scan wajib diupload.',
             'file_scan.mimes' => 'File scan harus berformat PDF.',

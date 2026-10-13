@@ -134,7 +134,7 @@ class TestGenerateSurat extends Command
             $processor = new TemplateProcessor($docxAbsPath);
             foreach ($placeholders as $key => $value) {
                 try {
-                    $processor->setValue($key, htmlspecialchars((string) $value));
+                    $processor->setValue($key, (string) $value);
                 } catch (\Throwable) {
                     // placeholder tidak ada di template — skip
                 }
