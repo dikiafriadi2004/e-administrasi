@@ -30,6 +30,7 @@ Thumbs.db
 # Kiro & AI tooling — jangan di-commit
 /.kiro
 /.ai
+/.agents
 
 # Laravel generated files — jangan di-commit
 /storage/framework/views/
