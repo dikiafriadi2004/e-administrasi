@@ -212,6 +212,16 @@
                     <x-icon name="history" class="h-3.5 w-3.5" />
                     Semua Riwayat
                 </a>
+                <a href="{{ route('mahasiswa.pengajuan.izin-magang.create') }}"
+                   class="inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs font-medium text-orange-700 hover:bg-orange-100 transition-colors">
+                    <x-icon name="briefcase" class="h-3.5 w-3.5" />
+                    Izin Magang
+                </a>
+                <a href="{{ route('mahasiswa.pengajuan.rekomendasi-magang.create') }}"
+                   class="inline-flex items-center gap-2 rounded-xl border border-pink-200 bg-pink-50 px-3 py-2 text-xs font-medium text-pink-700 hover:bg-pink-100 transition-colors">
+                    <x-icon name="star" class="h-3.5 w-3.5" />
+                    Rekomendasi Magang
+                </a>
             </div>
         </div>
 

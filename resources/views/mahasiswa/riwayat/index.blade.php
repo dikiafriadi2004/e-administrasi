@@ -34,6 +34,16 @@
                     <x-icon name="flask-conical" class="h-3.5 w-3.5" />
                     Izin Penelitian
                 </a>
+                <a href="{{ route('mahasiswa.pengajuan.izin-magang.create') }}"
+                   class="inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-700 hover:bg-orange-100 transition-colors">
+                    <x-icon name="briefcase" class="h-3.5 w-3.5" />
+                    Izin Magang
+                </a>
+                <a href="{{ route('mahasiswa.pengajuan.rekomendasi-magang.create') }}"
+                   class="inline-flex items-center gap-2 rounded-xl border border-pink-200 bg-pink-50 px-3 py-1.5 text-xs font-medium text-pink-700 hover:bg-pink-100 transition-colors">
+                    <x-icon name="star" class="h-3.5 w-3.5" />
+                    Rekomendasi Magang
+                </a>
             </div>
         </div>
 
@@ -325,6 +335,7 @@
                             <th class="px-4 py-3 text-left">Nomor Surat</th>
                             <th class="px-4 py-3 text-left">Tanggal</th>
                             <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-left">Aksi</th>
                             <th class="px-4 py-3 text-left">Download</th>
                         </tr>
                     </thead>
@@ -391,6 +402,10 @@
                                     <x-status-badge :status="$surat->status" />
                                 </td>
                                 <td class="px-4 py-3">
+                                    <a href="{{ route('mahasiswa.surat.show', $surat) }}"
+                                       class="rounded px-2 py-1 text-xs font-medium text-brand-600 hover:bg-brand-50">Detail</a>
+                                </td>
+                                <td class="px-4 py-3">
                                     @if ($adaScan)
                                         <a href="{{ route('mahasiswa.surat.download', [$surat, 'scan']) }}"
                                            class="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 transition-colors">
@@ -406,7 +421,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-400">
+                                <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-400">
                                     Belum ada pengajuan surat.
                                 </td>
                             </tr>
