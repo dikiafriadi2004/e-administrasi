@@ -8,7 +8,7 @@
             <div>
                 <h2 class="text-lg font-bold text-slate-800">Dashboard Rasio Dosen</h2>
                 <p class="text-sm text-slate-500">
-                    Beban bimbingan & penugasan penguji per dosen — tahun akademik
+                    Bimbingan aktif (lintas tahun) &amp; penugasan penguji tahun akademik
                     <span class="font-semibold text-slate-700">{{ $tahunDipilih }}</span>.
                     @if ($tahunDipilih !== $tahunAktif)
                         <span class="ml-1 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
@@ -42,9 +42,11 @@
         {{-- Info --}}
         <div class="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700">
             <span class="font-semibold">Info:</span>
-            Rasio dihitung dari pengajuan yang dibuat dalam rentang tahun akademik yang dipilih
+            <strong>Bimbingan Aktif</strong> dihitung dari seluruh mahasiswa yang judulnya disetujui dan belum selesai sidang,
+            <em>tanpa batas tahun akademik</em> — mahasiswa yang mengajukan judul tahun lalu tetap terhitung selama belum selesai.
+            <strong>Penguji I &amp; II</strong> dihitung dari event seminar/sidang dalam tahun akademik
+            <span class="font-semibold">{{ $tahunDipilih }}</span>
             (Agustus {{ explode('/', $tahunDipilih)[0] }} – Juli {{ explode('/', $tahunDipilih)[1] ?? (explode('/', $tahunDipilih)[0]+1) }}).
-            Setiap tahun akademik baru, rasio mulai dari nol. Data tahun sebelumnya tetap bisa dilihat lewat filter di atas.
         </div>
 
         {{-- Chart Bar Rasio Dosen --}}
@@ -53,7 +55,7 @@
             <div class="mb-4 flex items-center justify-between gap-3">
                 <h3 class="text-sm font-semibold text-slate-700">Visualisasi Beban per Dosen</h3>
                 <div class="flex items-center gap-3 text-xs text-slate-400">
-                    <span class="flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-teal-500"></span>Bimbingan</span>
+                    <span class="flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-teal-500"></span>Bimbingan Aktif</span>
                     <span class="flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-sky-400"></span>Penguji I</span>
                     <span class="flex items-center gap-1.5"><span class="inline-block h-2.5 w-2.5 rounded-sm bg-violet-400"></span>Penguji II</span>
                 </div>
@@ -71,9 +73,9 @@
                     <tr>
                         <th class="px-5 py-3 text-left">Nama Dosen</th>
                         <th class="px-5 py-3 text-left">NIP</th>
-                        <th class="px-5 py-3 text-center">Bimbingan</th>
-                        <th class="px-5 py-3 text-center">Penguji I</th>
-                        <th class="px-5 py-3 text-center">Penguji II</th>
+                        <th class="px-5 py-3 text-center" title="Jumlah mahasiswa yang masih aktif dibimbing, tanpa batas tahun akademik">Bimbingan Aktif</th>
+                        <th class="px-5 py-3 text-center" title="Jumlah mahasiswa yang diuji sebagai Penguji I pada tahun akademik ini">Penguji I</th>
+                        <th class="px-5 py-3 text-center" title="Jumlah mahasiswa yang diuji sebagai Penguji II pada tahun akademik ini">Penguji II</th>
                         <th class="px-5 py-3 text-center">Total Penguji</th>
                         <th class="px-5 py-3 text-center">Kapasitas Maks</th>
                         <th class="px-5 py-3 text-center">Status</th>
@@ -164,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         data: {
             labels,
             datasets: [
-                { label: 'Bimbingan', data: bimbingan, backgroundColor: 'rgba(20,184,166,0.85)', borderColor: 'rgba(15,118,110,1)', borderWidth:1, borderRadius:4 },
+                { label: 'Bimbingan Aktif', data: bimbingan, backgroundColor: 'rgba(20,184,166,0.85)', borderColor: 'rgba(15,118,110,1)', borderWidth:1, borderRadius:4 },
                 { label: 'Penguji I', data: penguji1,  backgroundColor: 'rgba(56,189,248,0.85)', borderColor: 'rgba(14,165,233,1)', borderWidth:1, borderRadius:4 },
                 { label: 'Penguji II', data: penguji2, backgroundColor: 'rgba(167,139,250,0.85)',borderColor: 'rgba(139,92,246,1)', borderWidth:1, borderRadius:4 },
             ],
