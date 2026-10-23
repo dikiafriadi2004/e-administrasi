@@ -120,6 +120,16 @@ class RasioDosenService
      * Ambil semua dosen + beban bimbingan/pengujian dalam 5 query agregat
      * (bukan 3N+1). Menghitung pembimbing 1 + pembimbing 2.
      *
+     * STRATEGI (Opsi A):
+     * - Bimbingan  → dihitung dari semua pengajuan judul yang MASIH AKTIF
+     *                (status bukan ditolak), TANPA filter tahun akademik.
+     *                Mahasiswa yang mengajukan judul 2026 tapi sidang 2028
+     *                tetap terhitung di beban dosen pembimbingnya sampai
+     *                pengajuan judulnya berstatus selesai.
+     * - Pengujian  → dihitung per TAHUN AKADEMIK karena pengujian adalah
+     *                event satu kali (seminar / sidang), bukan bimbingan
+     *                berkelanjutan.
+     *
      * @return Collection<int, Dosen>
      */
     private function getDosenDenganBeban(?string $tahunAkademik = null): Collection
@@ -127,20 +137,22 @@ class RasioDosenService
         $ta = $tahunAkademik ?? $this->getTahunAktif();
         [$mulai, $akhir] = $this->rentangTahunAkademik($ta);
 
+        // ── Bimbingan: semua yang masih aktif (lintas tahun akademik) ──────────
+        // Judul dianggap masih aktif selama belum ditolak — tidak ada status
+        // "selesai" pada pengajuan_judul (selesai ditandai lewat sidang selesai).
         $bimbingan1 = PengajuanJudul::whereNotIn('status', ['ditolak'])
-            ->whereBetween('created_at', [$mulai, $akhir])
             ->whereNotNull('dosen_pembimbing_id')
             ->groupBy('dosen_pembimbing_id')
             ->select('dosen_pembimbing_id as dosen_id', DB::raw('COUNT(DISTINCT mahasiswa_id) as agg'))
             ->pluck('agg', 'dosen_id');
 
         $bimbingan2 = PengajuanJudul::whereNotIn('status', ['ditolak'])
-            ->whereBetween('created_at', [$mulai, $akhir])
             ->whereNotNull('dosen_pembimbing_2_id')
             ->groupBy('dosen_pembimbing_2_id')
             ->select('dosen_pembimbing_2_id as dosen_id', DB::raw('COUNT(DISTINCT mahasiswa_id) as agg'))
             ->pluck('agg', 'dosen_id');
 
+        // ── Pengujian: per tahun akademik (event satu kali) ───────────────────
         $penguji1 = PengajuanSurat::whereNotIn('status', ['ditolak'])
             ->whereBetween('created_at', [$mulai, $akhir])
             ->whereNotNull('dosen_penguji_id')
@@ -156,15 +168,12 @@ class RasioDosenService
             ->pluck('agg', 'dosen_id');
 
         return Dosen::orderBy('nama')->get()->each(function ($d) use ($bimbingan1, $bimbingan2, $penguji1, $penguji2): void {
-            // Bimbingan: gabung pembimbing 1 + 2 (mahasiswa unik per peran; gabungan bisa double jika sama — revisi sadar, tetap lebih akurat dari sebelumnya yang abaikan pembimbing 2).
+            // Bimbingan aktif: pembimbing 1 + pembimbing 2 lintas tahun
             $d->jumlah_bimbingan = (int) ($bimbingan1[$d->id] ?? 0) + (int) ($bimbingan2[$d->id] ?? 0);
 
-            // Penguji 1: mahasiswa UNIK yang diuji sebagai penguji 1
+            // Pengujian per tahun akademik berjalan
             $d->jumlah_penguji_1 = (int) ($penguji1[$d->id] ?? 0);
-
-            // Penguji 2: mahasiswa UNIK yang diuji sebagai penguji 2
             $d->jumlah_penguji_2 = (int) ($penguji2[$d->id] ?? 0);
-
             $d->jumlah_pengujian = $d->jumlah_penguji_1 + $d->jumlah_penguji_2;
         });
     }
