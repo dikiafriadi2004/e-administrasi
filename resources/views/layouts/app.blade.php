@@ -20,9 +20,7 @@
 
         {{-- Logo --}}
         <div class="flex h-16 shrink-0 items-center gap-3 border-b border-slate-100 px-4">
-            <div class="h-11 w-11 shrink-0 flex items-center justify-center">
-                <img src="{{ asset('images/logo-square.png') }}" alt="Logo Prodi" class="h-full w-full object-contain" />
-            </div>
+            <img src="{{ asset('images/logo-square.png') }}" alt="Logo Prodi" class="h-9 w-9 shrink-0 object-contain" />
             <div class="min-w-0">
                 <p class="truncate text-xs font-bold leading-tight text-slate-800">SISTEM ADMINISTRASI</p>
                 <p class="truncate text-xs font-bold leading-tight text-slate-800">DIGITAL ILKOM</p>
