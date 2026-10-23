@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'E-Administrasi') }}</title>
+    <title>{{ config('app.name', 'SADIK') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -13,12 +13,15 @@
 
 <div class="min-h-screen lg:grid lg:grid-cols-2">
 
-    {{-- ===== KIRI: Branding teal soft ===== --}}
+    {{-- ===== KIRI: Branding ===== --}}
     <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-brand-500 to-brand-700 px-12 py-16">
         {{-- Logo --}}
-        <div class="flex items-center gap-3">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-14 w-14 shrink-0 object-contain" />
-            <span class="text-base font-bold text-white">E-Administrasi Prodi</span>
+        <div class="flex items-center gap-4">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-16 w-16 shrink-0 object-contain drop-shadow-md" />
+            <div>
+                <p class="text-sm font-bold leading-tight text-white">SISTEM ADMINISTRASI DIGITAL</p>
+                <p class="text-sm font-bold leading-tight text-white">ILMU KOMUNIKASI</p>
+            </div>
         </div>
 
         {{-- Teks tengah --}}
@@ -47,7 +50,7 @@
         </div>
 
         <p class="text-xs text-brand-200">
-            &copy; {{ date('Y') }} E-Administrasi Prodi
+            &copy; {{ date('Y') }} Sistem Administrasi Digital Ilmu Komunikasi — Universitas Syiah Kuala
         </p>
     </div>
 
@@ -55,8 +58,11 @@
     <div class="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 py-12 lg:min-h-0">
         {{-- Logo mobile --}}
         <div class="mb-8 flex items-center gap-3 lg:hidden">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-12 w-12 shrink-0 object-contain" />
-            <span class="text-base font-bold text-slate-800">E-Administrasi Prodi</span>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-14 w-auto shrink-0 object-contain" />
+            <div>
+                <p class="text-sm font-bold leading-tight text-slate-800">SISTEM ADMINISTRASI DIGITAL</p>
+                <p class="text-sm font-bold leading-tight text-slate-800">ILMU KOMUNIKASI</p>
+            </div>
         </div>
 
         <div class="w-full max-w-sm">

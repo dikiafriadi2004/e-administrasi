@@ -19,11 +19,11 @@
            class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-white border-r border-slate-200 shadow-sm transition-transform duration-300 lg:static lg:translate-x-0 -translate-x-full">
 
         {{-- Logo --}}
-        <div class="flex h-16 shrink-0 items-center gap-3 border-b border-slate-100 px-5">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-10 w-10 shrink-0 object-contain" />
+        <div class="flex h-16 shrink-0 items-center gap-3 border-b border-slate-100 px-4">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-10 w-auto shrink-0 object-contain" />
             <div class="min-w-0">
-                <p class="truncate text-sm font-bold text-slate-800">E-Administrasi</p>
-                <p class="truncate text-xs text-slate-400">Portal Akademik</p>
+                <p class="truncate text-xs font-bold leading-tight text-slate-800">SISTEM ADMINISTRASI</p>
+                <p class="truncate text-xs font-bold leading-tight text-slate-800">DIGITAL ILKOM</p>
             </div>
         </div>
 
