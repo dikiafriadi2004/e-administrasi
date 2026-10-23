@@ -3,7 +3,7 @@
 
     <div class="space-y-6">
         <div>
-            <h2 class="text-xl font-bold text-slate-900">Selamat datang, {{ auth()->user()?->name }} 👋</h2>
+            <h2 class="text-xl font-bold text-slate-900">Selamat datang, {{ auth()->user()?->name }}</h2>
             <p class="mt-1 text-sm text-slate-500">Pantau antrian pengajuan akademik dan rasio beban dosen.</p>
         </div>
 

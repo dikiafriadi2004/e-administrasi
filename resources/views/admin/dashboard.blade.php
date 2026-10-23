@@ -5,7 +5,7 @@
 
         {{-- Header --}}
         <div>
-            <h2 class="text-xl font-bold text-slate-900">Selamat datang, {{ auth()->user()?->name }} 👋</h2>
+            <h2 class="text-xl font-bold text-slate-900">Selamat datang, {{ auth()->user()?->name }}</h2>
             <p class="mt-1 text-sm text-slate-500">Ringkasan aktivitas sistem hari ini.</p>
         </div>
 
