@@ -209,7 +209,7 @@
                                 Preview: <span class="font-mono font-medium text-brand-600" x-text="nomorPenuh"></span>
                             </p>
                             <p class="text-[10px] text-slate-400">
-                                Di template Word: <code class="rounded bg-slate-100 px-1 font-mono">${nomor_urut}/${kode_institusi}/${kode_prodi}/${bulan_surat}/${tahun_surat}</code>
+                                Di template Word: <code class="block rounded bg-slate-100 px-1 font-mono truncate overflow-x-auto">${nomor_urut}/${kode_institusi}/${kode_prodi}/${bulan_surat}/${tahun_surat}</code>
                             </p>
                             @error('nomor_urutan') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
                             <div class="flex gap-2">
