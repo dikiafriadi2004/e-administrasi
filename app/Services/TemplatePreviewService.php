@@ -60,13 +60,28 @@ class TemplatePreviewService
 
             $processor->saveAs($tmpPath);
 
-            // Load hasil docx dan convert ke HTML
+            // Load hasil docx dan convert ke HTML.
+            // Template bisa berisi placeholder yang terpotong antar-run sehingga
+            // XML yang dihasilkan tidak valid dan loadXML memunculkan ErrorException
+            // — ditangani di bawah agar preview tidak crash.
             $phpWord = IOFactory::load($tmpPath, 'Word2007');
             $writer = IOFactory::createWriter($phpWord, 'HTML');
 
             ob_start();
             $writer->save('php://output');
             $fullHtml = ob_get_clean() ?: '';
+        } catch (\Throwable $e) {
+            // Template menghasilkan XML tidak valid (mis. placeholder kosong yang
+            // terpotong antar-run di DOCX). Jangan crash — tampilkan fallback.
+            if (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            logger()->warning('TemplatePreviewService gagal render preview', [
+                'jenis' => $jenisSurat,
+                'exception' => $e,
+            ]);
+
+            return $this->htmlPratinjauGagal();
         } finally {
             // Hapus temp file walau IOFactory::load throw
             @unlink($tmpPath);
@@ -225,6 +240,31 @@ class TemplatePreviewService
                 <div class="icon">📄</div>
                 <p style="font-size:14px; font-weight:600; color:#374151;">Template belum tersedia</p>
                 <p style="font-size:12px; margin-top:6px;">Upload template <strong>{$jenisSurat}</strong> di menu Template Surat</p>
+            </div>
+        </body>
+        </html>
+        HTML;
+    }
+
+    /**
+     * Fallback HTML saat template ada tapi gagal dirender (mis. XML tidak
+     * valid karena placeholder terpotong antar-run di DOCX).
+     */
+    private function htmlPratinjauGagal(): string
+    {
+        return <<<'HTML'
+        <!DOCTYPE html>
+        <html lang="id">
+        <head><meta charset="UTF-8"><style>
+            body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; background: #f9fafb; }
+            .box { text-align: center; color: #6b7280; padding: 32px; }
+            .icon { font-size: 48px; margin-bottom: 12px; }
+        </style></head>
+        <body>
+            <div class="box">
+                <div class="icon">📄</div>
+                <p style="font-size:14px; font-weight:600; color:#374151;">Pratinjau belum tersedia</p>
+                <p style="font-size:12px; margin-top:6px;">Lengkapi data atau periksa kembali template surat.</p>
             </div>
         </body>
         </html>
