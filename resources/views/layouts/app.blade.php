@@ -20,7 +20,7 @@
 
         {{-- Logo --}}
         <div class="flex h-16 shrink-0 items-center gap-3 border-b border-slate-100 px-5">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-10 w-10 shrink-0 rounded-full object-cover" />
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-10 w-10 shrink-0 object-contain" />
             <div class="min-w-0">
                 <p class="truncate text-sm font-bold text-slate-800">E-Administrasi</p>
                 <p class="truncate text-xs text-slate-400">Portal Akademik</p>
