@@ -17,12 +17,7 @@
     <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-brand-500 to-brand-700 px-12 py-16">
         {{-- Logo --}}
         <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                </svg>
-            </div>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-14 w-14 shrink-0 rounded-full object-cover bg-white/10" />
             <span class="text-base font-bold text-white">E-Administrasi Prodi</span>
         </div>
 
@@ -60,12 +55,7 @@
     <div class="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 py-12 lg:min-h-0">
         {{-- Logo mobile --}}
         <div class="mb-8 flex items-center gap-3 lg:hidden">
-            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500">
-                <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                </svg>
-            </div>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Prodi" class="h-12 w-12 shrink-0 rounded-full object-cover" />
             <span class="text-base font-bold text-slate-800">E-Administrasi Prodi</span>
         </div>
 
