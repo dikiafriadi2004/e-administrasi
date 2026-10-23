@@ -1,7 +1,7 @@
 <x-guest-layout>
 
     <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-900">Selamat datang 👋</h1>
+        <h1 class="text-2xl font-bold text-slate-900">Selamat datang</h1>
         <p class="mt-1.5 text-sm text-slate-500">Masuk ke akun Anda untuk melanjutkan</p>
     </div>
 
