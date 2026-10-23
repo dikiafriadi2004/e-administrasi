@@ -17,12 +17,12 @@
     <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-brand-500 to-brand-700 px-12 py-16">
         {{-- Logo --}}
         <div class="flex items-center gap-4">
-            <div class="h-14 w-14 shrink-0 flex items-center justify-center">
+            <div class="h-24 w-24 shrink-0 flex items-center justify-center">
                 <img src="{{ asset('images/logo-square.png') }}" alt="Logo Prodi" class="h-full w-full object-contain drop-shadow-md" />
             </div>
             <div>
-                <p class="text-sm font-bold leading-tight text-white">SISTEM ADMINISTRASI DIGITAL</p>
-                <p class="text-sm font-bold leading-tight text-white">ILMU KOMUNIKASI</p>
+                <p class="text-base font-bold leading-tight text-white">SISTEM ADMINISTRASI DIGITAL</p>
+                <p class="text-base font-bold leading-tight text-white">ILMU KOMUNIKASI</p>
             </div>
         </div>
 
@@ -60,7 +60,7 @@
     <div class="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 py-12 lg:min-h-0">
         {{-- Logo mobile --}}
         <div class="mb-8 flex items-center gap-3 lg:hidden">
-            <div class="h-14 w-14 shrink-0 flex items-center justify-center">
+            <div class="h-20 w-20 shrink-0 flex items-center justify-center">
                 <img src="{{ asset('images/logo-square.png') }}" alt="Logo Prodi" class="h-full w-full object-contain" />
             </div>
             <div>
