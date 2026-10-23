@@ -53,3 +53,4 @@ docker-compose.override.yml
 *.DS_Store
 ehthumbs.db
 /doc
+AGENTS.md
