@@ -24,10 +24,10 @@
         {{-- Teks tengah --}}
         <div class="space-y-5">
             <h2 class="text-3xl font-bold leading-snug text-white">
-                Kelola administrasi<br>akademik lebih mudah.
+                Satu Akses,<br>Semua Beres.
             </h2>
             <p class="text-base text-brand-100 leading-relaxed">
-                Pengajuan judul, seminar, sidang, dan surat keterangan aktif kuliah — semuanya dalam satu platform digital.
+                Portal Layanan Administrasi Digital Program Studi Ilmu Komunikasi, Fakultas Ilmu Sosial dan Ilmu Politik, Universitas Syiah Kuala.
             </p>
 
             <ul class="mt-6 space-y-3">
