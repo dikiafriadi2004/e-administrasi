@@ -51,15 +51,6 @@
                                     <textarea id="{{ $item->key }}" name="{{ $item->key }}"
                                               rows="2"
                                               class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-brand-400 focus:ring-brand-400 text-sm">{{ old($item->key, $item->value) }}</textarea>
-                                @elseif ($item->key === 'libreoffice_path')
-                                    <x-text-input :id="$item->key" :name="$item->key"
-                                                  type="text" class="mt-1 block w-full"
-                                                  :value="old($item->key, $item->value)"
-                                                  placeholder="Kosongkan = auto-detect (soffice di PATH)" />
-                                    <p class="mt-1 text-xs text-slate-400">
-                                        Linux VPS: kosongkan saja.
-                                        Windows: <code class="rounded bg-slate-100 px-1 font-mono text-xs">C:/Program Files/LibreOffice/program/soffice.exe</code>
-                                    </p>
                                 @else
                                     <x-text-input :id="$item->key" :name="$item->key"
                                                   type="text" class="mt-1 block w-full"

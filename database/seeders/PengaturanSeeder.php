@@ -36,7 +36,6 @@ class PengaturanSeeder extends Seeder
             ['key' => 'kode_prodi',       'label' => 'Kode Prodi (contoh: PK.01.06)',         'grup' => 'penomoran', 'value' => ''],
 
             // Sistem
-            ['key' => 'libreoffice_path', 'label' => 'Path LibreOffice (kosong = auto)',      'grup' => 'sistem',    'value' => ''],
         ];
 
         foreach ($defaults as $item) {
