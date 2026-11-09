@@ -8,7 +8,7 @@ COPY . .
 RUN npm run build
 
 # ── Stage 2: PHP production image ─────────────────────────────────────────────
-FROM php:8.2-fpm-bookworm AS php-base
+FROM php:8.4-fpm-bookworm AS php-base
 
 # System dependencies + LibreOffice headless
 RUN apt-get update && apt-get install -y --no-install-recommends \
