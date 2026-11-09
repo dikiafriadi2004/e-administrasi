@@ -279,9 +279,18 @@ class AntrianAkademikController extends Controller
     /** Download berkas syarat mahasiswa (untuk kaprodi) */
     public function downloadBerkas(BerkasPengajuan $berkas): StreamedResponse
     {
-        // Validasi scope: berkas harus terhubung ke pengajuan yang valid (mencegah IDOR).
+        // Validasi scope: berkas harus terhubung ke pengajuan akademik yang dikelola
+        // kaprodi (PengajuanJudul, atau PengajuanSurat jenis seminar/sidang).
+        // Mencegah IDOR lintas-jenis: kaprodi tidak boleh download berkas surat
+        // non-akademik (aktif_kuliah, izin_magang, dsb.) via route ini.
         $pengajuan = $berkas->pengajuan;
         abort_unless($pengajuan !== null, 403, 'Berkas tidak valid.');
+
+        $isAkademik = $pengajuan instanceof PengajuanJudul
+            || ($pengajuan instanceof PengajuanSurat
+                && in_array($pengajuan->jenis_surat, ['seminar_proposal', 'sidang_skripsi'], true));
+
+        abort_unless($isAkademik, 403, 'Akses ke berkas ini tidak diizinkan.');
         abort_unless(Storage::disk('private')->exists($berkas->path_file), 404, 'File tidak ditemukan.');
 
         return Storage::disk('private')->download($berkas->path_file, $berkas->nama_asli);
