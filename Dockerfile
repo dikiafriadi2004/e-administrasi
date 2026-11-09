@@ -10,7 +10,7 @@ RUN npm run build
 # ── Stage 2: PHP production image ─────────────────────────────────────────────
 FROM php:8.4-fpm-bookworm AS php-base
 
-# System dependencies + LibreOffice headless
+# System dependencies + LibreOffice headless (untuk konversi DOCX ke PDF jika diperlukan)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -52,7 +52,7 @@ COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 WORKDIR /var/www/html
 
-# Install Composer dependencies
+# Install Composer dependencies (layer terpisah agar cache efisien)
 COPY composer.json composer.lock ./
 RUN composer install \
     --no-dev \
@@ -61,13 +61,16 @@ RUN composer install \
     --prefer-dist \
     --optimize-autoloader
 
-# Copy aplikasi
+# Copy seluruh aplikasi
 COPY . .
 
-# Copy built frontend dari stage 1
+# Copy built frontend assets dari stage 1
 COPY --from=node-builder /app/public/build ./public/build
 
-# Setup storage & permissions
+# Jalankan post-install scripts (package:discover, dll)
+RUN composer run-script post-autoload-dump --no-interaction 2>/dev/null || true
+
+# Buat semua folder storage yang dibutuhkan & set permissions
 RUN mkdir -p \
         storage/app/private/templates \
         storage/app/private/undangan \

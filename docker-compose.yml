@@ -15,10 +15,11 @@ services:
       - .env
     volumes:
       - storage_private:/var/www/html/storage/app/private
-      - public_icons:/var/www/html/public/icons
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - eadmin_net
 
@@ -61,7 +62,7 @@ services:
     networks:
       - eadmin_net
 
-  # ── Redis (cache & session) ─────────────────────────────────────────────────
+  # ── Redis (cache, session & queue) ─────────────────────────────────────────
   redis:
     image: redis:7-alpine
     container_name: eadmin_redis
@@ -81,14 +82,18 @@ services:
     container_name: eadmin_queue
     restart: unless-stopped
     command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
     env_file:
       - .env
     volumes:
       - storage_private:/var/www/html/storage/app/private
-      - public_icons:/var/www/html/public/icons
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - eadmin_net
 
@@ -97,7 +102,6 @@ volumes:
   db_data:
   redis_data:
   storage_private:
-  public_icons:
   nginx_ssl:
 
 # ── Networks ─────────────────────────────────────────────────────────────────
