@@ -73,7 +73,7 @@ class PengajuanSuratController extends Controller
             'alamatInstansi' => ['required', 'string', 'max:500'],
             'tanggalMulai' => ['required', 'date'],
             'tanggalSelesai' => ['required', 'date', 'after_or_equal:tanggalMulai'],
-            'fileSuratInstansi' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+            'fileSuratInstansi' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:5120'],
         ]);
 
         $mahasiswa = auth()->user()->mahasiswa;
@@ -113,7 +113,7 @@ class PengajuanSuratController extends Controller
         $request->validate([
             'namaInstansi' => ['required', 'string', 'max:255'],
             'alamatInstansi' => ['required', 'string', 'max:500'],
-            'fileSuratInstansi' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+            'fileSuratInstansi' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:5120'],
         ]);
 
         $mahasiswa = auth()->user()->mahasiswa;
@@ -300,7 +300,7 @@ class PengajuanSuratController extends Controller
         $rules = ['tanggalRencana' => ['nullable', 'date', 'after:today']];
         foreach ($berkasLabels as $key => $label) {
             $isWajib = in_array($key, $berkasWajib);
-            $rules["berkas.{$key}"] = [$isWajib ? 'required' : 'nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'];
+            $rules["berkas.{$key}"] = [$isWajib ? 'required' : 'nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png', 'max:10240'];
         }
 
         $messages = [];
@@ -376,9 +376,9 @@ class PengajuanSuratController extends Controller
         }
 
         $request->validate([
-            'fileCover' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-            'fileRiwayatBimbingan' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'fileCover' => ['required', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:10240'],
+            'fileRiwayatBimbingan' => ['required', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:10240'],
+            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:10240'],
         ], [
             'fileCover.required' => 'Cover proposal yang telah di-ACC dosen pembimbing wajib diupload.',
             'fileCover.mimes' => 'Cover proposal harus berformat PDF, DOC, atau DOCX.',

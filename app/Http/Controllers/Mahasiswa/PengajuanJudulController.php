@@ -57,8 +57,8 @@ class PengajuanJudulController extends Controller
             'pendekatanPenelitian' => ['nullable', 'string', 'max:255'],
             'namaDosenwali' => ['nullable', 'string', 'max:255'],
             'namaDosenSpup' => ['nullable', 'string', 'max:255'],
-            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-            'fileSpup' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:10240'],
+            'fileSpup' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:10240'],
         ], [
             'judul.required' => 'Judul skripsi wajib diisi.',
             'judul.min' => 'Judul skripsi minimal 10 karakter.',
@@ -161,8 +161,8 @@ class PengajuanJudulController extends Controller
             'pendekatanPenelitian' => ['nullable', 'string', 'max:255'],
             'namaDosenwali' => ['nullable', 'string', 'max:255'],
             'namaDosenSpup' => ['nullable', 'string', 'max:255'],
-            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
-            'fileSpup' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            'fileBerkas.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:10240'],
+            'fileSpup' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'max:10240'],
         ]);
 
         $statusSebelumnya = $pengajuanJudul->status;
