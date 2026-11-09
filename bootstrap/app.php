@@ -24,6 +24,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureAdmin::class,
             'kaprodi' => EnsureKaprodi::class,
         ]);
+
+        // Trust proxies behind a CDN/load balancer so rate limiters and
+        // `request()->ip()` see the real client IP instead of the proxy.
+        // Empty/unset = trust none (current direct-nginx topology). Set to
+        // `*` or a comma-separated list of proxy IPs in production.
+        if ($proxies = env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // 419 CSRF token expired — refresh token dan redirect ke halaman yang sama
