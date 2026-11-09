@@ -39,6 +39,8 @@ class DashboardController extends Controller
                 ->get();
         }
 
-        return view('mahasiswa.dashboard', compact('judulAktif', 'suratAktif', 'jadwalMendatang'));
+        $passwordBelumDiganti = auth()->user()->password_changed_at === null;
+
+        return view('mahasiswa.dashboard', compact('judulAktif', 'suratAktif', 'jadwalMendatang', 'passwordBelumDiganti'));
     }
 }

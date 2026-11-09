@@ -23,7 +23,7 @@ class DashboardController extends Controller
     {
         // Surat masuk = semua jenis surat yang ditangani admin, baru diajukan & belum diproses
         $suratMasuk = PengajuanSurat::where('status', 'diajukan')
-            ->whereIn('jenis_surat', ['aktif_kuliah', 'izin_magang', 'rekomendasi_magang', 'izin_penelitian'])
+            ->whereIn('jenis_surat', ['aktif_kuliah', 'izin_magang', 'rekomendasi_magang', 'izin_penelitian', 'keluar_prodi'])
             ->count();
 
         // Pengajuan judul baru — belum diperiksa Admin
@@ -73,6 +73,11 @@ class DashboardController extends Controller
             }
         }
 
+        // Cek apakah ada pengaturan kritis yang belum diisi
+        $pengaturanKosong = Pengaturan::whereIn('key', ['nama_prodi', 'nama_kaprodi', 'kode_institusi', 'kode_prodi'])
+            ->where('value', '')
+            ->exists();
+
         return view('admin.dashboard', [
             'totalMahasiswaAktif' => User::where('role', 'mahasiswa')->where('is_active', true)->count(),
             'totalDosen' => Dosen::count(),
@@ -89,6 +94,7 @@ class DashboardController extends Controller
             'terakhirUpdateSemester' => $terakhirUpdateSemester,
             'semesterAktif' => Pengaturan::nilai('semester_aktif', '—'),
             'tahunAkademik' => Pengaturan::nilai('tahun_akademik', '—'),
+            'pengaturanKosong' => $pengaturanKosong,
         ]);
     }
 

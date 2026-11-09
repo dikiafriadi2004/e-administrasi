@@ -43,6 +43,7 @@ class RiwayatController extends Controller
                 'izin_magang',
                 'rekomendasi_magang',
                 'izin_penelitian',
+                'keluar_prodi',
             ])
             ->with('berkas')
             ->orderByDesc('created_at')

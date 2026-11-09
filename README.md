@@ -1,59 +1,150 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Administrasi Digital Ilmu Komunikasi — USK
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi manajemen administrasi akademik Program Studi Ilmu Komunikasi, Universitas Syiah Kuala (USK). Menangani pengajuan judul skripsi, surat aktif kuliah, surat magang, izin penelitian, penjadwalan seminar proposal, dan sidang skripsi secara digital.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack Teknologi
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Komponen | Versi |
+|---|---|
+| PHP | 8.4 |
+| Laravel | 12 |
+| Database | MySQL 8 |
+| Cache / Queue | Redis |
+| Containerisasi | Docker + Docker Compose |
+| Frontend | Tailwind CSS, Alpine.js, Vite |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Instalasi Development Lokal
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+# 1. Clone repository
+git clone <repo-url> e-administrasi
+cd e-administrasi
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 2. Salin konfigurasi environment
+cp .env.example .env
 
-## Laravel Sponsors
+# 3. Sesuaikan koneksi database di .env
+#    DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 4. Install dependensi PHP
+composer install
 
-### Premium Partners
+# 5. Install dependensi Node
+npm install
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 6. Build aset frontend
+npm run build
 
-## Contributing
+# 7. Jalankan installer — membuat key, migrasi, dan akun admin/kaprodi pertama
+php artisan aplikasi:install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Perintah `aplikasi:install` akan meminta:
+- Nama, email, dan password akun **Admin**
+- Nama, email, dan password akun **Kepala Prodi**
 
-## Code of Conduct
+Setelah selesai, akses aplikasi di `http://localhost:8000` (atau port dev server Anda).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Deploy Production dengan Docker
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# 1. Salin dan sesuaikan .env untuk production
+cp .env.example .env
+# Set APP_ENV=production, APP_DEBUG=false, DB_*, REDIS_*, dll.
 
-## License
+# 2. Jalankan semua service
+docker compose up -d
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 3. Jalankan installer di dalam container
+docker compose exec app php artisan aplikasi:install
+```
+
+Docker Compose menjalankan: `app` (PHP-FPM), `nginx`, `mysql`, dan `redis`.
+
+---
+
+## Login Pertama Setelah Install
+
+Gunakan kredensial yang dimasukkan saat `aplikasi:install` berjalan.
+
+| URL | Role |
+|---|---|
+| `/login` | Admin |
+| `/login` | Kepala Prodi |
+
+Mahasiswa login menggunakan email (diisi admin) dan password default = NIM.
+
+---
+
+## Pengaturan Sistem (Wajib Diisi)
+
+Setelah login sebagai **Admin**, buka **Pengaturan** di sidebar. Isi semua kolom berikut agar surat yang digenerate tidak kosong:
+
+| Key | Keterangan |
+|---|---|
+| `nama_prodi` | Nama Program Studi |
+| `nama_kaprodi` | Nama & gelar Kepala Program Studi |
+| `nip_kaprodi` | NIP Kepala Program Studi |
+| `kode_institusi` | Kode institusi (contoh: `UN11.F9`) |
+| `kode_prodi` | Kode prodi (contoh: `PK.01.06`) |
+| `nama_fakultas` | Nama Fakultas |
+| `nama_universitas` | Nama Universitas |
+| `alamat_prodi` | Alamat lengkap prodi |
+| `kota_prodi` | Kota untuk header tanggal surat |
+| `semester_aktif` | Semester aktif (Ganjil / Genap) |
+| `tahun_akademik` | Tahun akademik (contoh: `2025/2026`) |
+
+---
+
+## Role dan Akses
+
+| Role | Akses |
+|---|---|
+| **Admin** | Kelola data mahasiswa & dosen, proses antrian surat, atur jadwal seminar/sidang, upload scan TTD, kelola template surat, pengaturan sistem |
+| **Kepala Prodi (Kaprodi)** | Tinjau dan setujui pengajuan judul skripsi, tentukan dosen penguji, setujui jadwal seminar/sidang |
+| **Mahasiswa** | Ajukan judul skripsi, ajukan surat (aktif kuliah, magang, izin penelitian, keluar prodi), ajukan seminar & sidang, download surat selesai |
+
+---
+
+## Artisan Commands Custom
+
+```bash
+# Instalasi awal aplikasi (migrasi + buat akun admin & kaprodi)
+php artisan aplikasi:install
+
+# Buat template surat kosong (contoh: keluar_prodi)
+php artisan surat:buat-template {jenis_surat}
+
+# Inject placeholder ke file .docx template
+php artisan surat:inject-placeholder {jenis_surat}
+
+# Reset status pengajuan surat ke 'diajukan'
+php artisan surat:reset-pengajuan {id}
+
+# Uji generate surat dari template untuk pengajuan tertentu
+php artisan surat:test-generate {pengajuan_id}
+```
+
+---
+
+## Import Mahasiswa / Dosen dari Excel
+
+1. Login sebagai **Admin**
+2. Buka menu **Data Mahasiswa** atau **Data Dosen**
+3. Klik tombol **Import Excel**
+4. Unduh file contoh (template kolom tersedia di halaman tersebut)
+5. Isi data sesuai format, lalu upload
+
+Format file: `.xlsx`. Password default mahasiswa setelah import adalah **NIM** masing-masing.
+
+---
+
+## Kontribusi & Lisensi
+
+Proyek ini dikembangkan khusus untuk Program Studi Ilmu Komunikasi, USK. Tidak untuk distribusi publik.

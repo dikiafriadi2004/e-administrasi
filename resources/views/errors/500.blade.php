@@ -4,33 +4,49 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>500 — Kesalahan Server</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css'])
 </head>
-<body class="font-sans antialiased bg-gray-100">
+<body class="font-sans antialiased bg-slate-50">
     <div class="flex min-h-screen items-center justify-center px-4">
-        <div class="max-w-md w-full text-center">
-            <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100 text-4xl">
-                ⚠️
+        <div class="max-w-sm w-full text-center space-y-6">
+            {{-- Icon --}}
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-100">
+                <svg class="h-10 w-10 text-brand-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                </svg>
             </div>
-            <h1 class="text-5xl font-bold text-red-500 mb-3">500</h1>
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">Terjadi Kesalahan Server</h2>
-            <p class="text-gray-500 mb-6">
-                Terjadi kesalahan pada server. Tim teknis sudah diberitahu. Silakan coba lagi beberapa saat.
-            </p>
+
+            {{-- Text --}}
+            <div>
+                <h1 class="text-6xl font-bold text-brand-500">500</h1>
+                <h2 class="mt-2 text-xl font-semibold text-slate-800">Terjadi Kesalahan Server</h2>
+                <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                    Terjadi kesalahan pada server. Tim teknis sudah diberitahu. Silakan coba lagi beberapa saat.
+                </p>
+            </div>
+
+            {{-- Button --}}
             <div class="flex justify-center gap-3">
                 @auth
                     <a href="{{ route(auth()->user()->role . '.dashboard') }}"
-                       class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
-                        ← Kembali ke Dashboard
+                       class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 transition-colors">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        Kembali ke Dashboard
                     </a>
                 @else
                     <a href="{{ route('login') }}"
-                       class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                       class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 transition-colors">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
                         Login
                     </a>
                 @endauth
             </div>
-            <p class="mt-6 text-xs text-gray-400">E-Administrasi Prodi</p>
+
+            <p class="text-xs text-slate-400">E-Administrasi Prodi</p>
         </div>
     </div>
 </body>

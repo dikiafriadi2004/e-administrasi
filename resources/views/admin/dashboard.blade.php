@@ -9,6 +9,26 @@
             <p class="mt-1 text-sm text-slate-500">Ringkasan aktivitas sistem hari ini.</p>
         </div>
 
+        {{-- Banner pengaturan kritis belum diisi --}}
+        @if ($pengaturanKosong)
+            <div class="flex items-start gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+                    <x-icon name="triangle-alert" class="h-5 w-5 text-amber-600" />
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-amber-900">Pengaturan sistem belum lengkap</p>
+                    <p class="mt-0.5 text-xs text-amber-700">
+                        Beberapa pengaturan kritis belum diisi. Surat yang digenerate akan memiliki bagian yang kosong. Segera lengkapi di menu Pengaturan.
+                    </p>
+                    <a href="{{ route('admin.pengaturan.index') }}"
+                       class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition-colors">
+                        <x-icon name="settings" class="h-3.5 w-3.5" />
+                        Pergi ke Pengaturan →
+                    </a>
+                </div>
+            </div>
+        @endif
+
         {{-- Banner peringatan semester --}}
         @if ($peringatanSemester)
             <div class="flex items-start gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">

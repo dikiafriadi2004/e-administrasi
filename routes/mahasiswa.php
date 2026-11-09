@@ -40,6 +40,14 @@ Route::post('/pengajuan/rekomendasi-magang', [PengajuanSuratController::class, '
 Route::get('/pengajuan/izin-penelitian/create', [PengajuanSuratController::class, 'createIzinPenelitian'])->name('pengajuan.izin-penelitian.create');
 Route::post('/pengajuan/izin-penelitian', [PengajuanSuratController::class, 'storeIzinPenelitian'])->name('pengajuan.izin-penelitian.store');
 
+// Pengajuan Surat — Keluar Prodi
+Route::get('/pengajuan/keluar-prodi/create', [PengajuanSuratController::class, 'createKeluarProdi'])->name('pengajuan.keluar-prodi.create');
+Route::post('/pengajuan/keluar-prodi', [PengajuanSuratController::class, 'storeKeluarProdi'])->name('pengajuan.keluar-prodi.store');
+
+// Pengajuan Surat — Keluar Prodi
+Route::get('/pengajuan/keluar-prodi/create', [PengajuanSuratController::class, 'createKeluarProdi'])->name('pengajuan.keluar-prodi.create');
+Route::post('/pengajuan/keluar-prodi', [PengajuanSuratController::class, 'storeKeluarProdi'])->name('pengajuan.keluar-prodi.store');
+
 // Pengajuan Surat — Seminar Proposal
 Route::get('/pengajuan/seminar/create', [PengajuanSuratController::class, 'createSeminar'])->name('pengajuan.seminar.create');
 Route::post('/pengajuan/seminar', [PengajuanSuratController::class, 'storeSeminar'])->name('pengajuan.seminar.store');

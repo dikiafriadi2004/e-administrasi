@@ -136,6 +136,50 @@ class PengajuanSuratController extends Controller
         return redirect()->route('mahasiswa.riwayat.index')->with('success', 'Pengajuan Rekomendasi Magang berhasil dikirim.');
     }
 
+    /** Tampilkan form Surat Keluar Prodi. */
+    public function createKeluarProdi(): View
+    {
+        return view('mahasiswa.pengajuan.keluar-prodi.create');
+    }
+
+    /** POST — simpan pengajuan keluar prodi */
+    public function storeKeluarProdi(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'alasanKeluar' => ['required', 'string', 'max:1000'],
+            'tujuanPindah' => ['nullable', 'string', 'max:255'],
+        ], [
+            'alasanKeluar.required' => 'Alasan keluar wajib diisi.',
+            'alasanKeluar.max' => 'Alasan keluar maksimal 1000 karakter.',
+            'tujuanPindah.max' => 'Tujuan pindah maksimal 255 karakter.',
+        ]);
+
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        $pengajuan = PengajuanSurat::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'jenis_surat' => 'keluar_prodi',
+            'data_form' => [
+                'alasan_keluar' => $request->alasanKeluar,
+                'tujuan_pindah' => $request->tujuanPindah,
+            ],
+            'status' => 'diajukan',
+        ]);
+
+        StatusHistory::create([
+            'model_type' => PengajuanSurat::class,
+            'model_id' => $pengajuan->id,
+            'status_lama' => null,
+            'status_baru' => 'diajukan',
+            'catatan' => 'Pengajuan Surat Keluar Prodi disubmit.',
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('mahasiswa.riwayat.index')
+            ->with('success', 'Pengajuan Surat Keluar Prodi berhasil dikirim.');
+    }
+
     /** Tampilkan form Surat Izin Penelitian. */
     public function createIzinPenelitian(): View
     {
@@ -167,6 +211,10 @@ class PengajuanSuratController extends Controller
         }
 
         $request->validate(['fileCoverProposal' => ['required', 'file', 'mimes:pdf', 'mimetypes:application/pdf', 'max:10240']]);
+        $request->validate([
+            'tanggalMulai' => ['required', 'date'],
+            'tanggalSelesai' => ['required', 'date', 'after_or_equal:tanggalMulai'],
+        ]);
 
         $pengajuanJudul = PengajuanJudul::where('mahasiswa_id', $mahasiswa->id)->where('status', 'disetujui')->first();
 
@@ -174,7 +222,7 @@ class PengajuanSuratController extends Controller
             'mahasiswa_id' => $mahasiswa->id,
             'jenis_surat' => 'izin_penelitian',
             'pengajuan_judul_id' => $pengajuanJudul?->id,
-            'data_form' => ['judul_penelitian' => $pengajuanJudul?->judul ?? '', 'bidang_penelitian' => $pengajuanJudul?->bidang_kajian ?? '', 'seminar_id' => $seminar->id],
+            'data_form' => ['judul_penelitian' => $pengajuanJudul?->judul ?? '', 'bidang_penelitian' => $pengajuanJudul?->bidang_kajian ?? '', 'seminar_id' => $seminar->id, 'tanggal_mulai' => $request->tanggalMulai, 'tanggal_selesai' => $request->tanggalSelesai],
             'status' => 'diajukan',
         ]);
 
@@ -564,6 +612,49 @@ class PengajuanSuratController extends Controller
         return Storage::disk('private')->download($path, $namaFile);
     }
 
+    /** Tampilkan form Surat Keluar Prodi. */
+    public function createKeluarProdi(): View
+    {
+        return view('mahasiswa.pengajuan.keluar-prodi.create');
+    }
+
+    /** POST — simpan pengajuan keluar prodi */
+    public function storeKeluarProdi(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'alasanKeluar' => ['required', 'string', 'max:1000'],
+            'tujuanPindah' => ['nullable', 'string', 'max:255'],
+        ], [
+            'alasanKeluar.required' => 'Alasan keluar wajib diisi.',
+            'alasanKeluar.max' => 'Alasan keluar maksimal 1000 karakter.',
+        ]);
+
+        $mahasiswa = auth()->user()->mahasiswa;
+
+        $pengajuan = PengajuanSurat::create([
+            'mahasiswa_id' => $mahasiswa->id,
+            'jenis_surat' => 'keluar_prodi',
+            'data_form' => [
+                'alasan_keluar' => $request->alasanKeluar,
+                'tujuan_pindah' => $request->tujuanPindah,
+            ],
+            'status' => 'diajukan',
+        ]);
+
+        StatusHistory::create([
+            'model_type' => PengajuanSurat::class,
+            'model_id' => $pengajuan->id,
+            'status_lama' => null,
+            'status_baru' => 'diajukan',
+            'catatan' => 'Pengajuan Surat Keluar Prodi disubmit.',
+            'changed_by' => auth()->id(),
+            'created_at' => now(),
+        ]);
+
+        return redirect()->route('mahasiswa.riwayat.index')
+            ->with('success', 'Pengajuan Surat Keluar Prodi berhasil dikirim.');
+    }
+
     // ─── Private helpers ────────────────────────────────────────────────────
 
     /** Download berkas syarat yang diupload mahasiswa */
@@ -616,8 +707,7 @@ class PengajuanSuratController extends Controller
         return Storage::disk('private')->download($pengajuanSurat->$kolom, $nama);
     }
 
-    /** Download absensi seminar proposal milik mahasiswa (syarat izin penelitian). */
-    public function downloadAbsensi(PengajuanSurat $pengajuanSurat): StreamedResponse
+    /** Download absensi seminar proposal milik mahasiswa (syarat izin penelitian). */    public function downloadAbsensi(PengajuanSurat $pengajuanSurat): StreamedResponse
     {
         // Pastikan hanya pemilik yang bisa download
         abort_unless(

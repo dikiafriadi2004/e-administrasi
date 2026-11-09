@@ -20,6 +20,7 @@ class TemplateSuratController extends Controller
         'izin_magang' => 'Surat Izin Magang / PKL',
         'rekomendasi_magang' => 'Surat Rekomendasi Magang',
         'izin_penelitian' => 'Surat Izin Penelitian',
+        'keluar_prodi' => 'Surat Keluar Prodi',
     ];
 
     /** Daftar semua template aktif. */
@@ -235,6 +236,11 @@ class TemplateSuratController extends Controller
                 '${bidang_penelitian}' => ['desc' => 'Bidang penelitian',                     'sumber' => 'Diisi mahasiswa'],
                 '${tanggal_mulai}' => ['desc' => 'Tanggal mulai penelitian',              'sumber' => 'Diisi mahasiswa'],
                 '${tanggal_selesai}' => ['desc' => 'Tanggal selesai penelitian',            'sumber' => 'Diisi mahasiswa'],
+            ],
+
+            'keluar_prodi' => [
+                '${alasan_keluar}' => ['desc' => 'Alasan mahasiswa keluar/pindah prodi',  'sumber' => 'Diisi mahasiswa'],
+                '${tujuan_pindah}' => ['desc' => 'Nama universitas / prodi tujuan',        'sumber' => 'Diisi mahasiswa'],
             ],
 
             default => [],

@@ -10,6 +10,58 @@
             </p>
         </div>
 
+        {{-- Banner ganti password --}}
+        @if ($passwordBelumDiganti)
+            <div x-data="{ tampil: true }" x-show="tampil" x-transition>
+                <div class="flex items-start gap-4 rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-100">
+                        <x-icon name="shield-alert" class="h-5 w-5 text-sky-600" />
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-sky-900">Segera ganti password Anda</p>
+                        <p class="mt-0.5 text-xs text-sky-700">
+                            Password default Anda adalah NIM. Segera ganti untuk keamanan akun.
+                        </p>
+                        <a href="{{ route('mahasiswa.profil.show') }}"
+                           class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
+                            <x-icon name="key" class="h-3.5 w-3.5" />
+                            Ganti Password →
+                        </a>
+                    </div>
+                    <button @click="tampil = false" class="shrink-0 text-sky-400 hover:text-sky-600 transition-colors" aria-label="Tutup">
+                        <x-icon name="x" class="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+        @endif
+
+        {{-- Banner ganti password untuk mahasiswa baru --}}
+        @if ($passwordBelumDiganti)
+            <div x-data="{ tampil: true }" x-show="tampil"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="flex items-start gap-4 rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-100">
+                    <x-icon name="shield-alert" class="h-5 w-5 text-sky-600" />
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-sky-900">Segera ganti password Anda</p>
+                    <p class="mt-0.5 text-xs text-sky-700">
+                        Password default Anda adalah NIM. Segera ganti untuk keamanan akun.
+                    </p>
+                    <a href="{{ route('mahasiswa.profil.show') }}"
+                       class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-600 transition-colors">
+                        <x-icon name="key-round" class="h-3.5 w-3.5" />
+                        Ganti Password →
+                    </a>
+                </div>
+                <button @click="tampil = false" class="shrink-0 rounded-lg p-1 text-sky-400 hover:bg-sky-100 transition-colors">
+                    <x-icon name="x" class="h-4 w-4" />
+                </button>
+            </div>
+        @endif
+
         {{-- Jadwal Mendatang --}}
         @if ($jadwalMendatang->count())
             <div class="rounded-2xl border border-brand-200 bg-brand-50 p-5 shadow-sm">
@@ -221,6 +273,11 @@
                    class="inline-flex items-center gap-2 rounded-xl border border-pink-200 bg-pink-50 px-3 py-2 text-xs font-medium text-pink-700 hover:bg-pink-100 transition-colors">
                     <x-icon name="star" class="h-3.5 w-3.5" />
                     Rekomendasi Magang
+                </a>
+                <a href="{{ route('mahasiswa.pengajuan.keluar-prodi.create') }}"
+                   class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors">
+                    <x-icon name="log-out" class="h-3.5 w-3.5" />
+                    Keluar Prodi
                 </a>
             </div>
         </div>

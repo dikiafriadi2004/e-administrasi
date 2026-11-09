@@ -92,6 +92,21 @@
                         @error('fileCoverProposal') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
 
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <x-input-label for="tanggalMulai" value="Tanggal Mulai Penelitian *" />
+                            <x-text-input id="tanggalMulai" name="tanggalMulai" type="date" class="mt-1 block w-full"
+                                          value="{{ old('tanggalMulai') }}" required />
+                            @error('tanggalMulai') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <x-input-label for="tanggalSelesai" value="Tanggal Selesai Penelitian *" />
+                            <x-text-input id="tanggalSelesai" name="tanggalSelesai" type="date" class="mt-1 block w-full"
+                                          value="{{ old('tanggalSelesai') }}" required />
+                            @error('tanggalSelesai') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
                     <div class="flex flex-col gap-2 pt-1">
                         <button type="submit" class="w-full inline-flex items-center justify-center rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 transition-colors">
                             Ajukan Izin Penelitian

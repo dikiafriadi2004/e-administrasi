@@ -53,6 +53,9 @@
                 <x-sidebar-link :href="route('mahasiswa.pengajuan.izin-penelitian.create')" :active="request()->routeIs('mahasiswa.pengajuan.izin-penelitian.*')" icon="microscope">
                     Izin Penelitian
                 </x-sidebar-link>
+                <x-sidebar-link :href="route('mahasiswa.pengajuan.keluar-prodi.create')" :active="request()->routeIs('mahasiswa.pengajuan.keluar-prodi.*')" icon="log-out">
+                    Keluar Prodi
+                </x-sidebar-link>
                 <x-sidebar-link :href="route('mahasiswa.pengajuan.seminar.create')" :active="request()->routeIs('mahasiswa.pengajuan.seminar.*')" icon="presentation">
                     Seminar Proposal
                 </x-sidebar-link>
@@ -70,7 +73,7 @@
                 @php
                     $badgeAntrianJudul = \App\Models\PengajuanJudul::where('status', 'diajukan')->count();
                     $badgeSuratMasuk = \App\Models\PengajuanSurat::where('status', 'diajukan')
-                        ->whereIn('jenis_surat', ['aktif_kuliah', 'izin_magang', 'rekomendasi_magang', 'izin_penelitian'])
+                        ->whereIn('jenis_surat', ['aktif_kuliah', 'izin_magang', 'rekomendasi_magang', 'izin_penelitian', 'keluar_prodi'])
                         ->count();
 
                     $badgeJadwal = \App\Models\PengajuanSurat::whereIn('jenis_surat', ['seminar_proposal', 'sidang_skripsi'])
