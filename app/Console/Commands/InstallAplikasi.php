@@ -9,7 +9,14 @@ use Illuminate\Support\Facades\Schema;
 
 class InstallAplikasi extends Command
 {
-    protected $signature = 'aplikasi:install';
+    protected $signature = 'aplikasi:install
+                            {--admin-nama= : Nama lengkap admin}
+                            {--admin-email= : Email admin}
+                            {--admin-password= : Password admin}
+                            {--kaprodi-nama= : Nama lengkap kaprodi}
+                            {--kaprodi-email= : Email kaprodi}
+                            {--kaprodi-password= : Password kaprodi}
+                            {--force : Skip konfirmasi jika sudah pernah install}';
 
     protected $description = 'Instalasi awal aplikasi — buat akun admin dan kaprodi';
 
@@ -24,7 +31,7 @@ class InstallAplikasi extends Command
         $this->line('');
 
         // ── Step 1: Cek sudah install ─────────────────────────────────────────
-        if (Schema::hasTable('users') && User::exists()) {
+        if (Schema::hasTable('users') && User::exists() && ! $this->option('force')) {
             $this->warn('Aplikasi sepertinya sudah pernah diinstall.');
             if (! $this->confirm('Lanjutkan instalasi ulang? Data akun lama tidak akan dihapus.')) {
                 return 0;
@@ -80,47 +87,72 @@ class InstallAplikasi extends Command
     }
 
     /**
-     * Loop interaktif hingga input valid, lalu buat user.
-     *
-     * @param  string  $role  'admin' atau 'kaprodi'
-     * @param  string|null  $emailLain  Email yang tidak boleh dipakai (untuk kaprodi)
+     * Buat akun user — pakai option jika tersedia, fallback ke prompt interaktif.
      */
     private function buatAkun(string $role, ?string $emailLain = null): string
     {
-        while (true) {
-            $nama = $this->ask('Nama lengkap '.($role === 'admin' ? 'admin' : 'kaprodi'));
+        $namaOpt = $this->option("{$role}-nama");
+        $emailOpt = $this->option("{$role}-email");
+        $passwordOpt = $this->option("{$role}-password");
 
-            $email = $this->ask('Email '.($role === 'admin' ? 'admin' : 'kaprodi'));
+        // ── Mode non-interaktif (semua option tersedia) ───────────────────────
+        if ($namaOpt && $emailOpt && $passwordOpt) {
+            $this->validasiEmail($emailOpt, $emailLain, true);
+            $this->validasiPassword($passwordOpt, true);
+
+            User::create([
+                'name' => $namaOpt,
+                'email' => $emailOpt,
+                'password' => Hash::make($passwordOpt),
+                'role' => $role,
+                'is_active' => true,
+            ]);
+
+            return $emailOpt;
+        }
+
+        // ── Mode interaktif (prompt) ──────────────────────────────────────────
+        $label = $role === 'admin' ? 'admin' : 'kaprodi';
+
+        while (true) {
+            $nama = $namaOpt ?? $this->ask("Nama lengkap {$label}");
+            $email = $emailOpt ?? $this->ask("Email {$label}");
 
             if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $this->error('✗ Format email tidak valid.');
+                $namaOpt = null;
+                $emailOpt = null;
 
                 continue;
             }
 
             if ($emailLain !== null && $email === $emailLain) {
                 $this->error('✗ Email tidak boleh sama dengan email Admin.');
+                $emailOpt = null;
 
                 continue;
             }
 
             if (User::where('email', $email)->exists()) {
                 $this->error('✗ Email sudah terdaftar.');
+                $emailOpt = null;
 
                 continue;
             }
 
-            $password = $this->secret('Password (min. 8 karakter)');
-            $konfirmasi = $this->secret('Konfirmasi password');
+            $password = $passwordOpt ?? $this->secret('Password (min. 8 karakter)');
+            $konfirmasi = $passwordOpt ?? $this->secret('Konfirmasi password');
 
             if (strlen($password) < 8) {
                 $this->error('✗ Password minimal 8 karakter.');
+                $passwordOpt = null;
 
                 continue;
             }
 
             if ($password !== $konfirmasi) {
                 $this->error('✗ Password dan konfirmasi tidak cocok.');
+                $passwordOpt = null;
 
                 continue;
             }
@@ -134,6 +166,38 @@ class InstallAplikasi extends Command
             ]);
 
             return $email;
+        }
+    }
+
+    /**
+     * Validasi email untuk mode non-interaktif — throw error jika tidak valid.
+     */
+    private function validasiEmail(string $email, ?string $emailLain, bool $nonInteraktif): void
+    {
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->error("✗ Format email tidak valid: {$email}");
+            exit(1);
+        }
+
+        if ($emailLain !== null && $email === $emailLain) {
+            $this->error('✗ Email kaprodi tidak boleh sama dengan email admin.');
+            exit(1);
+        }
+
+        if (User::where('email', $email)->exists()) {
+            $this->error("✗ Email sudah terdaftar: {$email}");
+            exit(1);
+        }
+    }
+
+    /**
+     * Validasi password untuk mode non-interaktif.
+     */
+    private function validasiPassword(string $password, bool $nonInteraktif): void
+    {
+        if (strlen($password) < 8) {
+            $this->error('✗ Password minimal 8 karakter.');
+            exit(1);
         }
     }
 }
