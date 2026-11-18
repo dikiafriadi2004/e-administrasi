@@ -27,6 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'password.changed' => EnsurePasswordChanged::class,
         ]);
 
+        // Global rate limit — 120 request/menit per IP untuk semua web route
+        // Mencegah HTTP flood / DDoS layer 7
+        $middleware->throttleWithRedis('120,1');
+
         // Trust proxies behind a CDN/load balancer so rate limiters and
         // `request()->ip()` see the real client IP instead of the proxy.
         // Empty/unset = trust none (current direct-nginx topology). Set to
