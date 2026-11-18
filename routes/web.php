@@ -18,7 +18,7 @@ Route::middleware('auth')
     ->name('preview-surat');
 
 // Mahasiswa routes
-Route::middleware(['auth', 'mahasiswa'])
+Route::middleware(['auth', 'mahasiswa', 'password.changed'])
     ->prefix('mahasiswa')
     ->name('mahasiswa.')
     ->group(base_path('routes/mahasiswa.php'));

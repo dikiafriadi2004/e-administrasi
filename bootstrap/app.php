@@ -5,6 +5,7 @@ use App\Exceptions\SuratGenerationException;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureKaprodi;
 use App\Http\Middleware\EnsureMahasiswa;
+use App\Http\Middleware\EnsurePasswordChanged;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'mahasiswa' => EnsureMahasiswa::class,
             'admin' => EnsureAdmin::class,
             'kaprodi' => EnsureKaprodi::class,
+            'password.changed' => EnsurePasswordChanged::class,
         ]);
 
         // Trust proxies behind a CDN/load balancer so rate limiters and

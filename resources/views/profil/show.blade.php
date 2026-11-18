@@ -3,6 +3,13 @@
 
     <div class="mx-auto max-w-xl space-y-5">
 
+        @if (session('error'))
+            <div class="rounded-2xl border border-red-300 bg-red-50 px-5 py-4 text-sm text-red-800">
+                <p class="font-semibold">Perhatian</p>
+                <p class="mt-1">{{ session('error') }}</p>
+            </div>
+        @endif
+
         {{-- Info Akun --}}
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="mb-4 text-base font-semibold text-slate-800">Informasi Akun</h2>
