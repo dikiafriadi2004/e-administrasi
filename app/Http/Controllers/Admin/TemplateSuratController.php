@@ -127,6 +127,7 @@ class TemplateSuratController extends Controller
             '${kode_institusi}' => ['desc' => 'Kode institusi dari Pengaturan (contoh: UN11.F9)',               'sumber' => 'Pengaturan Sistem'],
             '${kode_prodi}' => ['desc' => 'Kode prodi dari Pengaturan (contoh: PK.01.06)',                'sumber' => 'Pengaturan Sistem'],
             '${bulan_surat}' => ['desc' => 'Bulan generate 2 digit otomatis (contoh: 08)',                 'sumber' => 'Otomatis saat generate'],
+            '${nama_bulan_surat}' => ['desc' => 'Nama bulan generate (contoh: Agustus)',                   'sumber' => 'Otomatis saat generate'],
             '${tahun_surat}' => ['desc' => 'Tahun generate 4 digit otomatis (contoh: 2026)',               'sumber' => 'Otomatis saat generate'],
             '${nomor_surat}' => ['desc' => 'Nomor penuh (alternatif jika hanya butuh 1 kolom)',            'sumber' => 'Diisi admin saat generate'],
             // ── Tanggal ───────────────────────────────────────────────────────────────

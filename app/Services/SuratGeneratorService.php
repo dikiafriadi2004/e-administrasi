@@ -134,6 +134,7 @@ class SuratGeneratorService
         $kodeInstitusi = Pengaturan::nilai('kode_institusi', '');
         $kodeProdi = Pengaturan::nilai('kode_prodi', '');
         $bulanSurat = now()->format('m');
+        $namaBulanSurat = now()->locale('id')->isoFormat('MMMM'); // Oktober, November, dll
         $tahunSurat = now()->format('Y');
 
         // Jika pengajuan sudah punya nomor_surat penuh (dari input admin), gunakan itu.
@@ -145,13 +146,13 @@ class SuratGeneratorService
         }
 
         return [
-            // ── Nomor surat — tiap bagian jadi placeholder sendiri ────────────
-            'nomor_surat' => $pengajuan->nomor_surat ?? '',  // backward compat
-            'nomor_urut' => $nomorUrut,
-            'kode_institusi' => $kodeInstitusi,
-            'kode_prodi' => $kodeProdi,
-            'bulan_surat' => $bulanSurat,
-            'tahun_surat' => $tahunSurat,
+            'nomor_surat'      => $pengajuan->nomor_surat ?? '',  // backward compat
+            'nomor_urut'       => $nomorUrut,
+            'kode_institusi'   => $kodeInstitusi,
+            'kode_prodi'       => $kodeProdi,
+            'bulan_surat'      => $bulanSurat,       // angka: 01, 02, ... 12
+            'nama_bulan_surat' => $namaBulanSurat,   // teks: Januari, Februari, ... Desember
+            'tahun_surat'      => $tahunSurat,
 
             // ── Universal ─────────────────────────────────────────────────────
             'tanggal_surat' => $tanggalSurat,
