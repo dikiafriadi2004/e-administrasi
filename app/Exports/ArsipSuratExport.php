@@ -101,17 +101,30 @@ class ArsipSuratExport implements FromQuery, WithColumnWidths, WithHeadings, Wit
 
         return [
             $this->no,
-            $row->mahasiswa?->nim ?? '-',
-            $row->mahasiswa?->user?->name ?? '-',
+            $this->sanitizeCsv($row->mahasiswa?->nim ?? '-'),
+            $this->sanitizeCsv($row->mahasiswa?->user?->name ?? '-'),
             self::JENIS_LIST[$row->jenis_surat] ?? $row->jenis_surat,
-            $row->nomor_surat ?? '-',
+            $this->sanitizeCsv($row->nomor_surat ?? '-'),
             self::STATUS_LIST[$row->status] ?? $row->status,
             $row->created_at?->format('d/m/Y'),
             $row->status === 'selesai' ? $row->updated_at?->format('d/m/Y') : '-',
-            $row->pengajuanJudul?->dosenPembimbing?->nama ?? '-',
-            $row->dosenPenguji?->nama ?? '-',
-            $row->catatan_penolakan ?? '-',
+            $this->sanitizeCsv($row->pengajuanJudul?->dosenPembimbing?->nama ?? '-'),
+            $this->sanitizeCsv($row->dosenPenguji?->nama ?? '-'),
+            $this->sanitizeCsv($row->catatan_penolakan ?? '-'),
         ];
+    }
+
+    /**
+     * Sanitasi CSV Injection — prefix tab pada nilai yang diawali karakter formula.
+     * Referensi: OWASP CSV Injection.
+     */
+    private function sanitizeCsv(string $value): string
+    {
+        if (in_array(mb_substr($value, 0, 1), ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "\t".$value;
+        }
+
+        return $value;
     }
 
     public function styles(Worksheet $sheet): array

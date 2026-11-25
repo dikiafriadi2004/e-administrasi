@@ -98,16 +98,22 @@ class PengajuanSurat extends Model
      * Format: {nim}_{nama_depan}_{jenis_surat}.{ext}
      * Contoh: 1215_Herman_seminar_proposal.docx
      */
-    public static function namaFileDownload(PengajuanSurat $surat, string $ext): string
+    public static function namaFileDownload(PengajuanSurat $surat, string $tipe): string
     {
         $nim = $surat->mahasiswa?->nim ?? 'mahasiswa';
         $nama = $surat->mahasiswa?->user?->name ?? '';
-        // Ambil nama depan saja (kata pertama)
         $namaDepan = explode(' ', trim($nama))[0];
         $jenis = $surat->jenis_surat;
 
         $bagian = array_filter([$nim, $namaDepan, $jenis], fn ($v) => $v !== '');
         $slug = preg_replace('/[^A-Za-z0-9\-_]/', '_', implode('_', $bagian));
+
+        // Mapping tipe ke ekstensi file yang benar
+        $ext = match ($tipe) {
+            'docx' => 'docx',
+            'scan' => 'pdf',  // scan TTD selalu PDF
+            default => $tipe,
+        };
 
         return $slug.'.'.$ext;
     }
